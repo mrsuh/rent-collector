@@ -1,0 +1,17 @@
+# This file is auto-generated during the composer install
+parameters:
+    dir.tmp: '%kernel.root_dir%/../var/tmp'
+    bin.tomita: '%kernel.root_dir%/../tomita/tomita-mac'
+    file.config.parser: '%kernel.root_dir%/config/parser.yml'
+    file.config.tomita.area: '%kernel.root_dir%/../tomita/area/config.proto'
+    file.config.tomita.contact: '%kernel.root_dir%/../tomita/contact/config.proto'
+    file.config.tomita.price: '%kernel.root_dir%/../tomita/price/config.proto'
+    file.config.tomita.type: '%kernel.root_dir%/../tomita/type/config.proto'
+    file.black_list.person: '%kernel.root_dir%/config/black_list.person.yml'
+    file.black_list.description: '%kernel.root_dir%/config/black_list.description.yml'
+    file.test.texts: '%kernel.root_dir%/config/black_list.description.yml'
+    file.test.vk_comment: '%kernel.root_dir%/config/black_list.description.yml'
+    file.test.vk_market: '%kernel.root_dir%/config/black_list.description.yml'
+    file.test.vk_wall: '%kernel.root_dir%/config/black_list.description.yml'
+    file.fixtures.city: '%kernel.root_dir%/../fixtures/city.yml'
+    file.fixtures.subway: '%kernel.root_dir%/../fixtures/subway.yml'

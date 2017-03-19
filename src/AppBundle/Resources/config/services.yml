@@ -1,0 +1,128 @@
+parameters:
+    guzzle:
+        timeout: "%guzzle.timeout%"
+        connect_timeout: "%guzzle.connect_timeout%"
+
+services:
+
+#odm ==================================================================
+    odm.dbal:
+       class: AppBundle\ODM\DBAL
+       arguments:
+           - "%database_host%"
+           - "%database_port%"
+           - "%database_name%"
+           
+    odm.data.mapper.factory:
+       class: AppBundle\ODM\DocumentMapper\DataMapperFactory
+       arguments:
+           - "@odm.dbal"
+
+#odm ==================================================================
+
+
+#clients =============================================================
+
+    client.http:
+        class: AppBundle\Service\Client\Http
+        arguments:
+            - "%guzzle%"
+
+#clients =============================================================
+
+
+#parsers =============================================================
+
+    parser.area.factory:
+        class: AppBundle\Model\Parser\Area\AreaParserFactory
+        arguments:
+            - '%bin.tomita%'
+            - '%file.config.tomita.area%'
+
+    parser.contact.factory:
+        class: AppBundle\Model\Parser\Contact\ContactParserFactory
+        arguments:
+            - '%bin.tomita%'
+            - '%file.config.tomita.contact%'
+
+    parser.type.factory:
+        class: AppBundle\Model\Parser\Type\TypeParserFactory
+        arguments:
+            - '%bin.tomita%'
+            - '%file.config.tomita.type%'
+
+    parser.price.factory:
+        class: AppBundle\Model\Parser\Price\PriceParserFactory
+        arguments:
+            - '%bin.tomita%'
+            - '%file.config.tomita.price%'
+
+    parser.subway.factory:
+        class: AppBundle\Model\Parser\Subway\SubwayParserFactory
+        arguments:
+            - "@odm.data.mapper.factory"
+
+    parser.datetime.factory:
+        class: AppBundle\Model\Parser\DateTime\DateTimeParserFactory
+
+    parser.description.factory:
+        class: AppBundle\Model\Parser\Description\DescriptionParserFactory
+
+    parser.photo.factory:
+        class: AppBundle\Model\Parser\Photo\PhotoParserFactory
+
+
+    filter.pre.date:
+        class: AppBundle\Model\Filter\PreDateFilter
+
+    filter.pre.unique:
+        class: AppBundle\Model\Filter\PreUniqueFilter
+        arguments:
+            - "@odm.data.mapper.factory"
+
+
+#parsers =============================================================
+
+
+#explorers ===========================================================
+
+    explorer.contact.factory:
+        class: AppBundle\Model\Explorer\Contact\ContactExplorerFactory
+        arguments:
+            - "@client.http"
+
+#explorers ===========================================================
+
+#collectors =============================================================
+
+    collector.factory:
+        class: AppBundle\Model\Collector\CollectorFactory
+        arguments:
+            - '@client.http'
+            - '%dir.tmp%'
+
+
+#collectors =============================================================
+
+
+    filter.post.unique:
+        class: AppBundle\Model\Filter\PostUniqueFilter
+        arguments:
+            - "@odm.data.mapper.factory"
+
+    filter.post.active:
+        class: AppBundle\Model\Filter\PostActiveFilter
+        arguments:
+            - "@odm.data.mapper.factory"
+
+    filter.black_list.description:
+        class: AppBundle\Model\Filter\DescriptionBlackListFilter
+        arguments:
+            - "@odm.data.mapper.factory"
+            - "%file.black_list.description%"
+
+    filter.black_list.person:
+        class: AppBundle\Model\Filter\PersonBlackListFilter
+        arguments:
+            - "@odm.data.mapper.factory"
+            - "%file.black_list.person%"

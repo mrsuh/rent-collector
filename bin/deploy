@@ -1,0 +1,26 @@
+#!/bin/sh
+
+cd "$( cd `dirname $0` && pwd )/.."
+
+if [ ! -z "`command -v composer`" ] ; then
+  composer config -g github-oauth.github.com 039ab9ce113a2639216e82b9f5e123a2a722fb01
+  composer install --prefer-dist --no-interaction
+  composer dumpautoload -o
+else
+  [ ! -e "composer.phar" ] && php -r "readfile('https://getcomposer.org/installer');" | php
+  php composer.phar config -g github-oauth.github.com 039ab9ce113a2639216e82b9f5e123a2a722fb01
+  php composer.phar install --prefer-dist --no-interaction
+  php composer.phar dumpautoload -o
+fi
+
+files[1]='app/config/black_list.description.yml'
+files[2]='app/config/black_list.person.yml'
+files[3]='app/config/parser.yml'
+
+for f in "${files[@]}";  do
+if [ ! -f $f ]; then
+    cp $f.dist $f
+fi
+done
+
+php bin/console cache:clear --env=prod

@@ -1,0 +1,2 @@
+* * * * * /bin/sh {dir}/bin/crontab/collect
+0 0 * * * /bin/sh {dir}/bin/crontab/filter

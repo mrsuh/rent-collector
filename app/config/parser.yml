@@ -1,0 +1,175 @@
+-
+    type: vk.com:comment
+    name: 'Без агентов- Сдам | Сниму | Квартиру | Комнату |'
+    link: 'https://vk.com/topic-40633321_31885617'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 40633321
+        topic_id: 31885617
+        count: 100
+        v: '5.62'
+-
+    type: vk.com:comment
+    name: 'Уютное гнездышко / поиск жилья и соседей / СПБ'
+    link: 'https://vk.com/topic-40633321_31885634'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 40633321
+        topic_id: 31885634
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'Сдать Снять квартиру в Питере СПб'
+    link: 'https://vk.com/topic-14631557_22122774'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 14631557
+        topic_id: 22122774
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'Сдам - Сниму квартиру Питер - Аренда жилой недви'
+    link: 'https://vk.com/topic-12860907_22060061'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 12860907
+        topic_id: 22060061
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'СНИМУ, СДАМ КВАРТИРУ БЕЗ АГЕНТОВ В ПИТЕРЕ'
+    link: 'https://vk.com/topic-57226628_29152468'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 57226628
+        topic_id: 29152468
+        count: 100
+        v: '5.62'
+-
+    type: vk.com:comment
+    name: 'СНИМУ, СДАМ КВАРТИРУ БЕЗ АГЕНТОВ В ПИТЕРЕ'
+    link: 'https://vk.com/topic-57226628_28842938'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 57226628
+        topic_id: 28842938
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'Снять / Сдать / Продам комнату / квартиру Питер'
+    link: 'https://vk.com/topic-101215582_32903426'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 101215582
+        topic_id: 32903426
+        count: 100
+        v: '5.62'
+-
+    type: vk.com:comment
+    name: 'СДАТЬ / СНЯТЬ - КВАРТИРУ, КОМНАТУ в СПБ, Питере'
+    link: 'https://vk.com/topic-119897580_33575120'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 119897580
+        topic_id: 33575120
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'купить продать снять сдать квартиру спб питер ко'
+    link: 'https://vk.com/topic-41037056_30623722'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 41037056
+        topic_id: 30623722
+        count: 100
+        v: '5.62'
+-
+    type: vk.com:comment
+    name: 'купить продать снять сдать квартиру спб питер ко'
+    link: 'https://vk.com/topic-41037056_33847316'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 41037056
+        topic_id: 33847316
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'Уютное гнездышко / поиск жилья и соседей / СПБ'
+    link: 'https://vk.com/topic-57466174_31977455'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 57466174
+        topic_id: 31977455
+        count: 100
+        v: '5.62'
+
+-
+    type: vk.com:comment
+    name: 'Уютное гнездышко / поиск жилья и соседей / СПБ'
+    link: 'https://vk.com/topic-57466174_31977407'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/board.getComments'
+    city: spb
+    data:
+        group_id: 57466174
+        topic_id: 31977407
+        count: 100
+        v: '5.62'
