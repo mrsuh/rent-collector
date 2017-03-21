@@ -44,10 +44,13 @@ class Note extends Document
 
     private $active;
 
+    private $deleted;
+
     public function __construct()
     {
         $this->id        = uniqid();
         $this->active    = false;
+        $this->deleted = false;
         $this->photos    = [];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
@@ -336,6 +339,25 @@ class Note extends Document
     public function setActive(bool $active)
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param bool $deleted
+     * @return $this
+     */
+    public function setDeleted(bool $deleted)
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

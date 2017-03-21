@@ -17,7 +17,7 @@ class SubwayCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $list = Yaml::parse(file_get_contents($this->getContainer()->getParameter('kernel.root_dir') . '/fixtures/subway.yml'));
+        $list = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.fixtures.subway')));
 
         $dm_factory = $this->getContainer()->get('odm.data.mapper.factory');
         $dm_subway  = $dm_factory->init(Subway::class);

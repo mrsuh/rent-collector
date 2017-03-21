@@ -21,11 +21,13 @@ class FilterCommand extends ContainerAwareCommand
 
         $filter_date = $this->getContainer()->get('filter.pre.date');
 
-        $notes = $dm_note->find(['active' => true]);
+        $notes = $dm_note->find(['active' => true, 'deleted' => false]);
 
         foreach ($notes as $note) {
             if (!$filter_date->check($note)) {
-                $dm_note->delete($note);
+                $note->setActive(false);
+                $note->setDeleted(true);
+                $dm_note->update($note);
             };
         }
     }
