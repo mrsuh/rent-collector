@@ -1,4 +1,9 @@
 /app/config/parameters.yml
+/app/config/parameters.dir.yml
+/app/config/black_list.person.yml
+/app/config/black_list.description.yml
+/app/config/crontab
+/app/config/parser.yml
 /build/
 /phpunit.xml
 /var/*
