@@ -42,8 +42,6 @@ class TypeCommand extends ContainerAwareCommand
 
             $str = sprintf('[ %d / %d ] %d %s pt', $count, $index, $success, number_format(($success * 100 / (++$index)), 2));
             $output->writeln('<info>' . $str . '</info>');
-
-            $index++;
         }
 
         file_put_contents('errors_type.yml', Yaml::dump($errors, 2));
