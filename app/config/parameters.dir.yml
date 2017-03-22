@@ -1,15 +1,15 @@
 # This file is auto-generated during the composer install
 parameters:
     dir.tmp: '%kernel.root_dir%/../var/tmp'
-    bin.tomita: tomita
+    bin.tomita: '/Users/newuser/web/rent-tomita/bin/tomita'
     file.config.parser: '%kernel.root_dir%/config/parser.yml'
-    file.config.tomita.area: tomita/area/config.proto
-    file.config.tomita.contact: tomita/contact/config.proto
-    file.config.tomita.price: tomita/price/config.proto
-    file.config.tomita.type: tomita/type/config.proto
+    file.config.tomita.area: '/Users/newuser/web/rent-tomita/tomita/area/config.proto'
+    file.config.tomita.contact: '/Users/newuser/web/rent-tomita/tomita/contact/config.proto'
+    file.config.tomita.price: '/Users/newuser/web/rent-tomita/tomita/price/config.proto'
+    file.config.tomita.type: '/Users/newuser/web/rent-tomita/tomita/type/config.proto'
     file.black_list.person: '%kernel.root_dir%/config/black_list.person.yml'
     file.black_list.description: '%kernel.root_dir%/config/black_list.description.yml'
-    file.test.texts: tests/texts.yml
+    file.test.texts: '/Users/newuser/web/rent-tomita/tests/texts.yml'
     file.test.vk_comment: tests/vk_comment.json
     file.test.vk_market: tests/vk_market.json
     file.test.vk_wall: tests/vk_wall.json

@@ -346,7 +346,7 @@ class Note extends Document
     /**
      * @return bool
      */
-    public function isDeleted(): bool
+    public function getDeleted(): bool
     {
         return $this->deleted;
     }
