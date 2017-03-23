@@ -7,14 +7,14 @@ services:
 
 #odm ==================================================================
     odm.dbal:
-       class: AppBundle\ODM\DBAL
+       class: ODM\DBAL
        arguments:
            - "%database_host%"
            - "%database_port%"
            - "%database_name%"
            
     odm.data.mapper.factory:
-       class: AppBundle\ODM\DocumentMapper\DataMapperFactory
+       class: ODM\DocumentMapper\DataMapperFactory
        arguments:
            - "@odm.dbal"
 

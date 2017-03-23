@@ -29,7 +29,8 @@
     "sunra/php-simple-html-dom-parser": "^1.5",
     "guzzlehttp/guzzle": "^6.2",
     "symfony/yaml": "^3.1",
-    "friendsofsymfony/rest-bundle": "^2.1"
+    "friendsofsymfony/rest-bundle": "^2.1",
+    "mrsuh/mongo-odm": "1.*"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",

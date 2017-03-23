@@ -49,11 +49,11 @@ class Requirement
      */
     public function __construct($fulfilled, $testMessage, $helpHtml, $helpText = null, $optional = false)
     {
-        $this->fulfilled   = (bool)$fulfilled;
-        $this->testMessage = (string)$testMessage;
-        $this->helpHtml    = (string)$helpHtml;
-        $this->helpText    = null === $helpText ? strip_tags($this->helpHtml) : (string)$helpText;
-        $this->optional    = (bool)$optional;
+        $this->fulfilled = (bool) $fulfilled;
+        $this->testMessage = (string) $testMessage;
+        $this->helpHtml = (string) $helpHtml;
+        $this->helpText = null === $helpText ? strip_tags($this->helpHtml) : (string) $helpText;
+        $this->optional = (bool) $optional;
     }
 
     /**
@@ -171,7 +171,7 @@ class RequirementCollection implements IteratorAggregate
     /**
      * @var Requirement[]
      */
-    private $requirements = [];
+    private $requirements = array();
 
     /**
      * Gets the current RequirementCollection as an Iterator.
@@ -282,7 +282,7 @@ class RequirementCollection implements IteratorAggregate
      */
     public function getRequirements()
     {
-        $array = [];
+        $array = array();
         foreach ($this->requirements as $req) {
             if (!$req->isOptional()) {
                 $array[] = $req;
@@ -299,7 +299,7 @@ class RequirementCollection implements IteratorAggregate
      */
     public function getFailedRequirements()
     {
-        $array = [];
+        $array = array();
         foreach ($this->requirements as $req) {
             if (!$req->isFulfilled() && !$req->isOptional()) {
                 $array[] = $req;
@@ -316,7 +316,7 @@ class RequirementCollection implements IteratorAggregate
      */
     public function getRecommendations()
     {
-        $array = [];
+        $array = array();
         foreach ($this->requirements as $req) {
             if ($req->isOptional()) {
                 $array[] = $req;
@@ -417,13 +417,13 @@ class SymfonyRequirements extends RequirementCollection
         );
 
         $this->addRequirement(
-            is_dir(__DIR__ . '/../vendor/composer'),
+            is_dir(__DIR__.'/../vendor/composer'),
             'Vendor libraries must be installed',
-            'Vendor libraries are missing. Install composer following instructions from <a href="http://getcomposer.org/">http://getcomposer.org/</a>. ' .
-            'Then run "<strong>php composer.phar install</strong>" to install them.'
+            'Vendor libraries are missing. Install composer following instructions from <a href="http://getcomposer.org/">http://getcomposer.org/</a>. '.
+                'Then run "<strong>php composer.phar install</strong>" to install them.'
         );
 
-        $cacheDir = is_dir(__DIR__ . '/../var/cache') ? __DIR__ . '/../var/cache' : __DIR__ . '/cache';
+        $cacheDir = is_dir(__DIR__.'/../var/cache') ? __DIR__.'/../var/cache' : __DIR__.'/cache';
 
         $this->addRequirement(
             is_writable($cacheDir),
@@ -431,7 +431,7 @@ class SymfonyRequirements extends RequirementCollection
             'Change the permissions of either "<strong>app/cache/</strong>" or  "<strong>var/cache/</strong>" directory so that the web server can write into it.'
         );
 
-        $logsDir = is_dir(__DIR__ . '/../var/logs') ? __DIR__ . '/../var/logs' : __DIR__ . '/logs';
+        $logsDir = is_dir(__DIR__.'/../var/logs') ? __DIR__.'/../var/logs' : __DIR__.'/logs';
 
         $this->addRequirement(
             is_writable($logsDir),
@@ -448,7 +448,7 @@ class SymfonyRequirements extends RequirementCollection
         }
 
         if (false !== $requiredPhpVersion && version_compare($installedPhpVersion, $requiredPhpVersion, '>=')) {
-            $timezones = [];
+            $timezones = array();
             foreach (DateTimeZone::listAbbreviations() as $abbreviations) {
                 foreach ($abbreviations as $abbreviation) {
                     $timezones[$abbreviation['timezone_id']] = true;
@@ -544,7 +544,7 @@ class SymfonyRequirements extends RequirementCollection
             );
         }
 
-        $pcreVersion = defined('PCRE_VERSION') ? (float)PCRE_VERSION : null;
+        $pcreVersion = defined('PCRE_VERSION') ? (float) PCRE_VERSION : null;
 
         $this->addRequirement(
             null !== $pcreVersion,
@@ -564,13 +564,13 @@ class SymfonyRequirements extends RequirementCollection
 
         /* optional recommendations follow */
 
-        if (file_exists(__DIR__ . '/../vendor/composer')) {
-            require_once __DIR__ . '/../vendor/autoload.php';
+        if (file_exists(__DIR__.'/../vendor/composer')) {
+            require_once __DIR__.'/../vendor/autoload.php';
 
             try {
                 $r = new ReflectionClass('Sensio\Bundle\DistributionBundle\SensioDistributionBundle');
 
-                $contents = file_get_contents(dirname($r->getFileName()) . '/Resources/skeleton/app/SymfonyRequirements.php');
+                $contents = file_get_contents(dirname($r->getFileName()).'/Resources/skeleton/app/SymfonyRequirements.php');
             } catch (ReflectionException $e) {
                 $contents = '';
             }
@@ -728,7 +728,8 @@ class SymfonyRequirements extends RequirementCollection
             ||
             (extension_loaded('xcache') && ini_get('xcache.cacher'))
             ||
-            (extension_loaded('wincache') && ini_get('wincache.ocenabled'));
+            (extension_loaded('wincache') && ini_get('wincache.ocenabled'))
+        ;
 
         $this->addRecommendation(
             $accelerator,
@@ -782,7 +783,7 @@ class SymfonyRequirements extends RequirementCollection
         $unit = '';
         if (!ctype_digit($size)) {
             $unit = strtolower(substr($size, -1, 1));
-            $size = (int)substr($size, 0, -1);
+            $size = (int) substr($size, 0, -1);
         }
         switch ($unit) {
             case 'g':
@@ -792,7 +793,7 @@ class SymfonyRequirements extends RequirementCollection
             case 'k':
                 return $size * 1024;
             default:
-                return (int)$size;
+                return (int) $size;
         }
     }
 
@@ -803,7 +804,7 @@ class SymfonyRequirements extends RequirementCollection
      */
     protected function getPhpRequiredVersion()
     {
-        if (!file_exists($path = __DIR__ . '/../composer.lock')) {
+        if (!file_exists($path = __DIR__.'/../composer.lock')) {
             return false;
         }
 
@@ -814,7 +815,7 @@ class SymfonyRequirements extends RequirementCollection
                 continue;
             }
 
-            return (int)$package['version'][1] > 2 ? self::REQUIRED_PHP_VERSION : self::LEGACY_REQUIRED_PHP_VERSION;
+            return (int) $package['version'][1] > 2 ? self::REQUIRED_PHP_VERSION : self::LEGACY_REQUIRED_PHP_VERSION;
         }
 
         return false;

@@ -2,6 +2,8 @@
 
 namespace AppBundle\ODM\Document;
 
+use ODM\Document\Document;
+
 class Note extends Document
 {
     const ROOM   = 0;
@@ -13,8 +15,6 @@ class Note extends Document
 
     const VK_COMMENT = 'vk.com:comment';
     const VK_WALL    = 'vk.com:wall';
-
-    private $id;
 
     private $external_id;
 

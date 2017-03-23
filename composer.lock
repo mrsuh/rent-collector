@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f040881ee5469c0565435931deef024f",
-    "content-hash": "601f7332e0ba6b6af3d7e662e9f1f671",
+    "hash": "5b8b946d7adebc986c2c3c9ac4e9a04c",
+    "content-hash": "dcb0f3c35edb89dd6d296d4041120c99",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -864,6 +864,42 @@
                 "psr-3"
             ],
             "time": "2016-11-26 00:15:39"
+        },
+        {
+            "name": "mrsuh/mongo-odm",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mrsuh/mongo-odm.git",
+                "reference": "22fdf6e7332d1fa4b3a13f133cc881fe2b7279ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mrsuh/mongo-odm/zipball/22fdf6e7332d1fa4b3a13f133cc881fe2b7279ea",
+                "reference": "22fdf6e7332d1fa4b3a13f133cc881fe2b7279ea",
+                "shasum": ""
+            },
+            "require": {
+                "mongodb/mongodb": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ODM\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sukhachev Anton",
+                    "email": "mrsuh6@gmail.com"
+                }
+            ],
+            "description": "mongo odm",
+            "time": "2017-03-23 06:32:33"
         },
         {
             "name": "paragonie/random_compat",
