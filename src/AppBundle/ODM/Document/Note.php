@@ -44,13 +44,13 @@ class Note extends Document
 
     private $active;
 
-    private $deleted;
+    private $expired;
 
     public function __construct()
     {
         $this->id        = uniqid();
         $this->active    = false;
-        $this->deleted = false;
+        $this->expired = false;
         $this->photos    = [];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
@@ -346,18 +346,18 @@ class Note extends Document
     /**
      * @return bool
      */
-    public function getDeleted(): bool
+    public function getExpired(): bool
     {
-        return $this->deleted;
+        return $this->expired;
     }
 
     /**
-     * @param bool $deleted
+     * @param bool $expired
      * @return $this
      */
-    public function setDeleted(bool $deleted)
+    public function setExpired(bool $expired)
     {
-        $this->deleted = $deleted;
+        $this->expired = $expired;
 
         return $this;
     }

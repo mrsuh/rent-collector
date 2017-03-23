@@ -21,7 +21,7 @@ class FilterUniqueCommand extends ContainerAwareCommand
 
         $filter_unique = $this->getContainer()->get('filter.post.unique');
 
-        foreach ($dm_note->find(['active' => true, 'deleted' => false]) as $note) {
+        foreach ($dm_note->find(['active' => true, 'expired' => false]) as $note) {
             $filter_unique->filter($note);
         }
     }

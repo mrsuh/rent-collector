@@ -22,11 +22,11 @@ class PostCollectCommand extends ContainerAwareCommand
         $filter_unique = $this->getContainer()->get('filter.post.unique');
         $filter_active = $this->getContainer()->get('filter.post.active');
 
-        foreach ($dm_note->find(['active' => false, 'deleted' => false]) as $note) {
+        foreach ($dm_note->find(['active' => false, 'expired' => false]) as $note) {
             $filter_unique->filter($note);
         }
 
-        foreach ($dm_note->find(['active' => false, 'deleted' => false]) as $note) {
+        foreach ($dm_note->find(['active' => false, 'expired' => false]) as $note) {
             $filter_active->activate($note);
         }
     }

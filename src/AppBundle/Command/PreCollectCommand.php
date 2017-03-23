@@ -126,6 +126,7 @@ class PreCollectCommand extends ContainerAwareCommand
 
                         if (6 === (int)$type) {
                             $this->debug('filter by type ' . $type);
+                            unset($note);
                             continue;
                         }
 
