@@ -4,7 +4,7 @@ namespace AppBundle\Model\Filter;
 
 use AppBundle\ODM\Document\Note;
 
-class PreDateFilter
+class DateExpireFilter
 {
     private $timestamp;
 
@@ -20,8 +20,8 @@ class PreDateFilter
      * @param Note $note
      * @return bool
      */
-    public function check(Note $note)
+    public function isExpire(Note $note)
     {
-        return (int)$this->timestamp <= (int)$note->getTimestamp();
+        return (int)$this->timestamp >= (int)$note->getTimestamp();
     }
 }

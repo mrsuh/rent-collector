@@ -19,7 +19,7 @@ class SubwayCommand extends ContainerAwareCommand
     {
         $list = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.fixtures.subway')));
 
-        $dm_factory = $this->getContainer()->get('odm.data.mapper.factory');
+        $dm_factory = $this->getContainer()->get('odm.hot.data.mapper.factory');
         $dm_subway  = $dm_factory->init(Subway::class);
         $dm_subway->drop();
         foreach ($list as $key => $val) {

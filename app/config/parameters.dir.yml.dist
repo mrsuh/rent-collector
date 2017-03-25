@@ -16,5 +16,4 @@ parameters:
     file.test.vk_market: 'tests/vk_market.json'
     file.test.vk_wall: 'tests/vk_wall.json'
 
-    file.fixtures.city: '%kernel.root_dir%/../fixtures/city.yml'
     file.fixtures.subway: '%kernel.root_dir%/../fixtures/subway.yml'

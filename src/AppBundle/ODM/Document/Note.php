@@ -16,6 +16,8 @@ class Note extends Document
     const VK_COMMENT = 'vk.com:comment';
     const VK_WALL    = 'vk.com:wall';
 
+    private $id;
+
     private $external_id;
 
     private $source;
@@ -42,19 +44,17 @@ class Note extends Document
 
     private $description_hash;
 
-    private $active;
-
-    private $expired;
-
     public function __construct()
     {
-        $this->id        = uniqid();
-        $this->active    = false;
-        $this->expired = false;
         $this->photos    = [];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
         $this->community = ['name' => null, 'link' => null];
+    }
+
+    public function initId()
+    {
+        $this->id = Date('U') . $this->external_id;
     }
 
     /**
@@ -320,44 +320,6 @@ class Note extends Document
     public function setDescriptionHash($description_hash)
     {
         $this->description_hash = $description_hash;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getActive(): bool
-    {
-        return $this->active;
-    }
-
-    /**
-     * @param bool $active
-     * @return $this
-     */
-    public function setActive(bool $active)
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getExpired(): bool
-    {
-        return $this->expired;
-    }
-
-    /**
-     * @param bool $expired
-     * @return $this
-     */
-    public function setExpired(bool $expired)
-    {
-        $this->expired = $expired;
 
         return $this;
     }

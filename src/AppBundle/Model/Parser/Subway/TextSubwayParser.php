@@ -3,7 +3,7 @@
 namespace AppBundle\Model\Parser\Subway;
 
 use AppBundle\ODM\Document\Subway;
-use AppBundle\ODM\DocumentMapper\DataMapperFactory;
+use ODM\DocumentMapper\DataMapperFactory;
 
 class TextSubwayParser
 {

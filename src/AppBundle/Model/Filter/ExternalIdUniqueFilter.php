@@ -3,9 +3,9 @@
 namespace AppBundle\Model\Filter;
 
 use AppBundle\ODM\Document\Note;
-use AppBundle\ODM\DocumentMapper\DataMapperFactory;
+use ODM\DocumentMapper\DataMapperFactory;
 
-class PostActiveFilter
+class ExternalIdUniqueFilter
 {
     private $dm_note;
 
@@ -22,11 +22,11 @@ class PostActiveFilter
      * @param Note $note
      * @return bool
      */
-    public function activate(Note $note)
+    public function isExists(Note $note)
     {
-        $note->setActive(true);
-        $this->dm_note->update($note);
-
-        return true;
+        return null !== $this->dm_note->findOne([
+                'external_id' => $note->getExternalId(),
+                'source'      => $note->getSource()
+            ]);
     }
 }

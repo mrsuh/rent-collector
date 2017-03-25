@@ -18,7 +18,7 @@ class SubwayCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $tests  = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.test.texts')));
-        $parser = new TextSubwayParser($this->getContainer()->get('odm.data.mapper.factory'));
+        $parser = new TextSubwayParser($this->getContainer()->get('odm.hot.data.mapper.factory'));
 
         $success = 0;
         $index   = 0;

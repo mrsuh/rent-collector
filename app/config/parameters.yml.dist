@@ -1,9 +1,15 @@
 parameters:
-    database_host: 127.0.0.1
-    database_port: 27017
-    database_name: rent-collector
-    database_user: root
-    database_password: null
+    database.hot.host: 127.0.0.1
+    database.hot.port: 27017
+    database.hot.name: rent-collector
+    database.hot.user: root
+    database.hot.password: null
+
+    database.cold.host: 127.0.0.1
+    database.cold.port: 27017
+    database.cold.name: rent-collector-cold
+    database.cold.user: root
+    database.cold.password: null
 
     mailer_transport: smtp
     mailer_host: 127.0.0.1
