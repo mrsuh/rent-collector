@@ -6,17 +6,29 @@ parameters:
 services:
 
 #odm ==================================================================
-    odm.dbal:
-       class: AppBundle\ODM\DBAL
+    odm.hot.dbal:
+       class: ODM\DBAL
        arguments:
-           - "%database_host%"
-           - "%database_port%"
-           - "%database_name%"
+           - "%database.hot.host%"
+           - "%database.hot.port%"
+           - "%database.hot.name%"
            
-    odm.data.mapper.factory:
-       class: AppBundle\ODM\DocumentMapper\DataMapperFactory
+    odm.hot.data.mapper.factory:
+       class: ODM\DocumentMapper\DataMapperFactory
        arguments:
-           - "@odm.dbal"
+           - "@odm.hot.dbal"
+
+    odm.cold.dbal:
+       class: ODM\DBAL
+       arguments:
+           - "%database.cold.host%"
+           - "%database.cold.port%"
+           - "%database.cold.name%"
+
+    odm.cold.data.mapper.factory:
+       class: ODM\DocumentMapper\DataMapperFactory
+       arguments:
+           - "@odm.cold.dbal"
 
 #odm ==================================================================
 
@@ -60,7 +72,7 @@ services:
     parser.subway.factory:
         class: AppBundle\Model\Parser\Subway\SubwayParserFactory
         arguments:
-            - "@odm.data.mapper.factory"
+            - "@odm.hot.data.mapper.factory"
 
     parser.datetime.factory:
         class: AppBundle\Model\Parser\DateTime\DateTimeParserFactory
@@ -70,15 +82,6 @@ services:
 
     parser.photo.factory:
         class: AppBundle\Model\Parser\Photo\PhotoParserFactory
-
-
-    filter.pre.date:
-        class: AppBundle\Model\Filter\PreDateFilter
-
-    filter.pre.unique:
-        class: AppBundle\Model\Filter\PreUniqueFilter
-        arguments:
-            - "@odm.data.mapper.factory"
 
 
 #parsers =============================================================
@@ -105,24 +108,32 @@ services:
 #collectors =============================================================
 
 
-    filter.post.unique:
-        class: AppBundle\Model\Filter\PostUniqueFilter
+    filter.unique.external_id:
+        class: AppBundle\Model\Filter\ExternalIdUniqueFilter
         arguments:
-            - "@odm.data.mapper.factory"
+            - "@odm.hot.data.mapper.factory"
 
-    filter.post.active:
+    filter.active:
         class: AppBundle\Model\Filter\PostActiveFilter
         arguments:
-            - "@odm.data.mapper.factory"
+            - "@odm.hot.data.mapper.factory"
 
     filter.black_list.description:
         class: AppBundle\Model\Filter\DescriptionBlackListFilter
         arguments:
-            - "@odm.data.mapper.factory"
+            - "@odm.hot.data.mapper.factory"
             - "%file.black_list.description%"
 
     filter.black_list.person:
         class: AppBundle\Model\Filter\PersonBlackListFilter
         arguments:
-            - "@odm.data.mapper.factory"
+            - "@odm.hot.data.mapper.factory"
             - "%file.black_list.person%"
+
+    filter.expire.date:
+        class: AppBundle\Model\Filter\DateExpireFilter
+
+    filter.unique.description:
+        class: AppBundle\Model\Filter\DescriptionUniqueFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"

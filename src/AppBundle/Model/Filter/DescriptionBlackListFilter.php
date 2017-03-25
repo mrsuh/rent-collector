@@ -3,7 +3,7 @@
 namespace AppBundle\Model\Filter;
 
 use AppBundle\ODM\Document\Note;
-use AppBundle\ODM\DocumentMapper\DataMapperFactory;
+use ODM\DocumentMapper\DataMapperFactory;
 use Symfony\Component\Yaml\Yaml;
 
 class DescriptionBlackListFilter

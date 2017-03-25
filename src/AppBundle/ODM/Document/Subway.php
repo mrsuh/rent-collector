@@ -2,9 +2,10 @@
 
 namespace AppBundle\ODM\Document;
 
+use ODM\Document\Document;
+
 class Subway extends Document
 {
-
     private $id;
 
     private $name;

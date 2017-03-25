@@ -16,7 +16,7 @@ class NoteCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm_factory = $this->getContainer()->get('odm.data.mapper.factory');
+        $dm_factory = $this->getContainer()->get('odm.hot.data.mapper.factory');
         $dm_note    = $dm_factory->init(Note::class);
         $dm_note->drop();
     }

@@ -3,9 +3,9 @@
 namespace AppBundle\Model\Filter;
 
 use AppBundle\ODM\Document\Note;
-use AppBundle\ODM\DocumentMapper\DataMapperFactory;
+use ODM\DocumentMapper\DataMapperFactory;
 
-class PreUniqueFilter
+class DescriptionUniqueFilter
 {
     private $dm_note;
 
@@ -22,11 +22,8 @@ class PreUniqueFilter
      * @param Note $note
      * @return bool
      */
-    public function check(Note $note)
+    public function isExists(Note $note)
     {
-        return null === $this->dm_note->findOne([
-                'external_id' => $note->getExternalId(),
-                'source'      => $note->getSource()
-            ]);
+        return null !== $this->dm_note->findOne(['description_hash' => $note->getDescriptionHash()]);
     }
 }

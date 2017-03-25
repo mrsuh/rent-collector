@@ -13,5 +13,5 @@ else
   php composer.phar dumpautoload -o
 fi
 
-php bin/console app:init:subway --env=prod
-php bin/console app:init:note --env=prod
+php bin/console app:init:subway --env=dev
+php bin/console app:init:note --env=dev

@@ -2,6 +2,8 @@
 
 namespace AppBundle\ODM\Document;
 
+use ODM\Document\Document;
+
 class Note extends Document
 {
     const ROOM   = 0;
@@ -42,19 +44,17 @@ class Note extends Document
 
     private $description_hash;
 
-    private $active;
-
-    private $deleted;
-
     public function __construct()
     {
-        $this->id        = uniqid();
-        $this->active    = false;
-        $this->deleted = false;
         $this->photos    = [];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
         $this->community = ['name' => null, 'link' => null];
+    }
+
+    public function initId()
+    {
+        $this->id = Date('U') . $this->external_id;
     }
 
     /**
@@ -320,44 +320,6 @@ class Note extends Document
     public function setDescriptionHash($description_hash)
     {
         $this->description_hash = $description_hash;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getActive(): bool
-    {
-        return $this->active;
-    }
-
-    /**
-     * @param bool $active
-     * @return $this
-     */
-    public function setActive(bool $active)
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDeleted(): bool
-    {
-        return $this->deleted;
-    }
-
-    /**
-     * @param bool $deleted
-     * @return $this
-     */
-    public function setDeleted(bool $deleted)
-    {
-        $this->deleted = $deleted;
 
         return $this;
     }
