@@ -65,9 +65,7 @@ class CollectCommand extends ContainerAwareCommand
 
             $notes = [];
 
-            while (true) {
-
-                $comments = json_decode(file_get_contents($this->getContainer()->getParameter('kernel.root_dir') . '/config/test.json'), true);
+            while (!empty($comments = $collector->collect($config))) {
 
                 foreach ($comments as $comment) {
 
@@ -172,8 +170,6 @@ class CollectCommand extends ContainerAwareCommand
                         $this->debug(json_encode($comment));
                     }
                 }
-
-                break 2;
             }
         }
 
