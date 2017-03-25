@@ -28,11 +28,11 @@ class PersonBlackListFilter
      */
     public function isAllow(Note $note)
     {
-        $description = $note->getDescription();
+        $contacts = json_encode($note->getContacts());
 
         $allow = true;
         foreach ($this->black_list as $str) {
-            if (false !== mb_strrpos($description, $str)) {
+            if (false !== mb_strrpos($contacts, $str)) {
                 $allow = false;
                 break;
             }
