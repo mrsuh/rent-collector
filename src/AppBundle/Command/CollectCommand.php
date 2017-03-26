@@ -65,7 +65,6 @@ class CollectCommand extends ContainerAwareCommand
 
             $notes = [];
 
-            $count              = 0;
             while (!empty($comments = $collector->collect($config))) {
 
                 foreach ($comments as $comment) {
