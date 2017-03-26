@@ -32,7 +32,7 @@ class ContactsBlackListFilter
 
         $allow = true;
         foreach ($this->black_list as $str) {
-            if (false !== mb_strrpos($contacts, $str)) {
+            if (1 === preg_match('/' . $str . '/', $contacts)) {
                 $allow = false;
                 break;
             }
