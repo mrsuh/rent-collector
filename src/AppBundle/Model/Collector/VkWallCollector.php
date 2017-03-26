@@ -50,6 +50,7 @@ class VkWallCollector
         $params['offset'] = $data['offset'];
         $timestamp        = (new \DateTime())->modify('- ' . $config['date'])->getTimestamp();
 
+        usleep(200);
         $response = $this->http_client->send(new Request('GET', $config['url']), ['query' => $params]);
 
         $contents = $response->getBody()->getContents();
@@ -77,7 +78,7 @@ class VkWallCollector
         if ($finish) {
             $this->setData($id, ['offset' => 0, 'finish' => true]);
         } else {
-            $this->setData($id, ['offset' => $offset + 50, 'finish' => false]);
+            $this->setData($id, ['offset' => $offset + 5, 'finish' => false]);
         }
 
         return $items;
