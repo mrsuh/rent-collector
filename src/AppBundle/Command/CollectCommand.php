@@ -37,11 +37,9 @@ class CollectCommand extends ContainerAwareCommand
 
         $filter_unique_description = $this->getContainer()->get('filter.unique.description');
         $filter_unique_external_id = $this->getContainer()->get('filter.unique.external_id');
-        $filter_unique_photo = $this->getContainer()->get('filter.unique.photo');
 
         $black_list_description = $this->getContainer()->get('filter.black_list.description');
         $black_list_contacts = $this->getContainer()->get('filter.black_list.contacts');
-        $black_list_photo = $this->getContainer()->get('filter.black_list.photo');
 
         $explorer_contact_factory = $this->getContainer()->get('explorer.contact.factory');
 
@@ -89,7 +87,7 @@ class CollectCommand extends ContainerAwareCommand
                             continue;
                         }
 
-                        if ($filter_unique_external_id->isExists($note)) {
+                        if (!empty($filter_unique_external_id->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique external id');
                             unset($note);
                             continue;
@@ -106,12 +104,6 @@ class CollectCommand extends ContainerAwareCommand
 
                         $note->setPhotos($parser_photo->parse($comment));
                         $note->initPhotoHashes();
-
-                        if (!$black_list_photo->isAllow($note)) {
-                            $this->debug($note->getExternalId() . ' filter by black list photo');
-                            unset($note);
-                            continue;
-                        }
 
                         $this->debug($note->getExternalId() . ' parse contacts...');
                         $contact_parse   = $parser_contact->parse($comment);
@@ -164,17 +156,9 @@ class CollectCommand extends ContainerAwareCommand
 
                         $notes[] = $note;
 
-                        if ($filter_unique_description->isExists($note)) {
+                        if (!empty($filter_unique_description->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique description');
                             foreach ($dm_note->find(['description_hash' => $note->getDescriptionHash()]) as $duplicate) {
-                                $this->debug($note->getExternalId() . ' delete duplicate');
-                                $dm_note->delete($duplicate);
-                            }
-                        }
-
-                        if ($duplicates = $filter_unique_photo->check($note)) {
-                            $this->debug($note->getExternalId() . ' filter by unique photo');
-                            foreach ($duplicates as $duplicate) {
                                 $this->debug($note->getExternalId() . ' delete duplicate');
                                 $dm_note->delete($duplicate);
                             }

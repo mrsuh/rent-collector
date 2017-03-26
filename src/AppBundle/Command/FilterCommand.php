@@ -24,7 +24,9 @@ class FilterCommand extends ContainerAwareCommand
 
         $filter_black_list_contacts = $this->getContainer()->get('filter.black_list.contacts');
         $filter_black_list_description = $this->getContainer()->get('filter.black_list.description');
-        $filter_black_list_photo    = $this->getContainer()->get('filter.black_list.photo');
+
+        $filter_unique_external_id = $this->getContainer()->get('filter.unique.external_id');
+        $filter_unique_description = $this->getContainer()->get('filter.unique.description');
         $duplicate_ids                 = [];
 
         $count   = 0;
@@ -51,37 +53,14 @@ class FilterCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if (!$filter_black_list_photo->isAllow($note)) {
-                $this->debug($note->getId() . ' filter by black list photo');
-                $count++;
-                print_r($note->getPhotos());
-                //$dm_note->delete($note);
-                unset($note);
-                continue;
-            }
-
-            $duplicates = $dm_note->find([
-                'description_hash' => $note->getDescriptionHash(),
-                'id'               => [
-                    '$ne' => $note->getId()
-                ]
-            ]);
-
-            foreach ($duplicates as $duplicate) {
+            foreach ($filter_unique_description->findDuplicates($note) as $duplicate) {
                 $this->debug($duplicate->getId() . ' filter by unique description');
                 $duplicate_ids[] = $duplicate->getId();
                 $count++;
                 $dm_note->delete($duplicate);
             }
 
-            $duplicates = $dm_note->find([
-                'external_id' => $note->getExternalId(),
-                'id'          => [
-                    '$ne' => $note->getId()
-                ]
-            ]);
-
-            foreach ($duplicates as $duplicate) {
+            foreach ($filter_unique_external_id->findDuplicates($note) as $duplicate) {
                 $this->debug($duplicate->getId() . ' filter by unique external id');
                 $duplicate_ids[] = $duplicate->getId();
                 $count++;

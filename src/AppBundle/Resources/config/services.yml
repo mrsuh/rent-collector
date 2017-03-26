@@ -125,21 +125,10 @@ services:
             - "@odm.hot.data.mapper.factory"
             - "%file.black_list.person%"
 
-    filter.black_list.photo:
-        class: AppBundle\Model\Filter\PhotoBlackListFilter
-        arguments:
-            - "@odm.hot.data.mapper.factory"
-            - "%file.black_list.photo%"
-
     filter.expire.date:
         class: AppBundle\Model\Filter\DateExpireFilter
 
     filter.unique.description:
         class: AppBundle\Model\Filter\DescriptionUniqueFilter
-        arguments:
-            - "@odm.hot.data.mapper.factory"
-
-    filter.unique.photo:
-        class: AppBundle\Model\Filter\PhotoUniqueFilter
         arguments:
             - "@odm.hot.data.mapper.factory"
