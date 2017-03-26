@@ -32,7 +32,7 @@ class DescriptionBlackListFilter
 
         $allow = true;
         foreach ($this->black_list as $str) {
-            if (false !== mb_strrpos($description, $str)) {
+            if (1 === preg_match('/' . $str . '/', $description)) {
                 $allow = false;
                 break;
             }
