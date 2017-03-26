@@ -2,7 +2,6 @@
 
 namespace AppBundle\ODM\Document;
 
-use Jenssegers\ImageHash\ImageHash;
 use ODM\Document\Document;
 
 class Note extends Document
@@ -58,22 +57,6 @@ class Note extends Document
     public function initId()
     {
         $this->id = Date('U') . $this->external_id;
-    }
-
-    public function initPhotoHashes()
-    {
-        $hasher = new ImageHash();
-
-        $hashes = [];
-        foreach ($this->photos as $photo) {
-            if (!array_key_exists('low', $photo)) {
-                continue;
-            }
-
-            $hashes[] = $hasher->hash($photo['low']);
-        }
-
-        $this->photo_hashes = $hashes;
     }
 
     public function initDescriptionHash()

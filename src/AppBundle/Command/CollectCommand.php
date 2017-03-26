@@ -103,7 +103,6 @@ class CollectCommand extends ContainerAwareCommand
                         }
 
                         $note->setPhotos($parser_photo->parse($comment));
-                        $note->initPhotoHashes();
 
                         $this->debug($note->getExternalId() . ' parse contacts...');
                         $contact_parse   = $parser_contact->parse($comment);
