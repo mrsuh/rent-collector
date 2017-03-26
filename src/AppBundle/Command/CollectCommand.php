@@ -96,6 +96,7 @@ class CollectCommand extends ContainerAwareCommand
                         }
 
                         $note->setDescription($parser_description->parse($comment));
+                        $note->initDescriptionHash();
 
                         if (!$black_list_description->isAllow($note)) {
                             $this->debug($note->getExternalId() . ' filter by black list description');
@@ -104,6 +105,7 @@ class CollectCommand extends ContainerAwareCommand
                         }
 
                         $note->setPhotos($parser_photo->parse($comment));
+                        $note->initPhotoHashes();
 
                         if (!$black_list_photo->isAllow($note)) {
                             $this->debug($note->getExternalId() . ' filter by black list photo');
