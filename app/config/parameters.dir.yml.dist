@@ -10,6 +10,7 @@ parameters:
 
     file.black_list.person: '%kernel.root_dir%/config/black_list.person.yml'
     file.black_list.description: '%kernel.root_dir%/config/black_list.description.yml'
+    file.black_list.photo: '%kernel.root_dir%/config/black_list.photo.yml'
 
     file.test.texts: 'tests/texts.yml'
     file.test.vk_comment: 'tests/vk_comment.json'

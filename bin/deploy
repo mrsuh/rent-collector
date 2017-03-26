@@ -15,7 +15,8 @@ fi
 
 files[1]='app/config/black_list.description.yml'
 files[2]='app/config/black_list.person.yml'
-files[3]='app/config/parser.yml'
+files[3]='app/config/black_list.photo.yml'
+files[4]='app/config/parser.yml'
 
 for f in "${files[@]}";  do
 if [ ! -f $f ]; then
