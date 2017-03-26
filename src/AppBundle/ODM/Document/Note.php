@@ -2,6 +2,7 @@
 
 namespace AppBundle\ODM\Document;
 
+use Jenssegers\ImageHash\ImageHash;
 use ODM\Document\Document;
 
 class Note extends Document
@@ -44,9 +45,11 @@ class Note extends Document
 
     private $description_hash;
 
+    private $photos_hashes;
+
     public function __construct()
     {
-        $this->photos    = [];
+        $this->photos    = ['low' => [], 'high' => []];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
         $this->community = ['name' => null, 'link' => null];
@@ -129,6 +132,18 @@ class Note extends Document
     public function setPhotos(array $photos)
     {
         $this->photos = $photos;
+        $hasher = new ImageHash();
+
+        $hashes = [];
+        foreach ($photos as $photo) {
+            if (array_key_exists('low', $photo)) {
+                continue;
+            }
+
+            $hashes[] = $hasher->hash($photo['low']);
+        }
+
+        $this->photos_hashes = $hashes;
 
         return $this;
     }
@@ -320,6 +335,25 @@ class Note extends Document
     public function setDescriptionHash($description_hash)
     {
         $this->description_hash = $description_hash;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhotosHashes()
+    {
+        return $this->photos_hashes;
+    }
+
+    /**
+     * @param $photos_hashes
+     * @return $this
+     */
+    public function setPhotosHashes($photos_hashes)
+    {
+        $this->photos_hashes = $photos_hashes;
 
         return $this;
     }

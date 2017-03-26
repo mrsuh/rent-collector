@@ -22,8 +22,9 @@ class FilterCommand extends ContainerAwareCommand
         $dm_factory = $this->getContainer()->get('odm.hot.data.mapper.factory');
         $dm_note = $dm_factory->init(Note::class);
 
-        $filter_black_list_person      = $this->getContainer()->get('filter.black_list.person');
+        $filter_black_list_contacts = $this->getContainer()->get('filter.black_list.contacts');
         $filter_black_list_description = $this->getContainer()->get('filter.black_list.description');
+        $filter_black_list_photo    = $this->getContainer()->get('filter.black_list.photo');
         $duplicate_ids                 = [];
 
         $count   = 0;
@@ -42,10 +43,19 @@ class FilterCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if (!$filter_black_list_person->isAllow($note)) {
-                $this->debug($note->getId() . ' filter by black list person');
+            if (!$filter_black_list_contacts->isAllow($note)) {
+                $this->debug($note->getId() . ' filter by black list contacts');
                 $count++;
                 $dm_note->delete($note);
+                unset($note);
+                continue;
+            }
+
+            if (!$filter_black_list_photo->isAllow($note)) {
+                $this->debug($note->getId() . ' filter by black list photo');
+                $count++;
+                print_r($note->getPhotos());
+                //$dm_note->delete($note);
                 unset($note);
                 continue;
             }

@@ -30,7 +30,8 @@
     "guzzlehttp/guzzle": "^6.2",
     "symfony/yaml": "^3.1",
     "friendsofsymfony/rest-bundle": "^2.1",
-    "mrsuh/mongo-odm": "1.*"
+    "mrsuh/mongo-odm": "1.*",
+    "jenssegers/imagehash": "^0.4.1"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",

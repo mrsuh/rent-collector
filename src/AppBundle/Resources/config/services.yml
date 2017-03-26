@@ -113,27 +113,33 @@ services:
         arguments:
             - "@odm.hot.data.mapper.factory"
 
-    filter.active:
-        class: AppBundle\Model\Filter\PostActiveFilter
-        arguments:
-            - "@odm.hot.data.mapper.factory"
-
     filter.black_list.description:
         class: AppBundle\Model\Filter\DescriptionBlackListFilter
         arguments:
             - "@odm.hot.data.mapper.factory"
             - "%file.black_list.description%"
 
-    filter.black_list.person:
-        class: AppBundle\Model\Filter\PersonBlackListFilter
+    filter.black_list.contacts:
+        class: AppBundle\Model\Filter\ContactsBlackListFilter
         arguments:
             - "@odm.hot.data.mapper.factory"
             - "%file.black_list.person%"
+
+    filter.black_list.photo:
+        class: AppBundle\Model\Filter\PhotoBlackListFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+            - "%file.black_list.photo%"
 
     filter.expire.date:
         class: AppBundle\Model\Filter\DateExpireFilter
 
     filter.unique.description:
         class: AppBundle\Model\Filter\DescriptionUniqueFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+
+    filter.unique.photo:
+        class: AppBundle\Model\Filter\PhotoUniqueFilter
         arguments:
             - "@odm.hot.data.mapper.factory"

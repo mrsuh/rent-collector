@@ -37,9 +37,11 @@ class CollectCommand extends ContainerAwareCommand
 
         $filter_unique_description = $this->getContainer()->get('filter.unique.description');
         $filter_unique_external_id = $this->getContainer()->get('filter.unique.external_id');
+        $filter_unique_photo = $this->getContainer()->get('filter.unique.photo');
 
         $black_list_description = $this->getContainer()->get('filter.black_list.description');
-        $black_list_person      = $this->getContainer()->get('filter.black_list.person');
+        $black_list_contacts = $this->getContainer()->get('filter.black_list.contacts');
+        $black_list_photo = $this->getContainer()->get('filter.black_list.photo');
 
         $explorer_contact_factory = $this->getContainer()->get('explorer.contact.factory');
 
@@ -101,6 +103,14 @@ class CollectCommand extends ContainerAwareCommand
                             continue;
                         }
 
+                        $note->setPhotos($parser_photo->parse($comment));
+
+                        if (!$black_list_photo->isAllow($note)) {
+                            $this->debug($note->getExternalId() . ' filter by black list photo');
+                            unset($note);
+                            continue;
+                        }
+
                         $this->debug($note->getExternalId() . ' parse contacts...');
                         $contact_parse   = $parser_contact->parse($comment);
                         $contact_explore = $explorer_contact->explore($comment);
@@ -116,8 +126,8 @@ class CollectCommand extends ContainerAwareCommand
 
                         $note->setContacts($contact);
 
-                        if (!$black_list_person->isAllow($note)) {
-                            $this->debug($note->getExternalId() . ' filter by black list person');
+                        if (!$black_list_contacts->isAllow($note)) {
+                            $this->debug($note->getExternalId() . ' filter by black list contacts');
                             unset($note);
                             continue;
                         }
@@ -147,7 +157,6 @@ class CollectCommand extends ContainerAwareCommand
 
                         $note
                             ->setSubways($subways)
-                            ->setPhotos($parser_photo->parse($comment))
                             ->setTimestamp($parser_datetime->parse($comment))
                             ->setCity($config['city']);
 
@@ -156,6 +165,14 @@ class CollectCommand extends ContainerAwareCommand
                         if ($filter_unique_description->isExists($note)) {
                             $this->debug($note->getExternalId() . ' filter by unique description');
                             foreach ($dm_note->find(['description_hash' => $note->getDescriptionHash()]) as $duplicate) {
+                                $this->debug($note->getExternalId() . ' delete duplicate');
+                                $dm_note->delete($duplicate);
+                            }
+                        }
+
+                        if ($duplicates = $filter_unique_photo->check($note)) {
+                            $this->debug($note->getExternalId() . ' filter by unique photo');
+                            foreach ($duplicates as $duplicate) {
                                 $this->debug($note->getExternalId() . ' delete duplicate');
                                 $dm_note->delete($duplicate);
                             }

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5b8b946d7adebc986c2c3c9ac4e9a04c",
-    "content-hash": "dcb0f3c35edb89dd6d296d4041120c99",
+    "hash": "ccb288167859db65449530db465b9552",
+    "content-hash": "d95f3d4796f4a64d9861e978ce0be7d4",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -723,6 +723,60 @@
                 "parameters management"
             ],
             "time": "2015-11-10 17:04:01"
+        },
+        {
+            "name": "jenssegers/imagehash",
+            "version": "v0.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jenssegers/imagehash.git",
+                "reference": "2454ad72e33bceb0db12efc5e7262ea2d0773b31"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jenssegers/imagehash/zipball/2454ad72e33bceb0db12efc5e7262ea2d0773b31",
+                "reference": "2454ad72e33bceb0db12efc5e7262ea2d0773b31",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0|^5.0",
+                "satooshi/php-coveralls": "^0.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jenssegers\\ImageHash\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kenneth Rapp"
+                },
+                {
+                    "name": "Jens Segers",
+                    "homepage": "https://jenssegers.com"
+                }
+            ],
+            "description": "Perceptual image hashing for PHP",
+            "homepage": "https://github.com/jenssegers/imagehash",
+            "keywords": [
+                "ahash",
+                "dhash",
+                "hash",
+                "image hash",
+                "imagehash",
+                "perceptual",
+                "phash"
+            ],
+            "time": "2016-10-23 14:02:19"
         },
         {
             "name": "mongodb/mongodb",

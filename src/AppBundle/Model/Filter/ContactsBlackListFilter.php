@@ -6,7 +6,7 @@ use AppBundle\ODM\Document\Note;
 use ODM\DocumentMapper\DataMapperFactory;
 use Symfony\Component\Yaml\Yaml;
 
-class PersonBlackListFilter
+class ContactsBlackListFilter
 {
     private $dm_note;
     private $black_list;
