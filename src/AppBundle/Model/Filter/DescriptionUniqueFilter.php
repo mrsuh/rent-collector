@@ -20,10 +20,14 @@ class DescriptionUniqueFilter
 
     /**
      * @param Note $note
-     * @return bool
+     * @return Note[]|array
      */
-    public function isExists(Note $note)
+    public function findDuplicates(Note $note)
     {
-        return null !== $this->dm_note->findOne(['description_hash' => $note->getDescriptionHash()]);
+        return $this->dm_note->find(
+            [
+                'description_hash' => $note->getDescriptionHash(),
+                'id'               => ['$ne' => $note->getId()]
+            ]);
     }
 }

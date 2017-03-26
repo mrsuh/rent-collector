@@ -20,13 +20,14 @@ class ExternalIdUniqueFilter
 
     /**
      * @param Note $note
-     * @return bool
+     * @return Note[]|array
      */
-    public function isExists(Note $note)
+    public function findDuplicates(Note $note)
     {
-        return null !== $this->dm_note->findOne([
-                'external_id' => $note->getExternalId(),
-                'source'      => $note->getSource()
-            ]);
+        return $this->dm_note->find([
+            'external_id' => $note->getExternalId(),
+            'source'      => $note->getSource(),
+            'id'          => ['$ne' => $note->getId()]
+        ]);
     }
 }
