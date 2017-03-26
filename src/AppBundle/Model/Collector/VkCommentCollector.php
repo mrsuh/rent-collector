@@ -32,7 +32,7 @@ class VkCommentCollector
     {
         $params                     = $config['data'];
 
-        $file_name = 'vk-com-comment' . $params['group_id'] . '-' . $params['topic_id'];
+        $file_name = 'vk-com-comment-' . $params['group_id'] . '-' . $params['topic_id'];
 
         $params['start_comment_id'] = $this->getId($file_name);
 
