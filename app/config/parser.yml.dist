@@ -173,3 +173,48 @@
         topic_id: 31977407
         count: 100
         v: '5.62'
+
+-
+    type: vk.com:wall
+    name: 'Уютное гнездышко / поиск жилья и соседей / СПБ'
+    link: 'https://vk.com/yuytnoe_gnezdishko'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/wall.get'
+    city: spb
+    date: '1 hour'
+    data:
+        owner_id: -57466174
+        count: 50
+        v: '5.62'
+
+-
+    type: vk.com:wall
+    name: 'СДАТЬ / СНЯТЬ - КВАРТИРУ, КОМНАТУ в СПБ, Питере'
+    link: 'https://vk.com/sdat_sniat_v_spb'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/wall.get'
+    city: spb
+    date: '1 hour'
+    data:
+        owner_id: -119897580
+        count: 50
+        v: '5.62'
+
+-
+    type: vk.com:wall
+    name: 'Снять / Сдать / Продам комнату / квартиру Питер'
+    link: 'https://vk.com/club101215582'
+    source: vk.com
+    hold: rent
+    realty: flat
+    url: 'https://api.vk.com/method/wall.get'
+    city: spb
+    date: '1 hour'
+    data:
+        owner_id: -101215582
+        count: 50
+        v: '5.62'
