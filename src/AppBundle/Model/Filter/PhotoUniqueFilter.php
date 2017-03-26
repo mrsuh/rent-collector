@@ -27,7 +27,7 @@ class PhotoUniqueFilter
      */
     public function check(Note $note)
     {
-        $origin_hashes = $note->getPhotosHashes();
+        $origin_hashes = $note->getPhotoHashes();
 
         if (empty($origin_hashes)) {
             return [];
@@ -37,7 +37,7 @@ class PhotoUniqueFilter
 
         $duplicates = [];
         foreach ($this->dm_note->find() as $duplicate) {
-            foreach ($duplicate->getPhotosHashes() as $hash) {
+            foreach ($duplicate->getPhotoHashes() as $hash) {
                 if ($this->hasher->distance($origin_hash, $hash) <= 3) {
                     $duplicates[] = $duplicate;
                     break 2;

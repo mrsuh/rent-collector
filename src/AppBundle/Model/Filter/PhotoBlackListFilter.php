@@ -30,7 +30,7 @@ class PhotoBlackListFilter
      */
     public function isAllow(Note $note)
     {
-        $hashes = $note->getPhotosHashes();
+        $hashes = $note->getPhotoHashes();
 
         if (empty($hashes)) {
             return true;

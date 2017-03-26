@@ -45,7 +45,7 @@ class Note extends Document
 
     private $description_hash;
 
-    private $photos_hashes;
+    private $photo_hashes;
 
     public function __construct()
     {
@@ -58,6 +58,27 @@ class Note extends Document
     public function initId()
     {
         $this->id = Date('U') . $this->external_id;
+    }
+
+    public function initPhotoHashes()
+    {
+        $hasher = new ImageHash();
+
+        $hashes = [];
+        foreach ($this->photos as $photo) {
+            if (!array_key_exists('low', $photo)) {
+                continue;
+            }
+
+            $hashes[] = $hasher->hash($photo['low']);
+        }
+
+        $this->photo_hashes = $hashes;
+    }
+
+    public function initDescriptionHash()
+    {
+        $this->description_hash = md5($this->description);
     }
 
     /**
@@ -132,18 +153,6 @@ class Note extends Document
     public function setPhotos(array $photos)
     {
         $this->photos = $photos;
-        $hasher = new ImageHash();
-
-        $hashes = [];
-        foreach ($photos as $photo) {
-            if (array_key_exists('low', $photo)) {
-                continue;
-            }
-
-            $hashes[] = $hasher->hash($photo['low']);
-        }
-
-        $this->photos_hashes = $hashes;
 
         return $this;
     }
@@ -258,7 +267,6 @@ class Note extends Document
     public function setDescription($description)
     {
         $this->description      = $description;
-        $this->description_hash = md5($description);
 
         return $this;
     }
@@ -342,18 +350,18 @@ class Note extends Document
     /**
      * @return mixed
      */
-    public function getPhotosHashes()
+    public function getPhotoHashes()
     {
-        return $this->photos_hashes;
+        return $this->photo_hashes;
     }
 
     /**
-     * @param $photos_hashes
+     * @param $photo_hashes
      * @return $this
      */
-    public function setPhotosHashes($photos_hashes)
+    public function setPhotoHashes($photo_hashes)
     {
-        $this->photos_hashes = $photos_hashes;
+        $this->photo_hashes = $photo_hashes;
 
         return $this;
     }
