@@ -4,38 +4,37 @@ namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseException;
 use AppBundle\Service\Client\Http;
+use AppBundle\Storage\FileStorage;
 use GuzzleHttp\Psr7\Request;
 
 class VkCommentCollector
 {
     private $http_client;
-    private $file_id;
+    private $storage;
 
-    public function __construct(Http $http_client, $dir_id)
+    public function __construct(Http $http_client, $file_dir)
     {
         $this->http_client = $http_client;
-        $this->file_id     = $dir_id . '/vk-com-comment';
+        $this->storage = new FileStorage($file_dir);
     }
 
-    private function getId($file_postfix)
+    private function getId($file_name)
     {
-        return file_exists($this->file_id . '-' . $file_postfix) ? file_get_contents($this->file_id . '-' . $file_postfix) : 1;
+        return $this->storage->exists($file_name) ? $this->storage->get($file_name) : 1;
     }
 
-    private function setId($file_postfix, $id)
+    private function setId($file_name, $id)
     {
-        return file_put_contents($this->file_id . '-' . $file_postfix, $id);
+        return $this->storage->put($file_name, $id);
     }
 
     public function collect(array $config, $debug = false)
     {
         $params                     = $config['data'];
-        $file_postfix               = $params['group_id'] . '-' . $params['topic_id'];
-        $params['start_comment_id'] = $this->getId($file_postfix);
 
-        if ($debug) {
-            echo 'last id: ' . $this->getId($file_postfix) . PHP_EOL;
-        }
+        $file_name = 'vk-com-comment' . $params['group_id'] . '-' . $params['topic_id'];
+
+        $params['start_comment_id'] = $this->getId($file_name);
 
         usleep(200);
         $response = $this->http_client->send(new Request('GET', $config['url']), ['query' => $params]);
@@ -60,11 +59,11 @@ class VkCommentCollector
             echo 'last id end: ' . $end_item['id'] . PHP_EOL;
         }
 
-        if ((int)$this->getId($file_postfix) === (int)$end_item['id']) {
+        if ((int)$this->getId($file_name) === (int)$end_item['id']) {
             return [];
         }
 
-        $this->setId($file_postfix, $end_item['id']);
+        $this->setId($file_name, $end_item['id']);
 
         return $items;
     }
