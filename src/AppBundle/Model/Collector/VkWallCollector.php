@@ -65,14 +65,15 @@ class VkWallCollector
             throw new ParseException('Has not key "items" in response');
         }
 
-        $items = $data['response']['items'];
-
+        $items_raw = $data['response']['items'];
+        $items     = [];
         $finish = false;
-        foreach ($items as $item) {
+        foreach ($items_raw as $item) {
             if ($timestamp > $item['date']) {
                 $finish = true;
                 break;
             }
+            $items[] = $item;
         }
 
         if ($finish) {
