@@ -4,38 +4,51 @@ namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseException;
 use AppBundle\Service\Client\Http;
+use AppBundle\Storage\FileStorage;
 use GuzzleHttp\Psr7\Request;
 
 class VkWallCollector
 {
     private $http_client;
-    private $file_id;
+    private $storage;
 
     public function __construct(Http $http_client, $file_dir)
     {
         $this->http_client = $http_client;
-        $this->file_id     = $file_dir . '/vk-com-wall';
+        $this->storage = new FileStorage($file_dir);
     }
 
-    private function getId($file_prefix)
+    private function getData($file_name)
     {
-        return file_exists($this->file_id . $file_prefix) ? file_get_contents($this->file_id . $file_prefix) : 1;
+        return $this->storage->exists($file_name) ? $this->storage->get($file_name) : ['offset' => 0, 'finish' => false];
     }
 
-    private function setId($file_prefix, $id)
+    private function setData($file_name, $data)
     {
-        return file_put_contents($this->file_id . $file_prefix, $id);
+        return $this->storage->put($file_name, $data);
     }
 
-    public function collect(array $config, $debug = false)
+    public function collect(array $config, $debug = true)
     {
-        $params                     = $config['data'];
-        $file_prefix                = $params['owner_id'];
-        $params['start_comment_id'] = $this->getId($file_prefix);
+        $params = $config['data'];
+        $id     = 'vk-com-wall' . $params['owner_id'];
+
+        $data = $this->getData($id);
+
+        if ($data['finish']) {
+            $this->setData($id, ['offset' => 0, 'finish' => false]);
+
+            return [];
+        }
+
+        $offset = $data['offset'];
 
         if ($debug) {
-            echo 'last id: ' . $this->getId($file_prefix) . PHP_EOL;
+            echo 'OFFSET: ' . $offset . PHP_EOL;
         }
+
+        $params['offset'] = $data['offset'];
+        $timestamp        = (new \DateTime())->modify('- ' . $config['date'])->getTimestamp();
 
         $response = $this->http_client->send(new Request('GET', $config['url']), ['query' => $params]);
 
@@ -53,13 +66,19 @@ class VkWallCollector
 
         $items = $data['response']['items'];
 
-        $end_item = end($items);
-
-        if ($debug) {
-            echo 'last id end: ' . $end_item['id'] . PHP_EOL;
+        $finish = false;
+        foreach ($items as $item) {
+            if ($timestamp > $item['date']) {
+                $finish = true;
+                break;
+            }
         }
 
-        $this->setId($file_prefix, $end_item['id']);
+        if ($finish) {
+            $this->setData($id, ['offset' => 0, 'finish' => true]);
+        } else {
+            $this->setData($id, ['offset' => $offset + 50, 'finish' => false]);
+        }
 
         return $items;
     }
