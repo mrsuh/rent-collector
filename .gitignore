@@ -2,7 +2,6 @@
 /app/config/parameters.dir.yml
 /app/config/black_list.person.yml
 /app/config/black_list.description.yml
-/app/config/black_list.photo.yml
 /app/config/crontab
 /app/config/parser.yml
 /build/
