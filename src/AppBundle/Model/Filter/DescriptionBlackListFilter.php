@@ -28,7 +28,7 @@ class DescriptionBlackListFilter
      */
     public function isAllow(Note $note)
     {
-        $description = $note->getDescription();
+        $description = mb_strtolower($note->getDescription());
 
         $allow = true;
         foreach ($this->black_list as $str) {
