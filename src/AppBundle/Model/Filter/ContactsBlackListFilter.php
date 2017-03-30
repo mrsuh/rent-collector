@@ -28,7 +28,7 @@ class ContactsBlackListFilter
      */
     public function isAllow(Note $note)
     {
-        $contacts = json_encode($note->getContacts());
+        $contacts = mb_strtolower(json_encode($note->getContacts()));
 
         $allow = true;
         foreach ($this->black_list as $str) {
