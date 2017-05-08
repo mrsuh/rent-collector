@@ -4,25 +4,20 @@ namespace AppBundle\Model\Parser\DateTime;
 
 use AppBundle\Exception\ParseException;
 
-class VkMarketDateTimeParser
+class VkMarketDateTimeParser implements DateTimeParserInterface
 {
-    public function parse($json)
+    /**
+     * @param array $data
+     * @return int
+     * @throws ParseException
+     */
+    public function parse(array $data): int
     {
-        $data = json_decode($json, true);
-
-        if (false === $data) {
-            throw new ParseException('Invalid Json');
-        }
-
-        if (!is_array($data)) {
-            throw new ParseException('Data is not a array');
-        }
-
         if (!array_key_exists('date', $data)) {
             throw new ParseException('Key "date" is not exists in array');
         }
 
-        return $data['date'];
+        return (int)$data['date'];
     }
 }
 

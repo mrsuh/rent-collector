@@ -3,7 +3,7 @@
 namespace AppBundle\Command;
 
 use AppBundle\Command\Helper\DisplayTrait;
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,30 +20,27 @@ class CollectCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $configs = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.config.parser')));
+        $container = $this->getContainer();
+        $configs   = Yaml::parse(file_get_contents($container->getParameter('file.config.parser')));
 
         $collector_factory = $this->getContainer()->get('collector.factory');
 
-        $parser_area_factory        = $this->getContainer()->get('parser.area.factory');
-        $parser_contact_factory     = $this->getContainer()->get('parser.contact.factory');
-        $parser_datetime_factory    = $this->getContainer()->get('parser.datetime.factory');
-        $parser_description_factory = $this->getContainer()->get('parser.description.factory');
-        $parser_photo_factory       = $this->getContainer()->get('parser.photo.factory');
-        $parser_price_factory       = $this->getContainer()->get('parser.price.factory');
-        $parser_subway_factory      = $this->getContainer()->get('parser.subway.factory');
-        $parser_type_factory        = $this->getContainer()->get('parser.type.factory');
+        $parser_datetime_factory    = $container->get('parser.datetime.factory');
+        $parser_description_factory = $container->get('parser.description.factory');
+        $parser_photo_factory       = $container->get('parser.photo.factory');
+        $parser_contact_factory     = $container->get('parser.contact.factory');
 
-        $filter_expire_date = $this->getContainer()->get('filter.expire.date');
+        $filter_expire_date            = $container->get('filter.expire.date');
+        $filter_unique_description     = $container->get('filter.unique.description');
+        $filter_unique_external_id     = $container->get('filter.unique.external_id');
+        $filter_black_list_description = $container->get('filter.black_list.description');
+        $filter_black_list_contacts    = $container->get('filter.black_list.contacts');
 
-        $filter_unique_description = $this->getContainer()->get('filter.unique.description');
-        $filter_unique_external_id = $this->getContainer()->get('filter.unique.external_id');
+        $explorer_user_factory = $container->get('explorer.user.factory');
+        $explorer_subway       = $container->get('explorer.subway');
+        $explorer_tomita       = $container->get('explorer.tomita');
 
-        $black_list_description = $this->getContainer()->get('filter.black_list.description');
-        $black_list_contacts = $this->getContainer()->get('filter.black_list.contacts');
-
-        $explorer_contact_factory = $this->getContainer()->get('explorer.contact.factory');
-
-        $dm_note = $this->getContainer()->get('odm.hot.data.mapper.factory')->init(Note::class);
+        $dm_note = $container->get('odm.hot.data.mapper.factory')->init(Note::class);
 
         $count = 0;
         foreach ($configs as $config) {
@@ -52,18 +49,12 @@ class CollectCommand extends ContainerAwareCommand
 
             $collector = $collector_factory->init($config['type']);
 
-            $parser_area        = $parser_area_factory->init($config['type']);
-            $parser_contact     = $parser_contact_factory->init($config['type']);
             $parser_datetime    = $parser_datetime_factory->init($config['type']);
             $parser_description = $parser_description_factory->init($config['type']);
             $parser_photo       = $parser_photo_factory->init($config['type']);
-            $parser_price       = $parser_price_factory->init($config['type']);
-            $parser_subway      = $parser_subway_factory->init($config['type']);
-            $parser_type        = $parser_type_factory->init($config['type']);
+            $parser_contact     = $parser_contact_factory->init($config['type']);
 
-            $explorer_contact = $explorer_contact_factory->init($config['type']);
-
-            $notes = [];
+            $explorer_user = $explorer_user_factory->init($config['type']);
 
             while (!empty($comments = $collector->collect($config))) {
 
@@ -73,87 +64,84 @@ class CollectCommand extends ContainerAwareCommand
 
                         $this->debug($comment['id'] . ' processing...');
 
-                        $timestamp = $parser_datetime->parse($comment);
-
                         $note = (new Note())
                             ->setExternalId($comment['id'])
                             ->setSource($config['type'])
                             ->setCommunity(['name' => $config['name'], 'link' => $config['link']])
-                            ->setTimestamp($timestamp);
+                            ->setTimestamp($parser_datetime->parse($comment))
+                            ->setCity($config['city']);
 
                         if ($filter_expire_date->isExpire($note)) {
                             $this->debug($note->getExternalId() . ' filter by expire date');
                             unset($note);
+
                             continue;
                         }
 
                         if (!empty($filter_unique_external_id->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique external id');
                             unset($note);
+
                             continue;
                         }
 
-                        $note->setDescription($parser_description->parse($comment));
-                        $note->initDescriptionHash();
+                        $description = $parser_description->parse($comment);
+                        $note->setDescription($description);
 
-                        if (!$black_list_description->isAllow($note)) {
+                        if (!$filter_black_list_description->isAllow($note)) {
                             $this->debug($note->getExternalId() . ' filter by black list description');
                             unset($note);
+
+                            continue;
+                        }
+
+                        $this->debug($note->getExternalId() . ' explore tomita...');
+                        $tomita = $explorer_tomita->explore($description);
+
+                        if (Note::ERR === (int)$tomita->getType()) {
+                            $this->debug($note->getExternalId() . ' filter by type');
+                            unset($note);
+
+                            continue;
+                        }
+
+                        $area  = $tomita->getArea();
+                        $price = $tomita->getPrice();
+
+                        $note
+                            ->setType($tomita->getType())
+                            ->setArea(-1 !== $area && 0 !== $area ? $area : null)
+                            ->setPrice(-1 !== $price && 0 !== $price ? $price : null);
+
+                        $contact = $parser_contact->parse($comment);
+
+                        $this->debug($note->getExternalId() . ' explore user...');
+                        $user = $explorer_user->explore($contact->getId());
+
+                        $note->setContacts([
+                            'person' => [
+                                'name'  => $user->getFirstName() . ' ' . $user->getLastName(),
+                                'photo' => $user->getPhoto(),
+                                'link'  => $contact->getLink(),
+                                'write' => $contact->getWrite(),
+                            ],
+                            'phones' => $tomita->getPhones()
+                        ]);
+
+                        if (!$filter_black_list_contacts->isAllow($note)) {
+                            $this->debug($note->getExternalId() . ' filter by black list contacts');
+                            unset($note);
+
                             continue;
                         }
 
                         $note->setPhotos($parser_photo->parse($comment));
 
-                        $this->debug($note->getExternalId() . ' parse contacts...');
-                        $contact_parse   = $parser_contact->parse($comment);
-                        $contact_explore = $explorer_contact->explore($comment);
-
-                        $contact = [
-                            'person' => [
-                                'name'  => $contact_explore,
-                                'link'  => $contact_parse['link'],
-                                'write' => $contact_parse['write'],
-                            ],
-                            'phones' => $contact_parse['phones']
-                        ];
-
-                        $note->setContacts($contact);
-
-                        if (!$black_list_contacts->isAllow($note)) {
-                            $this->debug($note->getExternalId() . ' filter by black list contacts');
-                            unset($note);
-                            continue;
-                        }
-
-                        $type = $parser_type->parse($comment);
-
-                        if (6 === (int)$type) {
-                            $this->debug($note->getExternalId() . ' filter by type');
-                            unset($note);
-                            continue;
-                        }
-
-                        $this->debug($note->getExternalId() . ' parse subways...');
                         $subways = [];
-                        foreach ($parser_subway->parse($comment) as $subway) {
+                        foreach ($explorer_subway->explore($description) as $subway) {
                             $subways[] = $subway->getId();
                         }
-
-                        $this->debug($note->getExternalId() . ' parse area...');
-                        $note->setArea($parser_area->parse($comment));
-
-                        $this->debug($note->getExternalId() . ' parse price...');
-                        $note->setPrice($parser_price->parse($comment));
-
-                        $this->debug($note->getExternalId() . ' parse type...');
-                        $note->setType($parser_type->parse($comment));
-
-                        $note
-                            ->setSubways($subways)
-                            ->setTimestamp($parser_datetime->parse($comment))
-                            ->setCity($config['city']);
-
-                        $notes[] = $note;
+                        $note->setSubways($subways);
 
                         if (!empty($filter_unique_description->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique description');

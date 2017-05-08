@@ -2,49 +2,37 @@
 
 namespace AppBundle\Model\Parser\Contact;
 
-use AppBundle\Exception\ParseException;
-
-class VkWallContactParser extends TextContactParser
+class VkWallContactParser implements ContactParserInterface
 {
-    public function parse(array $data)
+    /**
+     * @param array $data
+     * @return Contact
+     */
+    public function parse(array $data): Contact
     {
-        if (!array_key_exists('text', $data)) {
-            throw new ParseException('Key "text" is not exists in array');
-        }
-
         switch (true) {
             case array_key_exists('signer_id', $data):
                 $id = $data['signer_id'];
+
                 break;
             case array_key_exists('from_id', $data):
                 $id = $data['from_id'];
+
                 break;
-            default:
+            case array_key_exists('owner_id', $data):
                 $id = $data['owner_id'];
 
                 break;
+            default:
+                $id = -1;
+
+                break;
         }
 
-        if ($id > 0) {
-            $links = [
-                'link'  => 'https://vk.com/id' . $id,
-                'write' => 'https://vk.com/write' . $id
-            ];
-
-        } else {
-            $links = [
-                'link'  => 'https://vk.com/club' . abs($id),
-                'write' => 'https://vk.com/club' . abs($id)
-            ];
-        }
-
-        $data = [
-            'phones' => parent::parseText($data['text']),
-            'link'   => $links['link'],
-            'write'  => $links['write']
-        ];
-
-        return $data;
+        return (new Contact())
+            ->setId($id)
+            ->setLink('https://vk.com/' . ($id > 0 ? 'id' . $id : 'club' . $id))
+            ->setLink('https://vk.com/' . ($id > 0 ? 'write' . $id : 'club' . $id));
     }
 }
 

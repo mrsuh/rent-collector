@@ -2,9 +2,13 @@
 
 namespace AppBundle\Model\Parser\Photo;
 
-class VkCommentPhotoParser
+class VkCommentPhotoParser implements PhotoParserInterface
 {
-    public function parse(array $data)
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function parse(array $data): array
     {
         $photos = [];
 

@@ -3,28 +3,35 @@
 namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseFactoryException;
-use AppBundle\ODM\Document\Note;
-use AppBundle\Service\Client\Http;
+use AppBundle\Document\Note;
+use AppBundle\Request\VkRequest;
 
 class CollectorFactory
 {
-    private $http_client;
+    private $request;
     private $dir_tmp;
 
-    public function __construct(Http $http_client, $dir_tmp)
+    /**
+     * CollectorFactory constructor.
+     * @param VkRequest $request
+     * @param string    $dir_tmp
+     */
+    public function __construct(VkRequest $request, string $dir_tmp)
     {
-        $this->http_client = $http_client;
-        $this->dir_tmp     = $dir_tmp;
+        $this->request = $request;
+        $this->dir_tmp = $dir_tmp;
     }
 
-    public function init($type)
+    public function init(string $type): CollectorInterface
     {
         switch ($type) {
             case Note::VK_COMMENT:
-                return new VkCommentCollector($this->http_client, $this->dir_tmp);
+                return new VkCommentCollector($this->request, $this->dir_tmp);
+
                 break;
             case Note::VK_WALL:
-                return new VkWallCollector($this->http_client, $this->dir_tmp);
+                return new VkWallCollector($this->request, $this->dir_tmp);
+
                 break;
             default:
                 throw new ParseFactoryException('Invalid parser source');

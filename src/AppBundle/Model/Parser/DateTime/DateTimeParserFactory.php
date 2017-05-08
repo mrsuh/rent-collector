@@ -2,11 +2,17 @@
 
 namespace AppBundle\Model\Parser\DateTime;
 
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
+use AppBundle\Exception\AppException;
 
 class DateTimeParserFactory
 {
-    public function init($type)
+    /**
+     * @param string $type
+     * @return DateTimeParserInterface
+     * @throws AppException
+     */
+    public function init(string $type): DateTimeParserInterface
     {
         switch ($type) {
             case Note::VK_COMMENT:
@@ -15,9 +21,9 @@ class DateTimeParserFactory
             case Note::VK_WALL:
                 return new VkWallDateTimeParser();
                 break;
+            default:
+                throw new AppException('Invalid type');
         }
-
-        return null;
     }
 }
 

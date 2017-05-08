@@ -3,32 +3,51 @@
 namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Service\Client\Http;
+use AppBundle\Request\VkRequest;
 use AppBundle\Storage\FileStorage;
-use GuzzleHttp\Psr7\Request;
 
-class VkWallCollector
+class VkWallCollector implements CollectorInterface
 {
-    private $http_client;
+    private $request;
     private $storage;
 
-    public function __construct(Http $http_client, $file_dir)
+    /**
+     * VkWallCollector constructor.
+     * @param VkRequest $request
+     * @param string    $file_dir
+     */
+    public function __construct(VkRequest $request, string $file_dir)
     {
-        $this->http_client = $http_client;
+        $this->request = $request;
         $this->storage = new FileStorage($file_dir);
     }
 
-    private function getData($file_name)
+    /**
+     * @param string $file_name
+     * @return array
+     */
+    private function getData(string $file_name): array
     {
         return $this->storage->exists($file_name) ? $this->storage->get($file_name) : ['offset' => 0, 'finish' => false];
     }
 
-    private function setData($file_name, $data)
+    /**
+     * @param string $file_name
+     * @param        $data
+     * @return bool
+     */
+    private function setData(string $file_name, $data): bool
     {
         return $this->storage->put($file_name, $data);
     }
 
-    public function collect(array $config, $debug = true)
+    /**
+     * @param array $config
+     * @param bool  $debug
+     * @return array
+     * @throws ParseException
+     */
+    public function collect(array $config, bool $debug = true): array
     {
         $params = $config['data'];
         $id     = 'vk-com-wall' . $params['owner_id'];
@@ -51,7 +70,7 @@ class VkWallCollector
         $timestamp        = (new \DateTime())->modify('- ' . $config['date'])->getTimestamp();
 
         usleep(200);
-        $response = $this->http_client->send(new Request('GET', $config['url']), ['query' => $params]);
+        $response = $this->request->getWallRecords($params);
 
         $contents = $response->getBody()->getContents();
 

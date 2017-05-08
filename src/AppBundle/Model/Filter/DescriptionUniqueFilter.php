@@ -2,7 +2,7 @@
 
 namespace AppBundle\Model\Filter;
 
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
 use ODM\DocumentMapper\DataMapperFactory;
 
 class DescriptionUniqueFilter
@@ -22,7 +22,7 @@ class DescriptionUniqueFilter
      * @param Note $note
      * @return Note[]|array
      */
-    public function findDuplicates(Note $note)
+    public function findDuplicates(Note $note): array
     {
         return $this->dm_note->find(
             [

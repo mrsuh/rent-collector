@@ -8,12 +8,22 @@ class FileStorage
 {
     private $dir;
 
-    public function __construct($dir)
+    /**
+     * FileStorage constructor.
+     * @param string $dir
+     */
+    public function __construct(string $dir)
     {
         $this->dir = $dir;
     }
 
-    public function put($path, $file_content)
+    /**
+     * @param string $path
+     * @param        $file_content
+     * @return bool
+     * @throws FileException
+     */
+    public function put(string $path, $file_content)
     {
         if (!is_dir($this->dir) && !@mkdir($this->dir)) {
             throw new FileException('Can not create directory ' . $this->dir);
@@ -36,7 +46,11 @@ class FileStorage
         return true;
     }
 
-    public function get($path)
+    /**
+     * @param string $path
+     * @return array|mixed
+     */
+    public function get(string $path)
     {
         if (!$this->exists($path)) {
             $this->put($path, []);
@@ -47,7 +61,11 @@ class FileStorage
         return json_decode(file_get_contents($this->dir . DIRECTORY_SEPARATOR . $path), true);
     }
 
-    public function delete($path)
+    /**
+     * @param string $path
+     * @return bool
+     */
+    public function delete(string $path): bool
     {
         $it    = new \RecursiveDirectoryIterator($this->dir . DIRECTORY_SEPARATOR . $path, \RecursiveDirectoryIterator::SKIP_DOTS);
         $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
@@ -66,7 +84,11 @@ class FileStorage
         return true;
     }
 
-    public function exists($path)
+    /**
+     * @param string $path
+     * @return bool
+     */
+    public function exists(string $path): bool
     {
         return file_exists($this->dir . DIRECTORY_SEPARATOR . $path);
     }
