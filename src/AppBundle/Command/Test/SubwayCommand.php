@@ -17,14 +17,14 @@ class SubwayCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tests  = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.test.texts')));
-        $parser = new TextSubwayParser($this->getContainer()->get('odm.hot.data.mapper.factory'));
+        $tests    = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.test.texts')));
+        $explorer = $this->getContainer()->get('explorer.subway');
 
         $success = 0;
         $index   = 0;
         foreach ($tests as $key => $test) {
             $text    = mb_strtolower($test['text']);
-            $subways = $parser->parseText($text);
+            $subways = $explorer->explore($text);
 
             if (count($subways) > 0) {
                 $success++;

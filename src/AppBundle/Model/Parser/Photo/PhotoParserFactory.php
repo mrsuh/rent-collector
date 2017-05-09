@@ -2,11 +2,17 @@
 
 namespace AppBundle\Model\Parser\Photo;
 
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
+use AppBundle\Exception\AppException;
 
 class PhotoParserFactory
 {
-    public function init($type)
+    /**
+     * @param string $type
+     * @return PhotoParserInterface
+     * @throws AppException
+     */
+    public function init(string $type): PhotoParserInterface
     {
         switch ($type) {
             case Note::VK_COMMENT:
@@ -15,9 +21,9 @@ class PhotoParserFactory
             case Note::VK_WALL:
                 return new VkWallPhotoParser();
                 break;
+            default:
+                throw new AppException('Invalid type');
         }
-
-        return null;
     }
 }
 

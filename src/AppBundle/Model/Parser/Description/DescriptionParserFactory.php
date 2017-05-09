@@ -2,11 +2,17 @@
 
 namespace AppBundle\Model\Parser\Description;
 
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
+use AppBundle\Exception\AppException;
 
 class DescriptionParserFactory
 {
-    public function init($type)
+    /**
+     * @param string $type
+     * @return DescriptionParserInterface
+     * @throws AppException
+     */
+    public function init(string $type): DescriptionParserInterface
     {
         switch ($type) {
             case Note::VK_COMMENT:
@@ -15,9 +21,9 @@ class DescriptionParserFactory
             case Note::VK_WALL:
                 return new VkWallDescriptionParser();
                 break;
+            default:
+                throw new AppException('Invalid type');
         }
-
-        return null;
     }
 }
 

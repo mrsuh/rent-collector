@@ -2,35 +2,30 @@
 
 namespace AppBundle\Model\Parser\Contact;
 
-use AppBundle\ODM\Document\Note;
-use AppBundle\Service\TomitaService;
+use AppBundle\Document\Note;
+use AppBundle\Exception\AppException;
 
 class ContactParserFactory
 {
-    private $tomita;
-
     /**
-     * ContactParserFactory constructor.
-     * @param $bin
-     * @param $config
+     * @param string $type
+     * @return ContactParserInterface
+     * @throws AppException
      */
-    public function __construct($bin, $config)
-    {
-        $this->tomita = new TomitaService($bin, $config);
-    }
-
-    public function init($type)
+    public function init(string $type): ContactParserInterface
     {
         switch ($type) {
             case Note::VK_COMMENT:
-                return new VkCommentContactParser($this->tomita);
+                return new VkCommentContactParser();
+
                 break;
             case Note::VK_WALL:
-                return new VkWallContactParser($this->tomita);
-                break;
-        }
+                return new VkWallContactParser();
 
-        return null;
+                break;
+            default:
+                throw new AppException('Invalid type');
+        }
     }
 }
 

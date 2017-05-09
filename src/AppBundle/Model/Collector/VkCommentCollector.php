@@ -3,32 +3,53 @@
 namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Service\Client\Http;
+use AppBundle\Request\VkRequest;
+use AppBundle\Service\Client\Client;
 use AppBundle\Storage\FileStorage;
 use GuzzleHttp\Psr7\Request;
 
-class VkCommentCollector
+class VkCommentCollector implements CollectorInterface
 {
-    private $http_client;
+    private $request;
     private $storage;
 
-    public function __construct(Http $http_client, $file_dir)
+    /**
+     * VkCommentCollector constructor.
+     * @param VkRequest $request
+     * @param string    $file_dir
+     */
+    public function __construct(VkRequest $request, string $file_dir)
     {
-        $this->http_client = $http_client;
+        $this->request = $request;
         $this->storage = new FileStorage($file_dir);
     }
 
-    private function getId($file_name)
+    /**
+     * @param string $file_name
+     * @return int
+     */
+    private function getId(string $file_name): int
     {
         return $this->storage->exists($file_name) ? $this->storage->get($file_name) : 1;
     }
 
-    private function setId($file_name, $id)
+    /**
+     * @param string $file_name
+     * @param int    $id
+     * @return bool
+     */
+    private function setId(string $file_name, int $id): bool
     {
         return $this->storage->put($file_name, $id);
     }
 
-    public function collect(array $config, $debug = false)
+    /**
+     * @param array $config
+     * @param bool  $debug
+     * @return array
+     * @throws ParseException
+     */
+    public function collect(array $config, bool $debug = false): array
     {
         $params                     = $config['data'];
 
@@ -37,11 +58,9 @@ class VkCommentCollector
         $params['start_comment_id'] = $this->getId($file_name);
 
         usleep(200);
-        $response = $this->http_client->send(new Request('GET', $config['url']), ['query' => $params]);
+        $response = $this->request->getCommentRecords($params);
 
-        $contents = $response->getBody()->getContents();
-
-        $data = json_decode($contents, true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         if (!array_key_exists('response', $data)) {
             throw new ParseException('Has not key "response" in response');

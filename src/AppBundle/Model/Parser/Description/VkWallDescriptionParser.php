@@ -4,9 +4,14 @@ namespace AppBundle\Model\Parser\Description;
 
 use AppBundle\Exception\ParseException;
 
-class VkWallDescriptionParser
+class VkWallDescriptionParser implements DescriptionParserInterface
 {
-    public function parse(array $data)
+    /**
+     * @param array $data
+     * @return string
+     * @throws ParseException
+     */
+    public function parse(array $data): string
     {
         if (!array_key_exists('date', $data)) {
             throw new ParseException('Key "text" is not exists in array');

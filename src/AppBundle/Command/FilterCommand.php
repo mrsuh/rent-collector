@@ -3,7 +3,7 @@
 namespace AppBundle\Command;
 
 use AppBundle\Command\Helper\DisplayTrait;
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

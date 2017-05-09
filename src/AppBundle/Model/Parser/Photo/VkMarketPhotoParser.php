@@ -4,9 +4,14 @@ namespace AppBundle\Model\Parser\Photo;
 
 use AppBundle\Exception\ParseException;
 
-class VkMarketPhotoParser
+class VkMarketPhotoParser implements PhotoParserInterface
 {
-    public function parse(array $data)
+    /**
+     * @param array $data
+     * @return array
+     * @throws ParseException
+     */
+    public function parse(array $data): array
     {
         $photos = [];
 

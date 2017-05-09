@@ -1,9 +1,132 @@
-# Learn more about services, parameters and containers at
-# http://symfony.com/doc/current/book/service_container.html
 parameters:
-#    parameter_name: value
+    guzzle:
+        timeout: "%guzzle.timeout%"
+        connect_timeout: "%guzzle.connect_timeout%"
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
+#odm ==================================================================
+    odm.hot.dbal:
+       class: ODM\DBAL
+       arguments:
+           - "%database.hot.host%"
+           - "%database.hot.port%"
+           - "%database.hot.name%"
+
+    odm.cold.dbal:
+       class: ODM\DBAL
+       arguments:
+           - "%database.cold.host%"
+           - "%database.cold.port%"
+           - "%database.cold.name%"
+           
+    odm.hot.data.mapper.factory:
+       class: ODM\DocumentMapper\DataMapperFactory
+       arguments:
+           - "@odm.hot.dbal"
+
+    odm.cold.data.mapper.factory:
+       class: ODM\DocumentMapper\DataMapperFactory
+       arguments:
+           - "@odm.cold.dbal"
+
+#odm ==================================================================
+
+
+#request =============================================================
+
+    request.client:
+        class: AppBundle\Request\Client
+        arguments:
+            - "%guzzle%"
+
+    request.tomita:
+        class: AppBundle\Request\TomitaRequest
+        arguments:
+            - "@request.client"
+            - "%request.base_uri.tomita%"
+
+    request.vk:
+        class: AppBundle\Request\VkRequest
+        arguments:
+            - "@request.client"
+            - "%request.base_uri.vk%"
+
+#request =============================================================
+
+
+#parser =============================================================
+
+    parser.contact.factory:
+        class: AppBundle\Model\Parser\Contact\ContactParserFactory
+
+    parser.datetime.factory:
+        class: AppBundle\Model\Parser\DateTime\DateTimeParserFactory
+
+    parser.description.factory:
+        class: AppBundle\Model\Parser\Description\DescriptionParserFactory
+
+    parser.photo.factory:
+        class: AppBundle\Model\Parser\Photo\PhotoParserFactory
+
+#parser =============================================================
+
+
+#explorer ===========================================================
+
+    explorer.user.factory:
+        class: AppBundle\Model\Explorer\User\UserExplorerFactory
+        arguments:
+            - "@request.vk"
+
+    explorer.subway:
+        class: AppBundle\Model\Explorer\Subway\SubwayExplorer
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+
+    explorer.tomita:
+        class: AppBundle\Model\Explorer\Tomita\TomitaExplorer
+        arguments:
+            - "@request.tomita"
+
+#explorer ===========================================================
+
+#collector =============================================================
+
+    collector.factory:
+        class: AppBundle\Model\Collector\CollectorFactory
+        arguments:
+            - '@request.vk'
+            - '%dir.tmp%'
+
+#collector =============================================================
+
+
+#filter =============================================================
+
+    filter.unique.external_id:
+        class: AppBundle\Model\Filter\ExternalIdUniqueFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+
+    filter.black_list.description:
+        class: AppBundle\Model\Filter\DescriptionBlackListFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+            - "%file.black_list.description%"
+
+    filter.black_list.contacts:
+        class: AppBundle\Model\Filter\ContactsBlackListFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+            - "%file.black_list.person%"
+
+    filter.expire.date:
+        class: AppBundle\Model\Filter\DateExpireFilter
+
+    filter.unique.description:
+        class: AppBundle\Model\Filter\DescriptionUniqueFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
+
+#filter =============================================================

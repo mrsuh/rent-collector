@@ -2,7 +2,7 @@
 
 namespace AppBundle\Model\Filter;
 
-use AppBundle\ODM\Document\Note;
+use AppBundle\Document\Note;
 
 class DateExpireFilter
 {
@@ -20,7 +20,7 @@ class DateExpireFilter
      * @param Note $note
      * @return bool
      */
-    public function isExpire(Note $note)
+    public function isExpire(Note $note): bool
     {
         return (int)$this->timestamp >= (int)$note->getTimestamp();
     }
