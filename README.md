@@ -3,9 +3,14 @@
 [![Build Status](https://travis-ci.org/mrsuh/rent-collector.svg?branch=master)](https://travis-ci.org/mrsuh/rent-collector)
 
 ## Installation
-```
+```sh
 sh bin/install
 sh bin/deploy
+```
+
+## Collect
+```sh
+php bin/console app:collect
 ```
 
 ## Parameters
@@ -87,9 +92,4 @@ config/black_list.person.yml
 config/black_list.description.yml
 ```yml
 - description text
-```
-
-## Collect
-```
-php bin/console app:collect
 ```
