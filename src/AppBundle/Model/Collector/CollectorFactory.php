@@ -22,6 +22,11 @@ class CollectorFactory
         $this->dir_tmp = $dir_tmp;
     }
 
+    /**
+     * @param string $type
+     * @return CollectorInterface
+     * @throws ParseFactoryException
+     */
     public function init(string $type): CollectorInterface
     {
         switch ($type) {

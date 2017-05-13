@@ -60,11 +60,6 @@ class Note extends Document
         $this->id = Date('U') . $this->external_id;
     }
 
-    public function initDescriptionHash()
-    {
-
-    }
-
     /**
      * @return string
      */
