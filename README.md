@@ -13,7 +13,7 @@ sh bin/deploy
 php bin/console app:collect
 ```
 
-## Parameters
+## Configuration
 
 config/parameters.yml
 ```yml
