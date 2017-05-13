@@ -16,5 +16,7 @@ parameters:
     mailer_user: null
     mailer_password: null
 
+    secret: 93317234c99beb1ad90846f6d40cba22258eff91
+
     guzzle.timeout: 10
     guzzle.connect_timeout: 5
