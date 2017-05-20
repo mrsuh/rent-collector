@@ -89,13 +89,12 @@ class VkWallCollector implements CollectorInterface
         $finish = false;
         foreach ($items_raw as $item) {
 
-            $is_pinned     = array_key_exists('is_pinned', $item) && $item['is_pinned'];
             $market_as_ads = array_key_exists('marked_as_ads', $item) && $item['marked_as_ads'];
-
             if ($market_as_ads) {
                 continue;
             }
 
+            $is_pinned = array_key_exists('is_pinned', $item) && $item['is_pinned'];
             if ($timestamp > $item['date'] && $is_pinned) {
                 continue;
             }
