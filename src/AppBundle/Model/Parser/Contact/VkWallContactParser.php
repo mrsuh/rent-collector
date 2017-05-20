@@ -29,6 +29,13 @@ class VkWallContactParser implements ContactParserInterface
                 break;
         }
 
+        $text = $data['text'];
+
+        if ($id < 0) {
+            preg_match('/\[id(\d+)\|.*\]/', $text, $match);
+            $id = array_key_exists(1, $match) ? $match[1] : -1;
+        }
+
         return (new Contact())
             ->setId($id)
             ->setLink('https://vk.com/' . ($id > 0 ? 'id' . $id : 'club' . $id))

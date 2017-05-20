@@ -47,7 +47,7 @@ class VkWallCollector implements CollectorInterface
      * @return array
      * @throws ParseException
      */
-    public function collect(array $config, bool $debug = true): array
+    public function collect(array $config, bool $debug = false): array
     {
         $params = $config['data'];
         $id     = 'vk-com-wall' . $params['owner_id'];
@@ -88,10 +88,23 @@ class VkWallCollector implements CollectorInterface
         $items     = [];
         $finish = false;
         foreach ($items_raw as $item) {
+
+            $is_pinned     = array_key_exists('is_pinned', $item) && $item['is_pinned'];
+            $market_as_ads = array_key_exists('marked_as_ads', $item) && $item['marked_as_ads'];
+
+            if ($market_as_ads) {
+                continue;
+            }
+
+            if ($timestamp > $item['date'] && $is_pinned) {
+                continue;
+            }
+
             if ($timestamp > $item['date']) {
                 $finish = true;
                 break;
             }
+
             $items[] = $item;
         }
 
