@@ -118,6 +118,13 @@ class CollectCommand extends ContainerAwareCommand
                         $this->debug($note->getExternalId() . ' explore user...');
                         $user = $explorer_user->explore($contact->getId());
 
+                        if (null === $user) {
+                            $this->debug($note->getExternalId() . ' invalid user parse...');
+                            unset($note);
+
+                            continue;
+                        }
+
                         $note->setContacts([
                             'person' => [
                                 'name'  => $user->getFirstName() . ' ' . $user->getLastName(),
