@@ -5,22 +5,22 @@ namespace AppBundle\Request;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
-class VkRequest
+class VkPublicRequest
 {
     private $client;
     private $url;
     private $version;
 
     /**
-     * VkRequest constructor.
+     * VkPublicRequest constructor.
      * @param Client $client
      * @param string $url
      */
-    public function __construct(Client $client, string $url)
+    public function __construct(Client $client, string $url, float $version)
     {
         $this->client  = $client;
         $this->url     = $url;
-        $this->version = 5.62;
+        $this->version = $version;
     }
 
     /**
@@ -65,8 +65,8 @@ class VkRequest
         $data = [
             'query' => [
                 'user_ids' => $user_id,
-                'v'        => $this->version,
-                'fields'   => 'photo_100'
+                'fields'   => 'photo_100',
+                'v'        => $this->version
             ]
         ];
 

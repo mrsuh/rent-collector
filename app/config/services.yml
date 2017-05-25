@@ -3,6 +3,17 @@ parameters:
         timeout: "%guzzle.timeout%"
         connect_timeout: "%guzzle.connect_timeout%"
 
+    auth.vk:
+        app_id: '%auth.vk.app_id%'
+        username: '%auth.vk.username%'
+        password: '%auth.vk.password%'
+        scope: '%auth.vk.scope%'
+        version: '%auth.vk.version%'
+
+    publish.vk:
+        user_id: '%publish.vk.user_id%'
+        group_id: '%publish.vk.group_id%'
+
 services:
 
 #odm ==================================================================
@@ -46,11 +57,25 @@ services:
             - "@request.client"
             - "%request.base_uri.tomita%"
 
-    request.vk:
-        class: AppBundle\Request\VkRequest
+    request.public.vk:
+        class: AppBundle\Request\VkPublicRequest
         arguments:
             - "@request.client"
             - "%request.base_uri.vk%"
+            - '%auth.vk.version%'
+
+    request.private.vk:
+        class: AppBundle\Request\VkPrivateRequest
+        arguments:
+            - '@auth.vk'
+            - "@request.client"
+            - "%request.base_uri.vk%"
+            - '%auth.vk.version%'
+
+    auth.vk:
+        class: Mrsuh\Service\AuthService
+        arguments:
+            - "%auth.vk%"
 
 #request =============================================================
 
@@ -77,7 +102,7 @@ services:
     explorer.user.factory:
         class: AppBundle\Model\Explorer\User\UserExplorerFactory
         arguments:
-            - "@request.vk"
+            - "@request.public.vk"
 
     explorer.subway:
         class: AppBundle\Model\Explorer\Subway\SubwayExplorer
@@ -91,12 +116,13 @@ services:
 
 #explorer ===========================================================
 
+
 #collector =============================================================
 
     collector.factory:
         class: AppBundle\Model\Collector\CollectorFactory
         arguments:
-            - '@request.vk'
+            - '@request.public.vk'
             - '%dir.tmp%'
 
 #collector =============================================================
@@ -130,3 +156,16 @@ services:
             - "@odm.hot.data.mapper.factory"
 
 #filter =============================================================
+
+
+#publiser ===========================================================
+
+    publisher.vk:
+        class: AppBundle\Model\Publisher\VkPublisher
+        arguments:
+            - '@request.private.vk'
+            - "@odm.hot.data.mapper.factory"
+            - "@logger"
+            - '%publish.vk%'
+
+#publiser ===========================================================

@@ -4,7 +4,7 @@ namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseFactoryException;
 use AppBundle\Document\Note;
-use AppBundle\Request\VkRequest;
+use AppBundle\Request\VkPublicRequest;
 
 class CollectorFactory
 {
@@ -13,10 +13,10 @@ class CollectorFactory
 
     /**
      * CollectorFactory constructor.
-     * @param VkRequest $request
-     * @param string    $dir_tmp
+     * @param VkPublicRequest $request
+     * @param string          $dir_tmp
      */
-    public function __construct(VkRequest $request, string $dir_tmp)
+    public function __construct(VkPublicRequest $request, string $dir_tmp)
     {
         $this->request = $request;
         $this->dir_tmp = $dir_tmp;

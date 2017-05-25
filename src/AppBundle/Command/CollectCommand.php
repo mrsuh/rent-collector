@@ -40,6 +40,8 @@ class CollectCommand extends ContainerAwareCommand
         $explorer_subway       = $container->get('explorer.subway');
         $explorer_tomita       = $container->get('explorer.tomita');
 
+        $publisher_vk = $container->get('publisher.vk');
+
         $dm_note = $container->get('odm.hot.data.mapper.factory')->init(Note::class);
 
         $count = 0;
@@ -161,6 +163,8 @@ class CollectCommand extends ContainerAwareCommand
                         $note->initId();
                         $dm_note->insert($note);
                         $count++;
+
+                        $publisher_vk->publish($note);
 
                     } catch (\Exception $e) {
                         $this->debug($e->getMessage());
