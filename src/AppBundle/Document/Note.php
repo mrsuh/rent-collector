@@ -47,12 +47,17 @@ class Note extends Document
 
     private $photo_hashes;
 
+    private $published;
+
+    private $publishedTimestamp;
+
     public function __construct()
     {
         $this->photos    = ['low' => [], 'high' => []];
         $this->contacts  = ['phones' => [], 'person' => ['name' => null, 'link' => null, 'write' => null]];
         $this->subways   = [];
         $this->community = ['name' => null, 'link' => null];
+        $this->published = false;
     }
 
     public function initId()
@@ -342,6 +347,44 @@ class Note extends Document
     public function setPhotoHashes($photo_hashes)
     {
         $this->photo_hashes = $photo_hashes;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPublished(): bool
+    {
+        return $this->published;
+    }
+
+    /**
+     * @param bool $published
+     * @return $this
+     */
+    public function setPublished(bool $published)
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPublishedTimestamp()
+    {
+        return $this->publishedTimestamp;
+    }
+
+    /**
+     * @param $publishedTimestamp
+     * @return $this
+     */
+    public function setPublishedTimestamp($publishedTimestamp)
+    {
+        $this->publishedTimestamp = $publishedTimestamp;
 
         return $this;
     }

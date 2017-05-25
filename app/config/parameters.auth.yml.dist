@@ -1,0 +1,6 @@
+parameters:
+    auth.vk.app_id: '12345678' # application id
+    auth.vk.username: 'mrsuh6@gmail.com' #username
+    auth.vk.password: 'password' # password
+    auth.vk.scope: ['wall', 'photos'] # list of permissions
+    auth.vk.version: '5.64' # api version

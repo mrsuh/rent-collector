@@ -4,7 +4,7 @@ namespace AppBundle\Model\Explorer\User;
 
 use AppBundle\Document\Note;
 use AppBundle\Exception\AppException;
-use AppBundle\Request\VkRequest;
+use AppBundle\Request\VkPublicRequest;
 
 class UserExplorerFactory
 {
@@ -12,9 +12,9 @@ class UserExplorerFactory
 
     /**
      * ContactExplorerFactory constructor.
-     * @param VkRequest $request
+     * @param VkPublicRequest $request
      */
-    public function __construct(VkRequest $request)
+    public function __construct(VkPublicRequest $request)
     {
         $this->request = $request;
     }

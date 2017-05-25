@@ -3,7 +3,7 @@
 namespace AppBundle\Model\Explorer\User;
 
 use AppBundle\Exception\ExploreException;
-use AppBundle\Request\VkRequest;
+use AppBundle\Request\VkPublicRequest;
 
 class VkUserExplorer implements UserExplorerInterface
 {
@@ -11,9 +11,9 @@ class VkUserExplorer implements UserExplorerInterface
 
     /**
      * VkUserExplorer constructor.
-     * @param VkRequest $request
+     * @param VkPublicRequest $request
      */
-    public function __construct(VkRequest $request)
+    public function __construct(VkPublicRequest $request)
     {
         $this->request = $request;
     }

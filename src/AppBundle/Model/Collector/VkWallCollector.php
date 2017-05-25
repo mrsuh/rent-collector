@@ -3,7 +3,7 @@
 namespace AppBundle\Model\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Request\VkRequest;
+use AppBundle\Request\VkPublicRequest;
 use AppBundle\Storage\FileStorage;
 
 class VkWallCollector implements CollectorInterface
@@ -13,10 +13,10 @@ class VkWallCollector implements CollectorInterface
 
     /**
      * VkWallCollector constructor.
-     * @param VkRequest $request
-     * @param string    $file_dir
+     * @param VkPublicRequest $request
+     * @param string          $file_dir
      */
-    public function __construct(VkRequest $request, string $file_dir)
+    public function __construct(VkPublicRequest $request, string $file_dir)
     {
         $this->request = $request;
         $this->storage = new FileStorage($file_dir);

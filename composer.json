@@ -27,7 +27,8 @@
     "incenteev/composer-parameter-handler": "^2.0",
     "guzzlehttp/guzzle": "^6.2",
     "symfony/yaml": "^3.1",
-    "mrsuh/mongo-odm": "1.*"
+    "mrsuh/mongo-odm": "1.*",
+    "mrsuh/vk-api": "^1.4"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",
@@ -67,6 +68,12 @@
       },
       {
         "file": "app/config/parameters.request.yml"
+      },
+      {
+        "file": "app/config/parameters.auth.yml"
+      },
+      {
+        "file": "app/config/parameters.publish.yml"
       }
     ]
   }
