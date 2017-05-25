@@ -164,6 +164,7 @@ class CollectCommand extends ContainerAwareCommand
                         $dm_note->insert($note);
                         $count++;
 
+                        $this->debug($note->getExternalId() . ' publish...');
                         $publisher_vk->publish($note);
 
                     } catch (\Exception $e) {
