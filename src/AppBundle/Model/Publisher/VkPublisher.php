@@ -235,7 +235,7 @@ class VkPublisher implements PublisherInterface
             }
 
             $name = $contact['person']['name'];
-            preg_match('/id\d+/', $contact['person']['link'], $match);
+            preg_match('/id.+/', $contact['person']['link'], $match);
             $id      = $match[0];
             $postfix = PHP_EOL . PHP_EOL . '[' . $id . '| ' . $name . ']';
 
