@@ -28,7 +28,6 @@
     "guzzlehttp/guzzle": "^6.2",
     "symfony/yaml": "^3.1",
     "mrsuh/mongo-odm": "1.*",
-    "paquettg/php-html-parser": "^1.7",
     "mrsuh/vk-api": "^1.4"
   },
   "require-dev": {

@@ -33,6 +33,11 @@ class VkPublisher implements PublisherInterface
         $this->initSubways($dm->init(Subway::class)->find());
     }
 
+    /**
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return array|\ODM\Document\Document[]
+     */
     private function findPublishedNotesByPeriod(\DateTime $from, \DateTime $to)
     {
         return $this->dm_note->find([
