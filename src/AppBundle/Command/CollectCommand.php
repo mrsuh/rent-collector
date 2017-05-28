@@ -32,6 +32,7 @@ class CollectCommand extends ContainerAwareCommand
 
         $filter_expire_date            = $container->get('filter.expire.date');
         $filter_unique_description     = $container->get('filter.unique.description');
+        $filter_unique                 = $container->get('filter.unique');
         $filter_unique_external_id     = $container->get('filter.unique.external_id');
         $filter_black_list_description = $container->get('filter.black_list.description');
         $filter_black_list_contacts    = $container->get('filter.black_list.contacts');
@@ -155,6 +156,14 @@ class CollectCommand extends ContainerAwareCommand
                         if (!empty($filter_unique_description->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique description');
                             foreach ($dm_note->find(['description_hash' => $note->getDescriptionHash()]) as $duplicate) {
+                                $this->debug($note->getExternalId() . ' delete duplicate');
+                                $dm_note->delete($duplicate);
+                            }
+                        }
+
+                        if (!empty($duplicates = $filter_unique->findDuplicates($note))) {
+                            $this->debug($note->getExternalId() . ' filter by unique');
+                            foreach ($duplicates as $duplicate) {
                                 $this->debug($note->getExternalId() . ' delete duplicate');
                                 $dm_note->delete($duplicate);
                             }

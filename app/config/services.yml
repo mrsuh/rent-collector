@@ -155,6 +155,10 @@ services:
         arguments:
             - "@odm.hot.data.mapper.factory"
 
+    filter.unique:
+        class: AppBundle\Model\Filter\UniqueFilter
+        arguments:
+            - "@odm.hot.data.mapper.factory"
 #filter =============================================================
 
 
