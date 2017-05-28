@@ -34,19 +34,35 @@ class VkPublisher implements PublisherInterface
     }
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @return array|\ODM\Document\Document[]
+     * @return int
      */
-    private function findPublishedNotesByPeriod(\DateTime $from, \DateTime $to)
+    private function findPublishedNotesLastHour()
     {
-        return $this->dm_note->find([
+        $notes = $this->dm_note->find([
             'publishedTimestamp' => [
-                '$gte' => $from->getTimestamp(),
-                '$lte' => $to->getTimestamp()
+                '$gte' => (new \DateTime())->modify('- 1 hour')->getTimestamp(),
+                '$lte' => (new \DateTime())->getTimestamp()
             ],
             'published'          => true
         ]);
+
+        $count = 0;
+        $now   = new \DateTime();
+        foreach ($notes as $note) {
+            $date = \DateTime::createFromFormat('U', $note->getTimestamp());
+
+            if (false === $date) {
+                continue;
+            }
+
+            if ((int)$date->format('H') !== (int)$now->format('H')) {
+                continue;
+            }
+
+            $count++;
+        }
+
+        return $count;
     }
 
     /**
@@ -191,7 +207,7 @@ class VkPublisher implements PublisherInterface
             return false;
         }
 
-        $notes = $this->findPublishedNotesByPeriod((new \DateTime())->modify('- 1 hour'), new \DateTime());
+        $notes = $this->findPublishedNotesLastHour();
 
         if (count($notes) >= 4) {
 
