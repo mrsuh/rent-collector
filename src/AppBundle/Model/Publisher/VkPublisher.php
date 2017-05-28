@@ -216,17 +216,6 @@ class VkPublisher implements PublisherInterface
 
         try {
 
-            $photos = [];
-            foreach ($note->getPhotos() as $photo) {
-                $photo_id = $this->uploadPhoto($photo['high']);
-
-                if (null === $photo_id) {
-                    continue;
-                }
-
-                $photos[] = 'photo' . $this->params['user_id'] . '_' . $photo_id;
-            }
-
             $subways = [];
             foreach ($note->getSubways() as $subway_id) {
                 if (!array_key_exists($subway_id, $this->subways)) {
@@ -253,6 +242,11 @@ class VkPublisher implements PublisherInterface
             $name = $contact['person']['name'];
             preg_match('/id.+/', $contact['person']['link'], $match);
             $id      = $match[0];
+
+            if(empty($id)) {
+                return false;
+            }
+
             $postfix = PHP_EOL . PHP_EOL . '[' . $id . '| ' . $name . ']';
 
             $prefix = '';
@@ -260,6 +254,17 @@ class VkPublisher implements PublisherInterface
             !empty($note->getPrice()) ? $prefix .= 'цена: ' . $note->getPrice() . ' рублей' . PHP_EOL : null;
             !empty($subways) ? $prefix .= 'метро: ' . implode(', ', $subways) . PHP_EOL : null;
             $prefix .= PHP_EOL;
+
+            $photos = [];
+            foreach ($note->getPhotos() as $photo) {
+                $photo_id = $this->uploadPhoto($photo['high']);
+
+                if (null === $photo_id) {
+                    continue;
+                }
+
+                $photos[] = 'photo' . $this->params['user_id'] . '_' . $photo_id;
+            }
 
             usleep(200000);
             $this->request->wallPost([
