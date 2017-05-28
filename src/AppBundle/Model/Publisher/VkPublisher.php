@@ -120,6 +120,38 @@ class VkPublisher implements PublisherInterface
     }
 
     /**
+     * @param Note $note
+     * @return string
+     */
+    private function getLink(Note $note)
+    {
+        $link = 'https://socrent.ru/';
+        switch ($note->getType()) {
+            case Note::ROOM:
+                $link .= 'rent/saint-petersburg/komnaty/room-p';
+                break;
+            case Note::FLAT_1:
+                $link .= 'rent/saint-petersburg/kvartiry/1-k-kvartira-p';
+                break;
+            case Note::FLAT_2:
+                $link .= 'rent/saint-petersburg/kvartiry/2-k-kvartira-p';
+                break;
+            case Note::FLAT_3:
+                $link .= 'rent/saint-petersburg/kvartiry/3-k-kvartira-p';
+                break;
+            case Note::FLAT_N:
+                $link .= 'rent/saint-petersburg/kvartiry/4-k-kvartira-p';
+                break;
+            case Note::STUDIO:
+                $link .= 'rent/saint-petersburg/kvartiry/studia-p';
+                break;
+        }
+
+        return $link . $note->getId();
+    }
+
+
+    /**
      * @param string $url
      * @return int
      */
@@ -241,19 +273,25 @@ class VkPublisher implements PublisherInterface
 
             $name = $contact['person']['name'];
             preg_match('/id.+/', $contact['person']['link'], $match);
-            $id      = $match[0];
+            $id = $match[0];
 
-            if(empty($id)) {
+            if (empty($id)) {
                 return false;
             }
 
-            $postfix = PHP_EOL . PHP_EOL . '[' . $id . '| ' . $name . ']';
+            $prefix =
+                $this->formatType($note->getType()) .
+                ' за ' .
+                $note->getPrice() .
+                ' руб. около метро: ' .
+                implode(', ', $subways) .
+                PHP_EOL . PHP_EOL;
 
-            $prefix = '';
-            $prefix .= 'тип: ' . $this->formatType($note->getType()) . PHP_EOL;
-            !empty($note->getPrice()) ? $prefix .= 'цена: ' . $note->getPrice() . ' рублей' . PHP_EOL : null;
-            !empty($subways) ? $prefix .= 'метро: ' . implode(', ', $subways) . PHP_EOL : null;
-            $prefix .= PHP_EOL;
+            $postfix =
+                PHP_EOL . PHP_EOL .
+                '[' . $id . '| ' . $name . ']' .
+                PHP_EOL .
+                $this->getLink($note);
 
             $photos = [];
             foreach ($note->getPhotos() as $photo) {
