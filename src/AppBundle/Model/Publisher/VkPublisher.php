@@ -147,7 +147,7 @@ class VkPublisher implements PublisherInterface
                 break;
         }
 
-        return $link . $note->getId();
+        return $link . '.' . $note->getId();
     }
 
 
