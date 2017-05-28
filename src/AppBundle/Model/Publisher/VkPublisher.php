@@ -125,25 +125,25 @@ class VkPublisher implements PublisherInterface
      */
     private function getLink(Note $note)
     {
-        $link = 'https://socrent.ru/';
+        $link = 'https://socrent.ru/rent/saint-petersburg/';
         switch ($note->getType()) {
             case Note::ROOM:
-                $link .= 'rent/saint-petersburg/komnaty/room-p';
+                $link .= 'komnaty/room-p';
                 break;
             case Note::FLAT_1:
-                $link .= 'rent/saint-petersburg/kvartiry/1-k-kvartira-p';
+                $link .= 'kvartiry/1-k-kvartira-p';
                 break;
             case Note::FLAT_2:
-                $link .= 'rent/saint-petersburg/kvartiry/2-k-kvartira-p';
+                $link .= 'kvartiry/2-k-kvartira-p';
                 break;
             case Note::FLAT_3:
-                $link .= 'rent/saint-petersburg/kvartiry/3-k-kvartira-p';
+                $link .= 'kvartiry/3-k-kvartira-p';
                 break;
             case Note::FLAT_N:
-                $link .= 'rent/saint-petersburg/kvartiry/4-k-kvartira-p';
+                $link .= 'kvartiry/4-k-kvartira-p';
                 break;
             case Note::STUDIO:
-                $link .= 'rent/saint-petersburg/kvartiry/studia-p';
+                $link .= 'kvartiry/studia-p';
                 break;
         }
 
