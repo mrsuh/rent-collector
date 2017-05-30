@@ -26,6 +26,11 @@ class UniqueFilter
     {
         $contact = $note->getContacts()['person']['link'];
 
+        $date = \DateTime::createFromFormat('U', $note->getTimestamp());
+        if (false === $date) {
+            $date = new \DateTime();
+        }
+
         return $this->dm_note->find(
             [
                 'contacts'  => [
@@ -35,7 +40,7 @@ class UniqueFilter
                 ],
                 'type'      => $note->getType(),
                 'timestamp' => [
-                    '$gte' => (new \DateTime())->modify('- 12 hours')->getTimestamp(),
+                    '$gte' => $date->modify('- 12 hours')->getTimestamp(),
                 ],
                 'id'        => ['$ne' => $note->getId()]
             ]);
