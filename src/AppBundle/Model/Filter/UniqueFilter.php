@@ -33,16 +33,12 @@ class UniqueFilter
 
         return $this->dm_note->find(
             [
-                'contacts'  => [
-                    'person' => [
-                        'link' => $contact
-                    ]
-                ],
-                'type'      => $note->getType(),
-                'timestamp' => [
+                'contacts.person.link' => $contact,
+                'type'                 => $note->getType(),
+                'timestamp'            => [
                     '$gte' => $date->modify('- 12 hours')->getTimestamp(),
                 ],
-                'id'        => ['$ne' => $note->getId()]
+                'id'                   => ['$ne' => $note->getId()]
             ]);
     }
 }
