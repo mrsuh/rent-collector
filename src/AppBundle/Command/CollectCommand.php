@@ -161,8 +161,10 @@ class CollectCommand extends ContainerAwareCommand
                             }
                         }
 
+                        $duplicate = false;
                         if (!empty($duplicates = $filter_unique->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique');
+                            $duplicate = true;
                             foreach ($duplicates as $duplicate) {
                                 $this->debug($note->getExternalId() . ' delete duplicate');
                                 $dm_note->delete($duplicate);
@@ -174,7 +176,10 @@ class CollectCommand extends ContainerAwareCommand
                         $count++;
 
                         $this->debug($note->getExternalId() . ' publish...');
-                        $publisher_vk->publish($note);
+
+                        if (!$duplicate) {
+                            $publisher_vk->publish($note);
+                        }
 
                     } catch (\Exception $e) {
                         $this->debug($e->getMessage());
