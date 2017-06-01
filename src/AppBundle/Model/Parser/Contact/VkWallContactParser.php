@@ -39,7 +39,7 @@ class VkWallContactParser implements ContactParserInterface
         return (new Contact())
             ->setId($id)
             ->setLink('https://vk.com/' . ($id > 0 ? 'id' . $id : 'club' . $id))
-            ->setLink('https://vk.com/' . ($id > 0 ? 'write' . $id : 'club' . $id));
+            ->setWrite('https://vk.com/' . ($id > 0 ? 'write' . $id : 'club' . $id));
     }
 }
 
