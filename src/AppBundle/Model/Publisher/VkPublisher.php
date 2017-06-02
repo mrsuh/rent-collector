@@ -36,7 +36,7 @@ class VkPublisher implements PublisherInterface
     /**
      * @return int
      */
-    private function findPublishedNotesLastHour()
+    private function findPublishedNotesCountLastHour()
     {
         $notes = $this->dm_note->find([
             'publishedTimestamp' => [
@@ -49,7 +49,7 @@ class VkPublisher implements PublisherInterface
         $count = 0;
         $now   = new \DateTime();
         foreach ($notes as $note) {
-            $date = \DateTime::createFromFormat('U', $note->getTimestamp());
+            $date = \DateTime::createFromFormat('U', $note->getPublishedTimestamp());
 
             if (false === $date) {
                 continue;
@@ -239,9 +239,7 @@ class VkPublisher implements PublisherInterface
             return false;
         }
 
-        $notes = $this->findPublishedNotesLastHour();
-
-        if (count($notes) >= 4) {
+        if ($this->findPublishedNotesCountLastHour() >= 4) {
 
             return false;
         }
