@@ -153,15 +153,16 @@ class CollectCommand extends ContainerAwareCommand
                         }
                         $note->setSubways($subways);
 
+                        $duplicate = false;
                         if (!empty($filter_unique_description->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique description');
+                            $duplicate = true;
                             foreach ($dm_note->find(['description_hash' => $note->getDescriptionHash()]) as $duplicate) {
                                 $this->debug($note->getExternalId() . ' delete duplicate');
                                 $dm_note->delete($duplicate);
                             }
                         }
 
-                        $duplicate = false;
                         if (!empty($duplicates = $filter_unique->findDuplicates($note))) {
                             $this->debug($note->getExternalId() . ' filter by unique');
                             $duplicate = true;
@@ -175,9 +176,8 @@ class CollectCommand extends ContainerAwareCommand
                         $dm_note->insert($note);
                         $count++;
 
-                        $this->debug($note->getExternalId() . ' publish...');
-
                         if (!$duplicate) {
+                            $this->debug($note->getExternalId() . ' publish...');
                             $publisher_vk->publish($note);
                         }
 
