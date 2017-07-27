@@ -2,7 +2,6 @@
 
 namespace AppBundle\Command\Test;
 
-use AppBundle\Model\Parser\Subway\TextSubwayParser;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -2,17 +2,13 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Command\Helper\DisplayTrait;
-use AppBundle\Document\Note;
+use AppBundle\Queue\Message\CollectMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class CollectCommand extends ContainerAwareCommand
 {
-    use DisplayTrait;
-
     protected function configure()
     {
         $this->setName('app:collect');
@@ -20,175 +16,52 @@ class CollectCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->getContainer();
-        $configs   = Yaml::parse(file_get_contents($container->getParameter('file.config.parser')));
-
         $collector_factory = $this->getContainer()->get('collector.factory');
 
-        $parser_datetime_factory    = $container->get('parser.datetime.factory');
-        $parser_description_factory = $container->get('parser.description.factory');
-        $parser_photo_factory       = $container->get('parser.photo.factory');
-        $parser_contact_factory     = $container->get('parser.contact.factory');
-
-        $filter_expire_date            = $container->get('filter.expire.date');
-        $filter_unique_description     = $container->get('filter.unique.description');
-        $filter_unique                 = $container->get('filter.unique');
-        $filter_unique_external_id     = $container->get('filter.unique.external_id');
-        $filter_black_list_description = $container->get('filter.black_list.description');
-        $filter_black_list_contacts    = $container->get('filter.black_list.contacts');
-
-        $explorer_user_factory = $container->get('explorer.user.factory');
-        $explorer_subway       = $container->get('explorer.subway');
-        $explorer_tomita       = $container->get('explorer.tomita');
-
-        $publisher_vk = $container->get('publisher.vk');
-
-        $dm_note = $container->get('odm.hot.data.mapper.factory')->init(Note::class);
+        $model_parser = $this->getContainer()->get('model.document.parse_list');
+        $logger       = $this->getContainer()->get('logger');
+        $producer     = $this->getContainer()->get('queue.collect.producer');
 
         $count = 0;
-        foreach ($configs as $config) {
+        foreach ($model_parser->findAll() as $record) {
 
-            $this->debug('[ ' . $config['type'] . ' ][ ' . $config['name'] . ' ]');
+            $logger->debug('Collect record', [
+                'record' => $record->getName(),
+                'city'   => $record->getCity(),
+            ]);
 
-            $collector = $collector_factory->init($config['type']);
+            foreach ($record->getSources() as $source) {
 
-            $parser_datetime    = $parser_datetime_factory->init($config['type']);
-            $parser_description = $parser_description_factory->init($config['type']);
-            $parser_photo       = $parser_photo_factory->init($config['type']);
-            $parser_contact     = $parser_contact_factory->init($config['type']);
+                $logger->debug('Collect source', [
+                    'type'       => $source->getType(),
+                    'parameters' => $source->getParameters(),
+                ]);
 
-            $explorer_user = $explorer_user_factory->init($config['type']);
+                $collector = $collector_factory->init($source->getType());
 
-            while (!empty($comments = $collector->collect($config))) {
+                while (!empty($notes = $collector->collect($source))) {
 
-                foreach ($comments as $comment) {
+                    $logger->debug('Collect request', [
+                        'notes' => count($notes)
+                    ]);
 
-                    try {
-
-                        $this->debug($comment['id'] . ' processing...');
-
-                        $note = (new Note())
-                            ->setExternalId($comment['id'])
-                            ->setSource($config['type'])
-                            ->setCommunity(['name' => $config['name'], 'link' => $config['link']])
-                            ->setTimestamp($parser_datetime->parse($comment))
-                            ->setCity($config['city']);
-
-                        if ($filter_expire_date->isExpire($note)) {
-                            $this->debug($note->getExternalId() . ' filter by expire date');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        if (!empty($filter_unique_external_id->findDuplicates($note))) {
-                            $this->debug($note->getExternalId() . ' filter by unique external id');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        $description = $parser_description->parse($comment);
-                        $note->setDescription($description);
-
-                        if (!$filter_black_list_description->isAllow($note)) {
-                            $this->debug($note->getExternalId() . ' filter by black list description');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        $this->debug($note->getExternalId() . ' explore tomita...');
-                        $tomita = $explorer_tomita->explore($description);
-
-                        if (Note::ERR === (int)$tomita->getType()) {
-                            $this->debug($note->getExternalId() . ' filter by type');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        $area  = $tomita->getArea();
-                        $price = $tomita->getPrice();
-
-                        $note
-                            ->setType($tomita->getType())
-                            ->setArea(-1 !== $area && 0 !== $area ? $area : null)
-                            ->setPrice(-1 !== $price && 0 !== $price ? $price : null);
-
-                        $contact = $parser_contact->parse($comment);
-
-                        $this->debug($note->getExternalId() . ' explore user...');
-                        $user = $explorer_user->explore($contact->getId());
-
-                        if (null === $user) {
-                            $this->debug($note->getExternalId() . ' invalid user parse...');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        $note->setContacts([
-                            'person' => [
-                                'name'  => $user->getFirstName() . ' ' . $user->getLastName(),
-                                'photo' => $user->getPhoto(),
-                                'link'  => $contact->getLink(),
-                                'write' => $contact->getWrite(),
-                            ],
-                            'phones' => $tomita->getPhones()
-                        ]);
-
-                        if (!$filter_black_list_contacts->isAllow($note)) {
-                            $this->debug($note->getExternalId() . ' filter by black list contacts');
-                            unset($note);
-
-                            continue;
-                        }
-
-                        $note->setPhotos($parser_photo->parse($comment));
-
-                        $subways = [];
-                        foreach ($explorer_subway->explore($description) as $subway) {
-                            $subways[] = $subway->getId();
-                        }
-                        $note->setSubways($subways);
-
-                        $duplicate = false;
-                        if (!empty($filter_unique_description->findDuplicates($note))) {
-                            $this->debug($note->getExternalId() . ' filter by unique description');
-                            $duplicate = true;
-                            foreach ($dm_note->find(['description_hash' => $note->getDescriptionHash()]) as $duplicate) {
-                                $this->debug($note->getExternalId() . ' delete duplicate');
-                                $dm_note->delete($duplicate);
-                            }
-                        }
-
-                        if (!empty($duplicates = $filter_unique->findDuplicates($note))) {
-                            $this->debug($note->getExternalId() . ' filter by unique');
-                            $duplicate = true;
-                            foreach ($duplicates as $duplicate) {
-                                $this->debug($note->getExternalId() . ' delete duplicate');
-                                $dm_note->delete($duplicate);
-                            }
-                        }
-
-                        $note->initId();
-                        $dm_note->insert($note);
+                    foreach ($notes as $note) {
                         $count++;
+                        $message =
+                            (new CollectMessage())
+                                ->setId(uniqid())
+                                ->setCity($record->getCity())
+                                ->setSource($source)
+                                ->setNote($note);
 
-                        if (!$duplicate) {
-                            $this->debug($note->getExternalId() . ' publish...');
-                            $publisher_vk->publish($note);
-                        }
-
-                    } catch (\Exception $e) {
-                        $this->debug($e->getMessage());
-                        $this->debug(json_encode($comment));
+                        $producer->publish($message);
                     }
                 }
             }
         }
 
-        $this->debug('Total collected: ' . $count);
+        $logger->debug('Total notes', [
+            'total' => $count
+        ]);
     }
 }

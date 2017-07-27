@@ -2,16 +2,13 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Command\Helper\DisplayTrait;
-use AppBundle\Document\Note;
+use Schema\Note\Note;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FilterCommand extends ContainerAwareCommand
 {
-    use DisplayTrait;
-
     protected function configure()
     {
         $this->setName('app:filter');

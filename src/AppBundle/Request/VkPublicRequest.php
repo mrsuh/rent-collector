@@ -16,7 +16,7 @@ class VkPublicRequest
      * @param Client $client
      * @param string $url
      */
-    public function __construct(Client $client, string $url, float $version)
+    public function __construct(Client $client, string $url, string $version)
     {
         $this->client  = $client;
         $this->url     = $url;

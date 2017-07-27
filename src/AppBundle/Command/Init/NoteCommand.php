@@ -2,7 +2,7 @@
 
 namespace AppBundle\Command\Init;
 
-use AppBundle\Document\Note;
+use Schema\Note\Note;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

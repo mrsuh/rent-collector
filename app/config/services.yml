@@ -17,31 +17,67 @@ parameters:
 services:
 
 #odm ==================================================================
-    odm.hot.dbal:
+    dbal.hot:
        class: ODM\DBAL
        arguments:
            - "%database.hot.host%"
            - "%database.hot.port%"
            - "%database.hot.name%"
 
-    odm.cold.dbal:
+    dbal.cold:
        class: ODM\DBAL
        arguments:
            - "%database.cold.host%"
            - "%database.cold.port%"
            - "%database.cold.name%"
            
-    odm.hot.data.mapper.factory:
-       class: ODM\DocumentMapper\DataMapperFactory
+    dm.hot:
+       class: ODM\DocumentManager\DocumentManagerFactory
        arguments:
-           - "@odm.hot.dbal"
+           - "@dbal.hot"
 
-    odm.cold.data.mapper.factory:
-       class: ODM\DocumentMapper\DataMapperFactory
+    dm.cold:
+       class: ODM\DocumentManager\DocumentManagerFactory
        arguments:
-           - "@odm.cold.dbal"
+           - "@dbal.cold"
 
 #odm ==================================================================
+
+
+# model document ======================================================
+
+    model.document.black_list:
+       class: AppBundle\Model\Document\BlackList\BlackListModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.city:
+       class: AppBundle\Model\Document\City\CityModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.parse_list:
+       class: AppBundle\Model\Document\ParseList\ParseListModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.publish_list:
+       class: AppBundle\Model\Document\PublishList\PublishListModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.note:
+       class: AppBundle\Model\Document\Note\NoteModel
+       arguments:
+           - '@dm.hot'
+           - '@dm.cold'
+
+    model.document.subway:
+       class: AppBundle\Model\Document\City\SubwayModel
+       arguments:
+           - '@dm.hot'
+
+# model document =====================================================
 
 
 #request =============================================================
@@ -80,96 +116,140 @@ services:
 #request =============================================================
 
 
-#parser =============================================================
+#parser ==============================================================
 
     parser.contact.factory:
-        class: AppBundle\Model\Parser\Contact\ContactParserFactory
+        class: AppBundle\Model\Logic\Parser\Contact\ContactParserFactory
 
     parser.datetime.factory:
-        class: AppBundle\Model\Parser\DateTime\DateTimeParserFactory
+        class: AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory
 
     parser.description.factory:
-        class: AppBundle\Model\Parser\Description\DescriptionParserFactory
+        class: AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory
 
     parser.photo.factory:
-        class: AppBundle\Model\Parser\Photo\PhotoParserFactory
+        class: AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory
+
+    parser.id.factory:
+        class: AppBundle\Model\Logic\Parser\Id\IdParserFactory
 
 #parser =============================================================
 
 
-#explorer ===========================================================
+#explorer ============================================================
 
     explorer.user.factory:
-        class: AppBundle\Model\Explorer\User\UserExplorerFactory
+        class: AppBundle\Model\Logic\Explorer\User\UserExplorerFactory
         arguments:
             - "@request.public.vk"
 
     explorer.subway:
-        class: AppBundle\Model\Explorer\Subway\SubwayExplorer
+        class: AppBundle\Model\Logic\Explorer\Subway\SubwayExplorer
         arguments:
-            - "@odm.hot.data.mapper.factory"
+            - "@model.document.subway"
 
     explorer.tomita:
-        class: AppBundle\Model\Explorer\Tomita\TomitaExplorer
+        class: AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer
         arguments:
             - "@request.tomita"
 
-#explorer ===========================================================
+#explorer ============================================================
 
 
-#collector =============================================================
+#collector ===========================================================
 
     collector.factory:
-        class: AppBundle\Model\Collector\CollectorFactory
+        class: AppBundle\Model\Logic\Collector\CollectorFactory
         arguments:
             - '@request.public.vk'
+            - '@logger'
             - '%dir.tmp%'
 
-#collector =============================================================
+#collector ===========================================================
 
 
-#filter =============================================================
+#filter ==============================================================
 
     filter.unique.external_id:
-        class: AppBundle\Model\Filter\ExternalIdUniqueFilter
+        class: AppBundle\Model\Logic\Filter\ExternalIdUniqueFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
+            - "@dm.hot"
 
     filter.black_list.description:
-        class: AppBundle\Model\Filter\DescriptionBlackListFilter
+        class: AppBundle\Model\Logic\Filter\DescriptionBlackListFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-            - "%file.black_list.description%"
+            - "@model.document.black_list"
 
-    filter.black_list.contacts:
-        class: AppBundle\Model\Filter\ContactsBlackListFilter
+    filter.black_list.person:
+        class: AppBundle\Model\Logic\Filter\PersonBlackListFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-            - "%file.black_list.person%"
+            - "@model.document.black_list"
+
+    filter.black_list.phone:
+        class: AppBundle\Model\Logic\Filter\PhoneBlackListFilter
+        arguments:
+            - "@model.document.black_list"
 
     filter.expire.date:
-        class: AppBundle\Model\Filter\DateExpireFilter
+        class: AppBundle\Model\Logic\Filter\DateExpireFilter
 
     filter.unique.description:
-        class: AppBundle\Model\Filter\DescriptionUniqueFilter
+        class: AppBundle\Model\Logic\Filter\DescriptionUniqueFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
+            - "@dm.hot"
 
     filter.unique:
-        class: AppBundle\Model\Filter\UniqueFilter
+        class: AppBundle\Model\Logic\Filter\UniqueFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-#filter =============================================================
+            - "@dm.hot"
+#filter ==============================================================
 
 
-#publiser ===========================================================
+#publiser ============================================================
 
     publisher.vk:
-        class: AppBundle\Model\Publisher\VkPublisher
+        class: AppBundle\Model\Logic\Publisher\VkPublisher
         arguments:
             - '@request.private.vk'
-            - "@odm.hot.data.mapper.factory"
+            - "@dm.hot"
             - "@logger"
             - '%publish.vk%'
 
-#publiser ===========================================================
+#publiser ============================================================
+
+
+#queue ===============================================================
+
+
+    queue.collect.producer:
+        class: AppBundle\Queue\Producer\CollectProducer
+        arguments:
+            - '@queue.collect.consumer'
+
+    queue.collect.consumer:
+        class: AppBundle\Queue\Consumer\CollectConsumer
+        arguments:
+            - '@parser.datetime.factory'
+            - '@parser.description.factory'
+            - '@parser.photo.factory'
+            - '@parser.contact.factory'
+            - '@parser.id.factory'
+
+            - '@filter.expire.date'
+            - '@filter.unique.description'
+            - '@filter.unique'
+            - "@filter.unique.external_id"
+            - "@filter.black_list.description"
+            - "@filter.black_list.person"
+            - "@filter.black_list.phone"
+
+            - '@explorer.subway'
+            - '@explorer.tomita'
+            - '@explorer.user.factory'
+
+            - '@publisher.vk'
+
+            - '@model.document.note'
+            - '@logger'
+
+#queue ===============================================================
