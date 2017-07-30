@@ -3,7 +3,7 @@
 namespace AppBundle\Queue\Consumer;
 
 use AppBundle\Model\Document\Note\NoteModel;
-use AppBundle\Model\Logic\Explorer\Subway\SubwayExplorer;
+use AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory;
 use AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer;
 use AppBundle\Model\Logic\Explorer\User\UserExplorerFactory;
 use AppBundle\Model\Logic\Filter\DateExpireFilter;
@@ -18,15 +18,15 @@ use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
 use AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory;
 use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
 use AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory;
-use AppBundle\Model\Logic\Publisher\VkPublisher;
 use AppBundle\Queue\Message\CollectMessage;
+use AppBundle\Queue\Message\PublishMessage;
+use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
 use Schema\Note\Note;
 
 class CollectConsumer
 {
-
     private $parser_datetime_factory;
     private $parser_description_factory;
     private $parser_photo_factory;
@@ -41,11 +41,11 @@ class CollectConsumer
     private $filter_black_list_person;
     private $filter_black_list_phone;
 
-    private $explorer_subway;
+    private $explorer_subway_factory;
     private $explorer_tomita;
     private $explorer_user_factory;
 
-    private $publisher_vk;
+    private $producer_publish;
 
     private $model_note;
     private $logger;
@@ -65,11 +65,11 @@ class CollectConsumer
         PersonBlackListFilter $filter_black_list_person,
         PhoneBlackListFilter $filter_black_list_phone,
 
-        SubwayExplorer $explorer_subway,
+        SubwayExplorerFactory $explorer_subway_factory,
         TomitaExplorer $explorer_tomita,
         UserExplorerFactory $explorer_user_factory,
 
-        VkPublisher $publisher_vk,
+        PublishProducer $producer_publish,
 
         NoteModel $model_note,
         Logger $logger
@@ -89,11 +89,11 @@ class CollectConsumer
         $this->filter_black_list_person      = $filter_black_list_person;
         $this->filter_black_list_phone       = $filter_black_list_phone;
 
-        $this->explorer_subway       = $explorer_subway;
-        $this->explorer_tomita       = $explorer_tomita;
-        $this->explorer_user_factory = $explorer_user_factory;
+        $this->explorer_subway_factory = $explorer_subway_factory;
+        $this->explorer_tomita         = $explorer_tomita;
+        $this->explorer_user_factory   = $explorer_user_factory;
 
-        $this->publisher_vk = $publisher_vk;
+        $this->producer_publish = $producer_publish;
 
         $this->model_note = $model_note;
 
@@ -108,13 +108,14 @@ class CollectConsumer
                 'message_id' => $message->getId()
             ]);
 
-            $parser_datetime    = $this->parser_datetime_factory->init($message->getSource()->getType());
-            $parser_description = $this->parser_description_factory->init($message->getSource()->getType());
-            $parser_photo       = $this->parser_photo_factory->init($message->getSource()->getType());
-            $parser_contact     = $this->parser_contact_factory->init($message->getSource()->getType());
-            $parser_id          = $this->parser_id_factory->init($message->getSource()->getType());
+            $parser_datetime    = $this->parser_datetime_factory->init($message->getSource());
+            $parser_description = $this->parser_description_factory->init($message->getSource());
+            $parser_photo       = $this->parser_photo_factory->init($message->getSource());
+            $parser_contact     = $this->parser_contact_factory->init($message->getSource());
+            $parser_id          = $this->parser_id_factory->init($message->getSource());
 
-            $explorer_user = $this->explorer_user_factory->init($message->getSource()->getType());
+            $explorer_user   = $this->explorer_user_factory->init($message->getSource());
+            $explorer_subway = $this->explorer_subway_factory->init($message->getSource());
 
 
             $this->logger->debug('Parsing id...', [
@@ -134,7 +135,6 @@ class CollectConsumer
 
             $external_id = $message->getSource()->getId() . '-' . $id;
 
-
             $this->logger->debug('Parsing timestamp...', [
                 'message_id'  => $message->getId(),
                 'external_id' => $external_id
@@ -145,7 +145,7 @@ class CollectConsumer
             $note = (new Note())
                 ->setExternalId($external_id)
                 ->setTimestamp($timestamp)
-                ->setCity($message->getCity());
+                ->setCity($message->getSource()->getCity());
 
             if ($this->filter_expire_date->isExpire($note)) {
                 $this->logger->debug('Filtered by expire date', [
@@ -155,6 +155,10 @@ class CollectConsumer
 
                 return false;
             }
+
+            $this->logger->debug('Filtering by unique external id', [
+                'external_id' => $external_id
+            ]);
 
             if (!empty($this->filter_unique_external_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique external id', [
@@ -283,7 +287,7 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
-            foreach ($this->explorer_subway->explore($description) as $subway) {
+            foreach ($explorer_subway->explore($description) as $subway) {
                 $note->addSubway($subway->getId());
             }
 
@@ -331,7 +335,6 @@ class CollectConsumer
                 }
             }
 
-            $note->initId();
             $this->model_note->create($note);
 
             $this->logger->debug('Publishing...', [
@@ -339,6 +342,11 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
+            $this->producer_publish->publish((
+            (new PublishMessage())
+                ->setSource($message->getSource())
+                ->setNote($note)
+            ));
 
             $this->logger->debug('Handling message... done', [
                 'message_id' => $message->getId()

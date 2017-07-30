@@ -6,7 +6,7 @@ use AppBundle\Exception\ParseException;
 use AppBundle\Request\VkPublicRequest;
 use AppBundle\Storage\FileStorage;
 use Monolog\Logger;
-use Schema\ParseList\Source;
+use Schema\Parse\Record\Source;
 
 class VkCommentCollector implements CollectorInterface
 {

@@ -7,7 +7,6 @@ use AppBundle\Queue\Message\CollectMessage;
 
 class CollectProducer
 {
-
     private $consumer;
 
     /**

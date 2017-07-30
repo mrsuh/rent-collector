@@ -1,3 +1,0 @@
-parameters:
-    request.base_uri.tomita: 'http://localhost:3000'
-    request.base_uri.vk: 'https://api.vk.com/method'

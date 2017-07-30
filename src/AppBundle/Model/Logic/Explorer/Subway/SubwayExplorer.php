@@ -2,7 +2,6 @@
 
 namespace AppBundle\Model\Logic\Explorer\Subway;
 
-use AppBundle\Model\Document\City\SubwayModel;
 use Schema\City\Subway;
 
 class SubwayExplorer
@@ -11,11 +10,11 @@ class SubwayExplorer
 
     /**
      * SubwayExplorer constructor.
-     * @param SubwayModel $model_subway
+     * @param Subway[] $subways
      */
-    public function __construct(SubwayModel $model_subway)
+    public function __construct(array $subways)
     {
-        $this->subways = $model_subway->findAll();
+        $this->subways = $subways;
     }
 
     /**

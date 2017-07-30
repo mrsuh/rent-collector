@@ -4,10 +4,18 @@ namespace AppBundle\Model\Logic\Explorer\User;
 
 use AppBundle\Exception\AppException;
 use AppBundle\Request\VkPublicRequest;
-use Schema\ParseList\Source;
+use Schema\Parse\Record\Source;
 
 class UserExplorerFactory
 {
+    /**
+     * @var VkUserExplorer[]
+     */
+    private $instances;
+
+    /**
+     * @var VkPublicRequest
+     */
     private $request;
 
     /**
@@ -16,15 +24,31 @@ class UserExplorerFactory
      */
     public function __construct(VkPublicRequest $request)
     {
-        $this->request = $request;
+        $this->request   = $request;
+        $this->instances = [];
+    }
+
+    /**
+     * @param Source $source
+     * @return UserExplorerInterface
+     * @throws AppException
+     */
+    public function init(Source $source)
+    {
+        $type = $source->getType();
+        if (!array_key_exists($type, $this->instances)) {
+            $this->instances[$type] = $this->getInstance($type);
+        }
+
+        return $this->instances[$type];
     }
 
     /**
      * @param string $type
-     * @return UserExplorerInterface
+     * @return VkUserExplorer
      * @throws AppException
      */
-    public function init(string $type): UserExplorerInterface
+    private function getInstance(string $type)
     {
         switch ($type) {
             case Source::TYPE_VK_COMMENT:
@@ -32,7 +56,7 @@ class UserExplorerFactory
                 return new VkUserExplorer($this->request);
                 break;
             default:
-                throw new AppException('type not found');
+                throw new AppException('Invalid type');
         }
     }
 }

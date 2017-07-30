@@ -2,6 +2,7 @@
 
 namespace AppBundle\Model\Document\Note;
 
+use Schema\City\City;
 use Schema\Note\Note;
 use ODM\DocumentManager\DocumentManagerFactory;
 use ODM\Paginator\Paginator;
@@ -33,7 +34,7 @@ class NoteModel
     }
 
     /**
-     * @return array|Note[]
+     * @return Note[]
      */
     public function findAll()
     {
@@ -49,6 +50,23 @@ class NoteModel
     }
 
     /**
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return Note[]
+     */
+    public function findPublishedNotesByCityForPeriod(City $city, \DateTime $from, \DateTime $to)
+    {
+        return $this->dm_note->find([
+            'publishedTimestamp' => [
+                '$gte' => $from->getTimestamp(),
+                '$lte' => $to->getTimestamp()
+            ],
+            'city'               => $city->getShortName(),
+            'published'          => true
+        ]);
+    }
+
+    /**
      * @param Note $note
      * @return bool
      */
@@ -60,7 +78,6 @@ class NoteModel
         return true;
     }
 
-
     /**
      * @param Note $note
      * @return bool
@@ -68,6 +85,17 @@ class NoteModel
     public function create(Note $note)
     {
         $this->dm_note->insert($note);
+
+        return true;
+    }
+
+    /**
+     * @param Note $note
+     * @return bool
+     */
+    public function update(Note $note)
+    {
+        $this->dm_note->update($note);
 
         return true;
     }

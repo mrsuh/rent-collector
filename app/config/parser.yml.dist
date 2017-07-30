@@ -1,9 +1,0 @@
--
-    type: vk.com:wall
-    name: 'SocRent :: Объявления аренды квартир'
-    link: 'https://vk.com/public140724846'
-    city: spb
-    date: '1 hour'
-    data:
-        owner_id: -140724846
-        count: 50

@@ -65,16 +65,10 @@
         "file": "app/config/parameters.yml"
       },
       {
-        "file": "app/config/parameters.dir.yml"
+        "file": "app/config/parameters/parameters.dir.yml"
       },
       {
-        "file": "app/config/parameters.request.yml"
-      },
-      {
-        "file": "app/config/parameters.auth.yml"
-      },
-      {
-        "file": "app/config/parameters.publish.yml"
+        "file": "app/config/parameters/parameters.request.yml"
       }
     ]
   }

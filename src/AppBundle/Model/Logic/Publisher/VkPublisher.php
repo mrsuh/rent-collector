@@ -2,50 +2,143 @@
 
 namespace AppBundle\Model\Logic\Publisher;
 
-use ODM\DocumentManager\DocumentManagerFactory;
+use AppBundle\Model\Document\Note\NoteModel;
+use Schema\City\City;
 use Schema\Note\Note;
-use Schema\City\Subway;
 use AppBundle\Request\VkPrivateRequest;
 use Monolog\Logger;
+use Schema\Note\Photo;
+use Schema\Publish\Record\Record;
+use Schema\Publish\User\User;
 
 class VkPublisher implements PublisherInterface
 {
     private $request;
-    private $subways;
+    private $formatter;
     private $logger;
-    private $params;
-    private $dm_note;
+
+    /**
+     * @var User
+     */
+    private $user;
+
+    /**
+     * @var Record
+     */
+    private $record;
+    private $model_note;
 
     /**
      * VkPublisher constructor.
-     * @param VkPrivateRequest       $request
-     * @param DocumentManagerFactory $dm
-     * @param Logger                 $logger
-     * @param array                  $params
+     * @param VkPrivateRequest $request
+     * @param NoteFormatter    $formatter
+     * @param NoteModel        $model_note
+     * @param Record           $record
+     * @param User             $user
+     * @param Logger           $logger
      */
-    public function __construct(VkPrivateRequest $request, DocumentManagerFactory $dm, Logger $logger, array $params)
+    public function __construct(
+        VkPrivateRequest $request,
+        NoteFormatter $formatter,
+        NoteModel $model_note,
+        Record $record,
+        User $user,
+        Logger $logger
+    )
     {
-        $this->logger  = $logger;
-        $this->request = $request;
-        $this->params  = $params;
+        $this->request    = $request;
+        $this->formatter  = $formatter;
+        $this->model_note = $model_note;
+        $this->record     = $record;
+        $this->user       = $user;
+        $this->logger     = $logger;
 
-        $this->dm_note = $dm->init(Note::class);
+    }
 
-        $this->initSubways($dm->init(Subway::class)->find());
+    /**
+     * @param Photo $photo
+     * @return null|int
+     */
+    private function uploadPhoto(Photo $photo)
+    {
+        try {
+
+            usleep(200000);
+            $response = $this->request->photosGetWallUploadServer([
+                'group_id' => $this->record->getGroupId()
+            ]);
+
+            $get_photo_server_response = json_decode($response->getBody()->getContents(), true);
+
+            if (!isset($get_photo_server_response['response'])) {
+                return null;
+            }
+
+            if (!isset($get_photo_server_response['response']['upload_url'])) {
+                return null;
+            }
+
+            $upload_url = $get_photo_server_response['response']['upload_url'];
+
+            usleep(200000);
+            $response = $this->request->uploadPhoto($upload_url, [
+                'name'     => 'photo',
+                'contents' => fopen($photo->getHigh(), 'r')
+            ]);
+
+            $send_photo_response = json_decode($response->getBody()->getContents(), true);
+
+            foreach (['photo', 'server', 'hash'] as $key) {
+                if (!isset($send_photo_response[$key])) {
+                    return null;
+                }
+            }
+
+            $photo  = stripslashes($send_photo_response['photo']);
+            $server = $send_photo_response['server'];
+            $hash   = $send_photo_response['hash'];
+
+            usleep(200000);
+            $response = $this->request->photosSaveWallPhoto([
+                'photo'    => $photo,
+                'server'   => $server,
+                'hash'     => $hash,
+                'group_id' => $this->record->getGroupId()
+            ]);
+
+            $save_photo_response = json_decode($response->getBody()->getContents(), true);
+
+            if (!isset($save_photo_response['response'])) {
+                return null;
+            }
+
+            if (!isset($save_photo_response['response'][0])) {
+                return null;
+            }
+
+            if (!isset($save_photo_response['response'][0]['id'])) {
+                return null;
+            }
+
+            return (int)$save_photo_response['response'][0]['id'];
+
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+
+            return null;
+        }
     }
 
     /**
      * @return int
      */
-    private function findPublishedNotesCountLastHour()
+    private function findPublishedNotesCountLastHour(City $city)
     {
-        $notes = $this->dm_note->find([
-            'publishedTimestamp' => [
-                '$gte' => (new \DateTime())->modify('- 1 hour')->getTimestamp(),
-                '$lte' => (new \DateTime())->getTimestamp()
-            ],
-            'published'          => true
-        ]);
+        $notes = $this->model_note->findPublishedNotesByCityForPeriod(
+            $city,
+            (new \DateTime())->modify('- 1 hour'),
+            (new \DateTime())
+        );
 
         $count = 0;
         $now   = new \DateTime();
@@ -67,213 +160,16 @@ class VkPublisher implements PublisherInterface
     }
 
     /**
-     * @param array $subways
-     * @return bool
-     */
-    private function initSubways(array $subways)
-    {
-        $this->subways = [];
-        foreach ($subways as $subway) {
-            $this->subways[$subway->getId()] = $subway;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param int $type
-     * @return string
-     */
-    private function formatType(int $type): string
-    {
-        $type_string = '';
-        switch ($type) {
-            case Note::TYPE_ROOM:
-                $type_string = 'комната';
-                break;
-            case Note::TYPE_FLAT_1:
-                $type_string = '1 комнатная квартира';
-                break;
-            case Note::TYPE_FLAT_2:
-                $type_string = '2 комнатная квартира';
-                break;
-            case Note::TYPE_FLAT_3:
-                $type_string = '3 комнатная квартира';
-                break;
-            case Note::TYPE_FLAT_N:
-                $type_string = '4+ комнатная квартира';
-                break;
-            case Note::TYPE_STUDIO:
-                $type_string = 'студия';
-                break;
-        }
-
-        return $type_string;
-    }
-
-    /**
-     * @param Subway $subway
-     * @return string
-     */
-    private function formatSubway(Subway $subway)
-    {
-        return $subway->getName();
-    }
-
-    /**
-     * @param Note $note
-     * @return string
-     */
-    private function getLink(Note $note)
-    {
-        $link = 'https://socrent.ru/rent/saint-petersburg/';
-        switch ($note->getType()) {
-            case Note::TYPE_ROOM:
-                $link .= 'komnaty/room-p';
-                break;
-            case Note::TYPE_FLAT_1:
-                $link .= 'kvartiry/1-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_2:
-                $link .= 'kvartiry/2-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_3:
-                $link .= 'kvartiry/3-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_N:
-                $link .= 'kvartiry/4-k-kvartira-p';
-                break;
-            case Note::TYPE_STUDIO:
-                $link .= 'kvartiry/studia-p';
-                break;
-        }
-
-        return $link . '.' . $note->getId();
-    }
-
-
-    /**
-     * @param string $url
-     * @return int
-     */
-    private function uploadPhoto(string $url): int
-    {
-        try {
-
-            usleep(200000);
-            $response = $this->request->photosGetWallUploadServer([
-                'group_id' => $this->params['group_id']
-            ]);
-
-            $get_photo_server_response = json_decode($response->getBody()->getContents(), true);
-
-            if (!isset($get_photo_server_response['response'])) {
-                return null;
-            }
-
-            if (!isset($get_photo_server_response['response']['upload_url'])) {
-                return null;
-            }
-
-            $upload_url = $get_photo_server_response['response']['upload_url'];
-
-            usleep(200000);
-            $response = $this->request->uploadPhoto($upload_url, [
-                'name'     => 'photo',
-                'contents' => fopen($url, 'r')
-            ]);
-
-            $send_photo_response = json_decode($response->getBody()->getContents(), true);
-
-            foreach (['photo', 'server', 'hash'] as $key) {
-                if (!isset($send_photo_response[$key])) {
-                    return null;
-                }
-            }
-
-            $photo  = stripslashes($send_photo_response['photo']);
-            $server = $send_photo_response['server'];
-            $hash   = $send_photo_response['hash'];
-
-            usleep(200000);
-            $response = $this->request->photosSaveWallPhoto([
-                'photo'    => $photo,
-                'server'   => $server,
-                'hash'     => $hash,
-                'group_id' => $this->params['group_id'],
-            ]);
-
-            $save_photo_response = json_decode($response->getBody()->getContents(), true);
-
-            if (!isset($save_photo_response['response'])) {
-                return null;
-            }
-
-            if (!isset($save_photo_response['response'][0])) {
-                return null;
-            }
-
-            if (!isset($save_photo_response['response'][0]['id'])) {
-                return null;
-            }
-
-            return $save_photo_response['response'][0]['id'];
-
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-
-            return null;
-        }
-    }
-
-    /**
      * @param Note $note
      * @return bool
      */
-    public function publish(Note $note): bool
+    public function publish(Note $note)
     {
-        if (
-            empty($note->getSubways()) ||
-            empty($note->getPrice()) ||
-            count($note->getPhotos()) < 3
-        ) {
-
-            $this->logger->debug('There are no subways or price or photo', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
-            ]);
-
-            return false;
-        }
-
-        if ($this->findPublishedNotesCountLastHour() >= 4) {
-
-            $this->logger->debug('Limitation of publications at this hour', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
-            ]);
-
-            return false;
-        }
-
         try {
 
-            $subways = [];
-            foreach ($note->getSubways() as $subway_id) {
-                if (!array_key_exists($subway_id, $this->subways)) {
-                    continue;
-                }
+            if ($this->findPublishedNotesCountLastHour((new City())->setShortName($note->getCity())) >= 4) {
 
-                $subway    = $this->subways[$subway_id];
-                $subways[] = $this->formatSubway($subway);
-            }
-
-
-            $contact = $note->getContact();
-
-            if (empty($contact->getExternalId()) || empty($contact->getName())) {
-
-                $this->logger->debug('Empty contact id or name', [
+                $this->logger->debug('Limitation of publications at this hour', [
                     'note_id'          => $note->getId(),
                     'note_external_id' => $note->getExternalId()
                 ]);
@@ -281,21 +177,22 @@ class VkPublisher implements PublisherInterface
                 return false;
             }
 
-            $prefix =
-                $this->formatType($note->getType()) .
+            $prefix  =
+                $this->formatter->formatType($note) .
                 ' за ' .
                 $note->getPrice() .
                 ' руб. около метро ' .
-                implode(', ', $subways) .
+                implode(', ', $this->formatter->formatSubways($note)) .
                 PHP_EOL . PHP_EOL;
-
             $postfix =
                 PHP_EOL . PHP_EOL .
-                '[' . $contact->getExternalId() . '| ' . $contact->getName() . ']' .
+                '[' . $note->getContact()->getExternalId() . '| ' . $note->getContact()->getName() . ']' .
                 PHP_EOL .
-                $this->getLink($note);
+                $this->formatter->formatLink($note);
 
-            $photos = [];
+            $message = $prefix . $note->getDescription() . $postfix;
+
+            $attachments = [];
             foreach ($note->getPhotos() as $photo) {
 
                 $this->logger->debug('Uploading photo...', [
@@ -303,7 +200,7 @@ class VkPublisher implements PublisherInterface
                     'note_external_id' => $note->getExternalId()
                 ]);
 
-                $photo_id = $this->uploadPhoto($photo['high']);
+                $photo_id = $this->uploadPhoto($photo);
 
                 $this->logger->debug('Uploading photo... done', [
                     'note_id'          => $note->getId(),
@@ -320,7 +217,7 @@ class VkPublisher implements PublisherInterface
                     continue;
                 }
 
-                $photos[] = 'photo' . $this->params['user_id'] . '_' . $photo_id;
+                $attachments[] = 'photo' . $this->user->getExternalId() . '_' . $photo_id;
             }
 
             $this->logger->debug('Publishing sleep...', [
@@ -341,10 +238,10 @@ class VkPublisher implements PublisherInterface
             ]);
 
             $this->request->wallPost([
-                'owner_id'    => '-' . $this->params['group_id'],
+                'owner_id'    => '-' . $this->record->getGroupId(),
                 'from_group'  => 1,
-                'message'     => $prefix . $note->getDescription() . $postfix,
-                'attachments' => implode(',', $photos),
+                'message'     => $message,
+                'attachments' => implode(',', $attachments),
                 'guid'        => $note->getId()
             ]);
 
@@ -352,11 +249,6 @@ class VkPublisher implements PublisherInterface
                 'note_id'          => $note->getId(),
                 'note_external_id' => $note->getExternalId()
             ]);
-
-            $note
-                ->setPublished(true)
-                ->setPublishedTimestamp((new \DateTime())->getTimestamp());
-            $this->dm_note->update($note);
 
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());

@@ -5,6 +5,7 @@ namespace AppBundle\Request;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Mrsuh\Service\AuthService;
+use Schema\Publish\User\User;
 
 class VkPrivateRequest
 {
@@ -13,16 +14,23 @@ class VkPrivateRequest
     private $version;
 
     /**
-     * VkRequest constructor.
+     * VkPrivateRequest constructor.
      * @param Client $client
-     * @param string $url
+     * @param User   $user
      */
-    public function __construct(AuthService $auth, Client $client, string $url, float $version)
+    public function __construct(Client $client, User $user)
     {
-        $this->auth    = $auth;
+        $this->auth = new AuthService([
+            'username'  => $user->getUsername(),
+            'password'  => $user->getPassword(),
+            'app_token' => $user->getAppToken(),
+            'scope'     => ['wall', 'photos']
+        ]);
+
+        $this->user    = $user;
         $this->client  = $client;
-        $this->url     = $url;
-        $this->version = $version;
+        $this->url     = 'https://api.vk.com/method';
+        $this->version = 5.64;
 
         $this->auth->auth();
     }

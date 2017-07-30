@@ -2,7 +2,7 @@
 
 namespace AppBundle\Model\Logic\Collector;
 
-use Schema\ParseList\Source;
+use Schema\Parse\Record\Source;
 
 interface CollectorInterface
 {

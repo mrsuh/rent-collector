@@ -1,0 +1,2 @@
+parameters:
+    request.base_uri.tomita: 'http://localhost:3000'

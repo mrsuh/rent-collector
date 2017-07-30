@@ -1,13 +1,13 @@
 <?php
 
-namespace AppBundle\Model\Document\ParseList;
+namespace AppBundle\Model\Document\Parse\Record;
 
-use Schema\ParseList\Record;
 use ODM\DocumentManager\DocumentManagerFactory;
+use Schema\Parse\Record\Record;
 
-class ParseListModel
+class RecordModel
 {
-    private $dm_parse;
+    private $dm;
 
     /**
      * ParseModel constructor.
@@ -15,7 +15,7 @@ class ParseListModel
      */
     public function __construct(DocumentManagerFactory $dm)
     {
-        $this->dm_parse = $dm->init(Record::class);
+        $this->dm = $dm->init(Record::class);
     }
 
     /**
@@ -23,7 +23,7 @@ class ParseListModel
      */
     public function findAll()
     {
-        return $this->dm_parse->find();
+        return $this->dm->find();
     }
 
     /**
@@ -32,7 +32,7 @@ class ParseListModel
      */
     public function findOneById($id)
     {
-        return $this->dm_parse->findOne(['_id' => $id]);
+        return $this->dm->findOne(['_id' => $id]);
     }
 
     /**
@@ -41,7 +41,7 @@ class ParseListModel
      */
     public function create(Record $obj)
     {
-        $this->dm_parse->insert($obj);
+        $this->dm->insert($obj);
 
         return $obj;
     }
@@ -52,7 +52,7 @@ class ParseListModel
      */
     public function update(Record $obj)
     {
-        $this->dm_parse->update($obj);
+        $this->dm->update($obj);
 
         return $obj;
     }

@@ -6,7 +6,7 @@ use AppBundle\Exception\ParseException;
 use AppBundle\Request\VkPublicRequest;
 use AppBundle\Storage\FileStorage;
 use Monolog\Logger;
-use Schema\ParseList\Source;
+use Schema\Parse\Record\Source;
 
 class VkWallCollector implements CollectorInterface
 {
@@ -34,7 +34,7 @@ class VkWallCollector implements CollectorInterface
     {
         $new_config = (new VkWallConfig())->setOffset(0)->setFinish(false);
 
-        if ($this->storage->exists($file_name)) {
+        if (!$this->storage->exists($file_name)) {
 
             return $new_config;
         }
@@ -75,7 +75,6 @@ class VkWallCollector implements CollectorInterface
 
         try {
 
-
             $params = json_decode($source->getParameters(), true);
 
             if (!is_array($params)) {
@@ -111,7 +110,7 @@ class VkWallCollector implements CollectorInterface
             ]);
 
             $params['offset'] = $config->getOffset();
-            $timestamp        = (new \DateTime())->modify('- 1 hour')->getTimestamp();
+            $timestamp        = (new \DateTime())->modify('- 2 hour')->getTimestamp();
 
             $this->logger->debug('Collect sleeping...', [
                 'source_id'   => $source->getId(),
@@ -133,20 +132,22 @@ class VkWallCollector implements CollectorInterface
 
             $response_raw = $this->request->getWallRecords($params);
 
+            $contents = $response_raw->getBody()->getContents();
+
             $this->logger->debug('Collect requesting... done', [
                 'source_id'   => $source->getId(),
                 'source_type' => $source->getType(),
                 'params'      => $params
             ]);
 
-            $data = json_decode($response_raw, true);
+            $data = json_decode($contents, true);
 
             if (!is_array($data)) {
 
                 $this->logger->error('Response has invalid json', [
                     'source_id'   => $source->getId(),
                     'source_type' => $source->getType(),
-                    'response'    => $response_raw
+                    'response'    => $contents
                 ]);
 
                 return [];

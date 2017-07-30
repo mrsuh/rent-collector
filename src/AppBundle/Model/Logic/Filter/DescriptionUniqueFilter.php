@@ -30,7 +30,7 @@ class DescriptionUniqueFilter
         return $this->dm_note->find(
             [
                 'description_hash' => $note->getDescriptionHash(),
-                'id'               => ['$ne' => $note->getId()]
+                '_id'              => ['$ne' => $note->getId()]
             ]);
     }
 }

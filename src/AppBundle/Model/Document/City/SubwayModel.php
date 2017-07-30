@@ -22,6 +22,14 @@ class SubwayModel
     }
 
     /**
+     * @return Subway[]
+     */
+    public function findByCity(string $city)
+    {
+        return $this->dm_subway->find(['city' => $city]);
+    }
+
+    /**
      * @return array|Subway[]
      */
     public function findAll()

@@ -22,7 +22,7 @@ class CityModel
     }
 
     /**
-     * @return array|City[]
+     * @return City[]
      */
     public function findAll()
     {
@@ -31,11 +31,20 @@ class CityModel
 
     /**
      * @param $city_id
-     * @return null|\ODM\Document\Document
+     * @return null|City
      */
     public function findOneById($city_id)
     {
         return $this->dm_city->findOne(['_id' => $city_id]);
+    }
+
+    /**
+     * @param string $short_name
+     * @return null|City
+     */
+    public function findOneByShortName(string $short_name)
+    {
+        return $this->dm_city->findOne(['short_name' => $short_name]);
     }
 
     /**

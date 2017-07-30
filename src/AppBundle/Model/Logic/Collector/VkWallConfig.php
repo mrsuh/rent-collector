@@ -15,6 +15,11 @@ class VkWallConfig
      */
     private $offset;
 
+    public function __toString()
+    {
+        return json_encode(['offset' => $this->offset, 'finish' => $this->finish]);
+    }
+
     /**
      * @return mixed
      */

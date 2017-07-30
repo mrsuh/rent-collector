@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0ba9e971770bf07e0fe66beace9c43be",
-    "content-hash": "6871053bb702f39a667e3727345454d5",
+    "hash": "0211e7550c5982e004448ee184c43b2a",
+    "content-hash": "df593ced9cf41d641adc139dff5bc07e",
     "packages": [
         {
             "name": "behat/mink",
@@ -1090,16 +1090,16 @@
         },
         {
             "name": "mrsuh/rent-schema",
-            "version": "1.0.0",
+            "version": "1.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrsuh/rent-schema.git",
-                "reference": "d9d52c6dcdb672b718f6b2da9ee8b29d591df80f"
+                "reference": "ec8255acb52e8d2133d1efc5e0aab0070d703278"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/d9d52c6dcdb672b718f6b2da9ee8b29d591df80f",
-                "reference": "d9d52c6dcdb672b718f6b2da9ee8b29d591df80f",
+                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/ec8255acb52e8d2133d1efc5e0aab0070d703278",
+                "reference": "ec8255acb52e8d2133d1efc5e0aab0070d703278",
                 "shasum": ""
             },
             "require": {
@@ -1123,7 +1123,7 @@
                 }
             ],
             "description": "mongo schema for rent project",
-            "time": "2017-07-25 09:13:08"
+            "time": "2017-07-29 16:50:29"
         },
         {
             "name": "mrsuh/vk-api",
@@ -1486,16 +1486,16 @@
         },
         {
             "name": "sensiolabs/security-checker",
-            "version": "v4.0.5",
+            "version": "v4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/security-checker.git",
-                "reference": "6a3b0c3b42e41c777b1ad75032d8177863fdc5e1"
+                "reference": "cf61ce9d9706ba35e60a894fe6f3584c6d0e5c9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/security-checker/zipball/6a3b0c3b42e41c777b1ad75032d8177863fdc5e1",
-                "reference": "6a3b0c3b42e41c777b1ad75032d8177863fdc5e1",
+                "url": "https://api.github.com/repos/sensiolabs/security-checker/zipball/cf61ce9d9706ba35e60a894fe6f3584c6d0e5c9f",
+                "reference": "cf61ce9d9706ba35e60a894fe6f3584c6d0e5c9f",
                 "shasum": ""
             },
             "require": {
@@ -1508,7 +1508,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -1527,7 +1527,7 @@
                 }
             ],
             "description": "A security checker for your composer.lock",
-            "time": "2017-07-24 11:42:56"
+            "time": "2017-07-28 18:31:05"
         },
         {
             "name": "swiftmailer/swiftmailer",

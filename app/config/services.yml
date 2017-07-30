@@ -3,20 +3,10 @@ parameters:
         timeout: "%guzzle.timeout%"
         connect_timeout: "%guzzle.connect_timeout%"
 
-    auth.vk:
-        app_id: '%auth.vk.app_id%'
-        username: '%auth.vk.username%'
-        password: '%auth.vk.password%'
-        scope: '%auth.vk.scope%'
-        version: '%auth.vk.version%'
-
-    publish.vk:
-        user_id: '%publish.vk.user_id%'
-        group_id: '%publish.vk.group_id%'
-
 services:
 
 #odm ==================================================================
+
     dbal.hot:
        class: ODM\DBAL
        arguments:
@@ -56,13 +46,23 @@ services:
        arguments:
            - '@dm.hot'
 
-    model.document.parse_list:
-       class: AppBundle\Model\Document\ParseList\ParseListModel
+    model.document.parse.record:
+       class: AppBundle\Model\Document\Parse\Record\RecordModel
        arguments:
            - '@dm.hot'
 
-    model.document.publish_list:
-       class: AppBundle\Model\Document\PublishList\PublishListModel
+    model.document.parse.app:
+        class: AppBundle\Model\Document\Parse\App\AppModel
+        arguments:
+            - '@dm.hot'
+
+    model.document.publish.record:
+       class: AppBundle\Model\Document\Publish\Record\RecordModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.publish.user:
+       class: AppBundle\Model\Document\Publish\User\UserModel
        arguments:
            - '@dm.hot'
 
@@ -97,21 +97,6 @@ services:
         class: AppBundle\Request\VkPublicRequest
         arguments:
             - "@request.client"
-            - "%request.base_uri.vk%"
-            - '%auth.vk.version%'
-
-    request.private.vk:
-        class: AppBundle\Request\VkPrivateRequest
-        arguments:
-            - '@auth.vk'
-            - "@request.client"
-            - "%request.base_uri.vk%"
-            - '%auth.vk.version%'
-
-    auth.vk:
-        class: Mrsuh\Service\AuthService
-        arguments:
-            - "%auth.vk%"
 
 #request =============================================================
 
@@ -143,8 +128,8 @@ services:
         arguments:
             - "@request.public.vk"
 
-    explorer.subway:
-        class: AppBundle\Model\Logic\Explorer\Subway\SubwayExplorer
+    explorer.subway.factory:
+        class: AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory
         arguments:
             - "@model.document.subway"
 
@@ -162,6 +147,7 @@ services:
         class: AppBundle\Model\Logic\Collector\CollectorFactory
         arguments:
             - '@request.public.vk'
+            - '@model.document.parse.app'
             - '@logger'
             - '%dir.tmp%'
 
@@ -202,18 +188,20 @@ services:
         class: AppBundle\Model\Logic\Filter\UniqueFilter
         arguments:
             - "@dm.hot"
+
 #filter ==============================================================
 
 
 #publiser ============================================================
 
-    publisher.vk:
-        class: AppBundle\Model\Logic\Publisher\VkPublisher
+    publisher.factory:
+        class: AppBundle\Model\Logic\Publisher\PublisherFactory
         arguments:
-            - '@request.private.vk'
-            - "@dm.hot"
+            - '@request.client'
+            - "@model.document.subway"
+            - "@model.document.publish.user"
+            - "@model.document.note"
             - "@logger"
-            - '%publish.vk%'
 
 #publiser ============================================================
 
@@ -243,13 +231,26 @@ services:
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
 
-            - '@explorer.subway'
+            - '@explorer.subway.factory'
             - '@explorer.tomita'
             - '@explorer.user.factory'
 
-            - '@publisher.vk'
+            - '@queue.publish.producer'
 
             - '@model.document.note'
             - '@logger'
+
+    queue.publish.producer:
+        class: AppBundle\Queue\Producer\PublishProducer
+        arguments:
+            - '@queue.publish.consumer'
+
+    queue.publish.consumer:
+        class: AppBundle\Queue\Consumer\PublishConsumer
+        arguments:
+            - "@publisher.factory"
+            - "@model.document.publish.record"
+            - "@model.document.note"
+            - "@logger"
 
 #queue ===============================================================

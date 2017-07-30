@@ -18,7 +18,7 @@ class CollectCommand extends ContainerAwareCommand
     {
         $collector_factory = $this->getContainer()->get('collector.factory');
 
-        $model_parser = $this->getContainer()->get('model.document.parse_list');
+        $model_parser = $this->getContainer()->get('model.document.parse.record');
         $logger       = $this->getContainer()->get('logger');
         $producer     = $this->getContainer()->get('queue.collect.producer');
 
@@ -34,14 +34,14 @@ class CollectCommand extends ContainerAwareCommand
 
                 $logger->debug('Collect source', [
                     'type'       => $source->getType(),
-                    'parameters' => $source->getParameters(),
+                    'parameters' => $source->getParameters()
                 ]);
 
-                $collector = $collector_factory->init($source->getType());
+                $collector = $collector_factory->init($source);
 
                 while (!empty($notes = $collector->collect($source))) {
 
-                    $logger->debug('Collect request', [
+                    $logger->debug('Collect request done', [
                         'notes' => count($notes)
                     ]);
 
@@ -49,8 +49,6 @@ class CollectCommand extends ContainerAwareCommand
                         $count++;
                         $message =
                             (new CollectMessage())
-                                ->setId(uniqid())
-                                ->setCity($record->getCity())
                                 ->setSource($source)
                                 ->setNote($note);
 

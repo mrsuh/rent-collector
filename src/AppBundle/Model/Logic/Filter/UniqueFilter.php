@@ -34,12 +34,12 @@ class UniqueFilter
 
         return $this->dm_note->find(
             [
-                'contact.person.id' => $note->getContact()->getExternalId(),
-                'type'              => $note->getType(),
-                'timestamp'         => [
-                    '$gte' => $date->modify('- 12 hours')->getTimestamp(),
+                'contact.id' => $note->getContact()->getExternalId(),
+                'type'       => $note->getType(),
+                'timestamp'  => [
+                    '$gte' => $date->modify('- 4 weeks')->getTimestamp(),
                 ],
-                'id'                => ['$ne' => $note->getId()]
+                '_id'        => ['$ne' => $note->getId()]
             ]);
     }
 }

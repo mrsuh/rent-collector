@@ -23,13 +23,13 @@ class ExternalIdUniqueFilter
 
     /**
      * @param Note $note
-     * @return Note[]|array
+     * @return Note[]
      */
     public function findDuplicates(Note $note)
     {
         return $this->dm_note->find([
-            'external_id' => $note->getExternalId(),
-            'id'          => ['$ne' => $note->getId()]
+            'external_id' => (string)$note->getExternalId(),
+            '_id'         => ['$ne' => $note->getId()]
         ]);
     }
 }

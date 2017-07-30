@@ -1,13 +1,14 @@
 <?php
 
-namespace AppBundle\Model\Document\PublishList;
+namespace AppBundle\Model\Document\Publish\Record;
 
-use Schema\PublishList\Record;
 use ODM\DocumentManager\DocumentManagerFactory;
+use Schema\City\City;
+use Schema\Publish\Record\Record;
 
-class PublishListModel
+class RecordModel
 {
-    private $dm_publish;
+    private $dm;
 
     /**
      * PublishModel constructor.
@@ -15,7 +16,7 @@ class PublishListModel
      */
     public function __construct(DocumentManagerFactory $dm)
     {
-        $this->dm_publish = $dm->init(Record::class);
+        $this->dm = $dm->init(Record::class);
     }
 
     /**
@@ -23,7 +24,7 @@ class PublishListModel
      */
     public function findAll()
     {
-        return $this->dm_publish->find();
+        return $this->dm->find();
     }
 
     /**
@@ -32,7 +33,16 @@ class PublishListModel
      */
     public function findOneById($id)
     {
-        return $this->dm_publish->findOne(['_id' => $id]);
+        return $this->dm->findOne(['_id' => $id]);
+    }
+
+    /**
+     * @param City $city
+     * @return null|Record
+     */
+    public function findOneByCity(City $city)
+    {
+        return $this->dm->findOne(['city' => $city->getShortName()]);
     }
 
     /**
@@ -41,7 +51,7 @@ class PublishListModel
      */
     public function create(Record $obj)
     {
-        $this->dm_publish->insert($obj);
+        $this->dm->insert($obj);
 
         return $obj;
     }
@@ -52,7 +62,7 @@ class PublishListModel
      */
     public function update(Record $obj)
     {
-        $this->dm_publish->update($obj);
+        $this->dm->update($obj);
 
         return $obj;
     }

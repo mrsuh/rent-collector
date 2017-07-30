@@ -2,11 +2,11 @@
 
 namespace AppBundle\Queue\Message;
 
-use Schema\ParseList\Source;
+use Schema\Note\Note;
+use Schema\Parse\Record\Source;
 
 class CollectMessage
 {
-
     private $id;
 
     private $note;
@@ -16,7 +16,10 @@ class CollectMessage
      */
     private $source;
 
-    private $city;
+    public function __construct()
+    {
+        $this->id = uniqid();
+    }
 
     /**
      * @return Source|null
@@ -37,9 +40,8 @@ class CollectMessage
         return $this;
     }
 
-
     /**
-     * @return mixed
+     * @return string
      */
     public function getId()
     {
@@ -47,18 +49,7 @@ class CollectMessage
     }
 
     /**
-     * @param $id
-     * @return $this
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
+     * @return array
      */
     public function getNote()
     {
@@ -72,25 +63,6 @@ class CollectMessage
     public function setNote($note)
     {
         $this->note = $note;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCity()
-    {
-        return $this->city;
-    }
-
-    /**
-     * @param $city
-     * @return $this
-     */
-    public function setCity($city)
-    {
-        $this->city = $city;
 
         return $this;
     }
