@@ -2,13 +2,13 @@
 
 namespace AppBundle\Queue\Producer;
 
-use AppBundle\Queue\Message\PublishMessage;
+use AppBundle\Queue\Message\ParseMessage;
 
-class PublishProducer
+class ParseProducer
 {
     private $queue;
 
-    const QUEUE = 'queue_publish';
+    const QUEUE = 'queue_parse';
 
     /**
      * CollectProducer constructor.
@@ -21,10 +21,10 @@ class PublishProducer
     }
 
     /**
-     * @param PublishMessage $message
+     * @param ParseMessage $message
      * @return bool
      */
-    public function publish(PublishMessage $message)
+    public function publish(ParseMessage $message)
     {
         $this->queue->put(serialize($message));
 

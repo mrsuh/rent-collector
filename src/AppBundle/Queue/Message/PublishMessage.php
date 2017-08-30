@@ -21,13 +21,24 @@ class PublishMessage
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
     /**
-     * @return Note|null
+     * @param string $id
+     * @return $this
+     */
+    public function setId(string $id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * @return Note
      */
     public function getNote()
     {
