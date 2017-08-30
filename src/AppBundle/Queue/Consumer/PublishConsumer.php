@@ -88,7 +88,7 @@ class PublishConsumer
 
             $publisher = $this->publisher_factory->init($record);
 
-            //  $publisher->publish($note);
+            $publisher->publish($note);
 
             $note
                 ->setPublished(true)

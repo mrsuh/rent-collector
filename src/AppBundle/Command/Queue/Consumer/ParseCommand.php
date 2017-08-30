@@ -2,16 +2,16 @@
 
 namespace AppBundle\Command\Queue\Consumer;
 
-use AppBundle\Queue\Producer\PublishProducer;
+use AppBundle\Queue\Producer\ParseProducer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PublishCommand extends ContainerAwareCommand
+class ParseCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
-        $this->setName('app:queue:consumer:publish');
+        $this->setName('app:queue:consumer:parse');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -20,7 +20,7 @@ class PublishCommand extends ContainerAwareCommand
         $port   = $this->getContainer()->getParameter('queue.port');
         $logger = $this->getContainer()->get('logger');
 
-        $consumer = $this->getContainer()->get('queue.collect.consumer');
+        $consumer = $this->getContainer()->get('queue.parse.consumer');
 
         $queue = new \Pheanstalk\Pheanstalk($host, $port);
 
@@ -36,12 +36,14 @@ class PublishCommand extends ContainerAwareCommand
             }
 
             $job = $queue
-                ->watch(PublishProducer::QUEUE)
+                ->watch(ParseProducer::QUEUE)
                 ->reserve();
 
             $message = unserialize($job->getData());
 
             try {
+
+                $logger->debug('Reserve message', ['message_id' => $message->getId()]);
 
                 $consumer->handle($message);
 

@@ -225,6 +225,33 @@ services:
     queue.collect.consumer:
         class: AppBundle\Queue\Consumer\CollectConsumer
         arguments:
+            - '@queue.publish.producer'
+            - '@model.document.note'
+            - '@logger'
+
+    queue.publish.producer:
+        class: AppBundle\Queue\Producer\PublishProducer
+        arguments:
+            - '%queue.host%'
+            - '%queue.port%'
+
+    queue.publish.consumer:
+        class: AppBundle\Queue\Consumer\PublishConsumer
+        arguments:
+            - "@publisher.factory"
+            - "@model.document.publish.record"
+            - "@model.document.note"
+            - "@logger"
+
+    queue.parse.producer:
+        class: AppBundle\Queue\Producer\ParseProducer
+        arguments:
+            - '%queue.host%'
+            - '%queue.port%'
+
+    queue.parse.consumer:
+        class: AppBundle\Queue\Consumer\ParseConsumer
+        arguments:
             - '@parser.datetime.factory'
             - '@parser.description.factory'
             - '@parser.photo.factory'
@@ -244,23 +271,10 @@ services:
             - '@explorer.tomita'
             - '@explorer.user.factory'
 
-            - '@queue.publish.producer'
+            - '@queue.collect.producer'
 
             - '@model.document.note'
             - '@logger'
 
-    queue.publish.producer:
-        class: AppBundle\Queue\Producer\PublishProducer
-        arguments:
-            - '%queue.host%'
-            - '%queue.port%'
-
-    queue.publish.consumer:
-        class: AppBundle\Queue\Consumer\PublishConsumer
-        arguments:
-            - "@publisher.factory"
-            - "@model.document.publish.record"
-            - "@model.document.note"
-            - "@logger"
 
 #queue ===============================================================

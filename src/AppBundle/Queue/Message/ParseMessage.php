@@ -5,7 +5,7 @@ namespace AppBundle\Queue\Message;
 use Schema\Note\Note;
 use Schema\Parse\Record\Source;
 
-class CollectMessage
+class ParseMessage
 {
     private $id;
 
@@ -19,25 +19,6 @@ class CollectMessage
     public function __construct()
     {
         $this->id = uniqid();
-    }
-
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param string $id
-     * @return $this
-     */
-    public function setId(string $id)
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     /**
@@ -60,7 +41,15 @@ class CollectMessage
     }
 
     /**
-     * @return Note
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return array
      */
     public function getNote()
     {
