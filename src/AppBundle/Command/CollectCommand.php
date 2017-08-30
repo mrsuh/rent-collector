@@ -2,7 +2,7 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Queue\Message\CollectMessage;
+use AppBundle\Queue\Message\ParseMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,7 +20,7 @@ class CollectCommand extends ContainerAwareCommand
 
         $model_parser = $this->getContainer()->get('model.document.parse.record');
         $logger       = $this->getContainer()->get('logger');
-        $producer     = $this->getContainer()->get('queue.collect.producer');
+        $producer     = $this->getContainer()->get('queue.parse.producer');
 
         $count = 0;
         foreach ($model_parser->findAll() as $record) {
@@ -48,7 +48,7 @@ class CollectCommand extends ContainerAwareCommand
                     foreach ($notes as $note) {
                         $count++;
                         $message =
-                            (new CollectMessage())
+                            (new ParseMessage())
                                 ->setSource($source)
                                 ->setNote($note);
 
