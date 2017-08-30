@@ -19,11 +19,11 @@ class FileStorage
 
     /**
      * @param string $path
-     * @param        $file_content
+     * @param string $file_content
      * @return bool
      * @throws FileException
      */
-    public function put(string $path, $file_content)
+    public function put(string $path, string $file_content)
     {
         if (!is_dir($this->dir) && !@mkdir($this->dir)) {
             throw new FileException('Can not create directory ' . $this->dir);
@@ -41,24 +41,24 @@ class FileStorage
             }
         }
 
-        file_put_contents($this->dir . DIRECTORY_SEPARATOR . $path, json_encode($file_content));
+        file_put_contents($this->dir . DIRECTORY_SEPARATOR . $path, $file_content);
 
         return true;
     }
 
     /**
      * @param string $path
-     * @return array|mixed
+     * @return string
      */
     public function get(string $path)
     {
         if (!$this->exists($path)) {
             $this->put($path, []);
 
-            return [];
+            return '';
         }
 
-        return json_decode(file_get_contents($this->dir . DIRECTORY_SEPARATOR . $path), true);
+        return file_get_contents($this->dir . DIRECTORY_SEPARATOR . $path);
     }
 
     /**

@@ -1,0 +1,60 @@
+-
+    id: 51
+    name: 'Алабинская'
+    regexp: '/алабинск/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 52
+    name: 'Российская'
+    regexp: '/российск/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 53
+    name: Московская
+    regexp: '/московск/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 54
+    name: Гагаринская
+    regexp: '/гагаринск/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 55
+    name: 'Спортивная'
+    regexp: '/спортивн/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 56
+    name: 'Советская'
+    regexp: '/советск/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 57
+    name: Победа
+    regexp: /побед/
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 58
+    name: 'Безымянка'
+    regexp: '/безымянк/'
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 59
+    name: Кировская
+    regexp: /кировск/
+    color: ['#D32939']
+    city: 'samara'
+-
+    id: 510
+    name: 'Юнгородок'
+    regexp: '/юнгород/'
+    color: ['#D32939']
+    city: 'samara'

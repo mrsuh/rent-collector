@@ -34,6 +34,7 @@ class Client
     public function send(Request $request, array $data = [])
     {
         try {
+            file_put_contents('URI', $request->getUri() . json_encode($data) . PHP_EOL, FILE_APPEND);
             $response = $this->client->send($request, $data);
         } catch (\Exception $e) {
             if ($e instanceof ClientException || $e instanceof ServerException) {

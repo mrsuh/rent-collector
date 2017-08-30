@@ -2,25 +2,49 @@
 
 namespace AppBundle\Request;
 
+use AppBundle\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Schema\Parse\App\App;
 
 class VkPublicRequest
 {
+    /**
+     * @var Client
+     */
     private $client;
+
+    /**
+     * @var string
+     */
     private $url;
+
+    /**
+     * @var float
+     */
     private $version;
+
+    /**
+     * @var App
+     */
+    private $app;
 
     /**
      * VkPublicRequest constructor.
      * @param Client $client
-     * @param string $url
      */
-    public function __construct(Client $client, string $url, float $version)
+    public function __construct(Client $client)
     {
         $this->client  = $client;
-        $this->url     = $url;
-        $this->version = $version;
+        $this->url     = 'https://api.vk.com/method';
+        $this->version = 5.64;
+    }
+
+    public function setApp(App $app)
+    {
+        $this->app = $app;
+
+        return true;
     }
 
     /**
@@ -37,10 +61,17 @@ class VkPublicRequest
     /**
      * @param array $data
      * @return Response
+     * @throws RequestException
      */
     public function getWallRecords(array $data): Response
     {
         $data['v'] = $this->version;
+        if (null === $this->app) {
+
+            throw new RequestException('There is no app');
+        }
+
+        $data['access_token'] = $this->app->getToken();
 
         return $this->client->send(new Request('GET', $this->url . '/wall.get'), ['query' => $data]);
     }

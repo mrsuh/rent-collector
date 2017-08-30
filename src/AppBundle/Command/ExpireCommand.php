@@ -2,16 +2,12 @@
 
 namespace AppBundle\Command;
 
-use AppBundle\Command\Helper\DisplayTrait;
-use AppBundle\Document\Note;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ExpireCommand extends ContainerAwareCommand
 {
-    use DisplayTrait;
-
     protected function configure()
     {
         $this->setName('app:expire');
@@ -19,26 +15,23 @@ class ExpireCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dm_factory_hot = $this->getContainer()->get('odm.hot.data.mapper.factory');
-        $dm_note_hot    = $dm_factory_hot->init(Note::class);
-
-        $dm_factory_cold = $this->getContainer()->get('odm.cold.data.mapper.factory');
-        $dm_note_cold    = $dm_factory_cold->init(Note::class);
-
+        $logger      = $this->getContainer()->get('logger');
         $filter_date = $this->getContainer()->get('filter.expire.date');
+        $model_note  = $this->getContainer()->get('model.document.note');
 
-        $notes = $dm_note_hot->find();
         $count = 0;
-
-        foreach ($notes as $note) {
-            if ($filter_date->isExpire($note)) {
-                $this->debug($note->getId() . ' expired');
-                $dm_note_cold->insert($note);
-                $dm_note_hot->delete($note);
-                $count++;
+        foreach ($model_note->findAll() as $note) {
+            if (!$filter_date->isExpire($note)) {
+                continue;
             };
+
+            $logger->debug($note->getId() . ' expired');
+            $model_note->replaceToColdDB($note);
+            $count++;
         }
 
-        $this->debug('Total expired ' . $count);
+        $logger->debug('Total expired', [
+            'total' => $count
+        ]);
     }
 }

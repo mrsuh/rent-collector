@@ -3,45 +3,81 @@ parameters:
         timeout: "%guzzle.timeout%"
         connect_timeout: "%guzzle.connect_timeout%"
 
-    auth.vk:
-        app_id: '%auth.vk.app_id%'
-        username: '%auth.vk.username%'
-        password: '%auth.vk.password%'
-        scope: '%auth.vk.scope%'
-        version: '%auth.vk.version%'
-
-    publish.vk:
-        user_id: '%publish.vk.user_id%'
-        group_id: '%publish.vk.group_id%'
-
 services:
 
 #odm ==================================================================
-    odm.hot.dbal:
+
+    dbal.hot:
        class: ODM\DBAL
        arguments:
            - "%database.hot.host%"
            - "%database.hot.port%"
            - "%database.hot.name%"
 
-    odm.cold.dbal:
+    dbal.cold:
        class: ODM\DBAL
        arguments:
            - "%database.cold.host%"
            - "%database.cold.port%"
            - "%database.cold.name%"
            
-    odm.hot.data.mapper.factory:
-       class: ODM\DocumentMapper\DataMapperFactory
+    dm.hot:
+       class: ODM\DocumentManager\DocumentManagerFactory
        arguments:
-           - "@odm.hot.dbal"
+           - "@dbal.hot"
 
-    odm.cold.data.mapper.factory:
-       class: ODM\DocumentMapper\DataMapperFactory
+    dm.cold:
+       class: ODM\DocumentManager\DocumentManagerFactory
        arguments:
-           - "@odm.cold.dbal"
+           - "@dbal.cold"
 
 #odm ==================================================================
+
+
+# model document ======================================================
+
+    model.document.black_list:
+       class: AppBundle\Model\Document\BlackList\BlackListModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.city:
+       class: AppBundle\Model\Document\City\CityModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.parse.record:
+       class: AppBundle\Model\Document\Parse\Record\RecordModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.parse.app:
+        class: AppBundle\Model\Document\Parse\App\AppModel
+        arguments:
+            - '@dm.hot'
+
+    model.document.publish.record:
+       class: AppBundle\Model\Document\Publish\Record\RecordModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.publish.user:
+       class: AppBundle\Model\Document\Publish\User\UserModel
+       arguments:
+           - '@dm.hot'
+
+    model.document.note:
+       class: AppBundle\Model\Document\Note\NoteModel
+       arguments:
+           - '@dm.hot'
+           - '@dm.cold'
+
+    model.document.subway:
+       class: AppBundle\Model\Document\City\SubwayModel
+       arguments:
+           - '@dm.hot'
+
+# model document =====================================================
 
 
 #request =============================================================
@@ -61,115 +97,170 @@ services:
         class: AppBundle\Request\VkPublicRequest
         arguments:
             - "@request.client"
-            - "%request.base_uri.vk%"
-            - '%auth.vk.version%'
-
-    request.private.vk:
-        class: AppBundle\Request\VkPrivateRequest
-        arguments:
-            - '@auth.vk'
-            - "@request.client"
-            - "%request.base_uri.vk%"
-            - '%auth.vk.version%'
-
-    auth.vk:
-        class: Mrsuh\Service\AuthService
-        arguments:
-            - "%auth.vk%"
 
 #request =============================================================
 
 
-#parser =============================================================
+#parser ==============================================================
 
     parser.contact.factory:
-        class: AppBundle\Model\Parser\Contact\ContactParserFactory
+        class: AppBundle\Model\Logic\Parser\Contact\ContactParserFactory
 
     parser.datetime.factory:
-        class: AppBundle\Model\Parser\DateTime\DateTimeParserFactory
+        class: AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory
 
     parser.description.factory:
-        class: AppBundle\Model\Parser\Description\DescriptionParserFactory
+        class: AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory
 
     parser.photo.factory:
-        class: AppBundle\Model\Parser\Photo\PhotoParserFactory
+        class: AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory
+
+    parser.id.factory:
+        class: AppBundle\Model\Logic\Parser\Id\IdParserFactory
 
 #parser =============================================================
 
 
-#explorer ===========================================================
+#explorer ============================================================
 
     explorer.user.factory:
-        class: AppBundle\Model\Explorer\User\UserExplorerFactory
+        class: AppBundle\Model\Logic\Explorer\User\UserExplorerFactory
         arguments:
             - "@request.public.vk"
 
-    explorer.subway:
-        class: AppBundle\Model\Explorer\Subway\SubwayExplorer
+    explorer.subway.factory:
+        class: AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory
         arguments:
-            - "@odm.hot.data.mapper.factory"
+            - "@model.document.subway"
 
     explorer.tomita:
-        class: AppBundle\Model\Explorer\Tomita\TomitaExplorer
+        class: AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer
         arguments:
             - "@request.tomita"
 
-#explorer ===========================================================
+#explorer ============================================================
 
 
-#collector =============================================================
+#collector ===========================================================
 
     collector.factory:
-        class: AppBundle\Model\Collector\CollectorFactory
+        class: AppBundle\Model\Logic\Collector\CollectorFactory
         arguments:
             - '@request.public.vk'
+            - '@model.document.parse.app'
+            - '@logger'
             - '%dir.tmp%'
 
-#collector =============================================================
+#collector ===========================================================
 
 
-#filter =============================================================
-
-    filter.unique.external_id:
-        class: AppBundle\Model\Filter\ExternalIdUniqueFilter
-        arguments:
-            - "@odm.hot.data.mapper.factory"
+#filter ==============================================================
 
     filter.black_list.description:
-        class: AppBundle\Model\Filter\DescriptionBlackListFilter
+        class: AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-            - "%file.black_list.description%"
+            - "@model.document.black_list"
 
-    filter.black_list.contacts:
-        class: AppBundle\Model\Filter\ContactsBlackListFilter
+    filter.black_list.person:
+        class: AppBundle\Model\Logic\Filter\BlackList\PersonFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-            - "%file.black_list.person%"
+            - "@model.document.black_list"
+
+    filter.black_list.phone:
+        class: AppBundle\Model\Logic\Filter\BlackList\PhoneFilter
+        arguments:
+            - "@model.document.black_list"
+
+
+    filter.cleaner.description:
+        class: AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter
+        arguments:
+
 
     filter.expire.date:
-        class: AppBundle\Model\Filter\DateExpireFilter
+        class: AppBundle\Model\Logic\Filter\Expire\DateFilter
+
+
+    filter.unique.external_id:
+        class: AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter
+        arguments:
+            - "@dm.hot"
 
     filter.unique.description:
-        class: AppBundle\Model\Filter\DescriptionUniqueFilter
+        class: AppBundle\Model\Logic\Filter\Unique\DescriptionFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
+            - "@dm.hot"
 
-    filter.unique:
-        class: AppBundle\Model\Filter\UniqueFilter
+    filter.unique.note:
+        class: AppBundle\Model\Logic\Filter\Unique\NoteFilter
         arguments:
-            - "@odm.hot.data.mapper.factory"
-#filter =============================================================
+            - "@dm.hot"
+
+#filter ==============================================================
 
 
-#publiser ===========================================================
+#publiser ============================================================
 
-    publisher.vk:
-        class: AppBundle\Model\Publisher\VkPublisher
+    publisher.factory:
+        class: AppBundle\Model\Logic\Publisher\PublisherFactory
         arguments:
-            - '@request.private.vk'
-            - "@odm.hot.data.mapper.factory"
+            - '@request.client'
+            - "@model.document.subway"
+            - "@model.document.publish.user"
+            - "@model.document.note"
             - "@logger"
-            - '%publish.vk%'
 
-#publiser ===========================================================
+#publiser ============================================================
+
+
+#queue ===============================================================
+
+
+    queue.collect.producer:
+        class: AppBundle\Queue\Producer\CollectProducer
+        arguments:
+            - '%queue.host%'
+            - '%queue.port%'
+
+    queue.collect.consumer:
+        class: AppBundle\Queue\Consumer\CollectConsumer
+        arguments:
+            - '@parser.datetime.factory'
+            - '@parser.description.factory'
+            - '@parser.photo.factory'
+            - '@parser.contact.factory'
+            - '@parser.id.factory'
+
+            - '@filter.expire.date'
+            - '@filter.unique.description'
+            - '@filter.unique.note'
+            - "@filter.unique.external_id"
+            - "@filter.black_list.description"
+            - "@filter.black_list.person"
+            - "@filter.black_list.phone"
+            - "@filter.cleaner.description"
+
+            - '@explorer.subway.factory'
+            - '@explorer.tomita'
+            - '@explorer.user.factory'
+
+            - '@queue.publish.producer'
+
+            - '@model.document.note'
+            - '@logger'
+
+    queue.publish.producer:
+        class: AppBundle\Queue\Producer\PublishProducer
+        arguments:
+            - '%queue.host%'
+            - '%queue.port%'
+
+    queue.publish.consumer:
+        class: AppBundle\Queue\Consumer\PublishConsumer
+        arguments:
+            - "@publisher.factory"
+            - "@model.document.publish.record"
+            - "@model.document.note"
+            - "@logger"
+
+#queue ===============================================================

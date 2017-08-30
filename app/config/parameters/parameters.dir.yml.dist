@@ -1,0 +1,2 @@
+parameters:
+    dir.tmp: '%kernel.root_dir%/../var/tmp'

@@ -1,9 +1,7 @@
 imports:
     - { resource: parameters.yml }
-    - { resource: parameters.dir.yml }
-    - { resource: parameters.request.yml }
-    - { resource: parameters.auth.yml }
-    - { resource: parameters.publish.yml }
+    - { resource: parameters/parameters.dir.yml }
+    - { resource: parameters/parameters.request.yml }
     - { resource: security.yml }
     - { resource: services.yml }
 

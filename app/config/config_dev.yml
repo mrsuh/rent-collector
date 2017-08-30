@@ -17,7 +17,13 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+            handler: nested
             channels: [!event]
+        nested:
+            type:  rotating_file
+            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            level: error
+            max_files: 30
         console:
             type:   console
             channels: [!event, !doctrine]

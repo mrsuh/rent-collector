@@ -2,7 +2,8 @@
 
 namespace AppBundle\Command\Init;
 
-use AppBundle\Document\Subway;
+use ODM\DocumentManager\DocumentManager;
+use Schema\City\Subway;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,20 +18,33 @@ class SubwayCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $list = Yaml::parse(file_get_contents($this->getContainer()->getParameter('file.fixtures.subway')));
-
-        $dm_factory = $this->getContainer()->get('odm.hot.data.mapper.factory');
+        $dir        = $this->getContainer()->getParameter('kernel.root_dir') . '/fixtures';
+        $dm_factory = $this->getContainer()->get('dm.hot');
         $dm_subway  = $dm_factory->init(Subway::class);
-        $dm_subway->drop();
-        foreach ($list as $key => $val) {
-            $dm_subway->insert(
-                (new Subway())
-                    ->setId($val['id'])
-                    ->setName($val['name'])
-                    ->setRegexp($val['regexp'])
-                    ->setColor($val['color'])
-                    ->setCity($val['city'])
-            );
+        foreach (glob($dir . '/subway_*') as $file_path) {
+            $this->load($dm_subway, $file_path);
         }
+    }
+
+    private function load(DocumentManager $dm_subway, $file_path)
+    {
+        $list = Yaml::parse(file_get_contents($file_path));
+
+        foreach ($list as $key => $val) {
+
+            $subway = (new Subway())
+                ->setId($val['id'])
+                ->setName($val['name'])
+                ->setRegexp($val['regexp'])
+                ->setCity($val['city']);
+
+            foreach ($val['color'] as $color) {
+                $subway->addColor($color);
+            }
+
+            $dm_subway->insert($subway);
+        }
+
+        return true;
     }
 }
