@@ -2,7 +2,7 @@
 
 namespace AppBundle\Command\Queue\Consumer;
 
-use AppBundle\Queue\Producer\CollectProducer;
+use AppBundle\Queue\Producer\ParseProducer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -36,7 +36,7 @@ class ParseCommand extends ContainerAwareCommand
             }
 
             $job = $queue
-                ->watch(CollectProducer::QUEUE)
+                ->watch(ParseProducer::QUEUE)
                 ->reserve();
 
             $message = unserialize($job->getData());

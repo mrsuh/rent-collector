@@ -2,7 +2,7 @@
 
 namespace AppBundle\Command\Queue\Consumer;
 
-use AppBundle\Queue\Producer\CollectProducer;
+use AppBundle\Queue\Producer\PublishProducer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -36,7 +36,7 @@ class PublishCommand extends ContainerAwareCommand
             }
 
             $job = $queue
-                ->watch(CollectProducer::QUEUE)
+                ->watch(PublishProducer::QUEUE)
                 ->reserve();
 
             $message = unserialize($job->getData());
