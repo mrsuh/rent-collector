@@ -1,7 +1,104 @@
 -
     id: 1
+    short_name: sankt-peterburg
     name: 'Санкт Перетербург'
 
 -
     id: 2
+    short_name: moskva
     name: 'Москва'
+
+-
+    id: 3
+    short_name: novosibirsk
+    name: 'Новосибирск'
+
+-
+    id: 4
+    short_name: ekaterinburg
+    name: 'Екатеринбург'
+
+-
+    id: 5
+    short_name: nizny-novgorod
+    name: 'Нижний Новгород'
+
+-
+    id: 6
+    short_name: kazan
+    name: 'Казань'
+
+-
+    id: 7
+    short_name: chelabinsk
+    name: 'Челябинск'
+
+-
+    id: 8
+    short_name: omsk
+    name: 'Омск'
+
+-
+    id: 9
+    short_name: samara
+    name: 'Самара'
+
+-
+    id: 10
+    short_name: rostov-na-donu
+    name: 'Ростов-на-Дону'
+
+-
+    id: 11
+    short_name: ufa
+    name: 'Уфа'
+
+-
+    id: 12
+    short_name: krasnoyarsk
+    name: 'Красноярск'
+
+-
+    id: 13
+    short_name: perm
+    name: 'Пермь'
+
+-
+    id: 14
+    short_name: voronez
+    name: 'Воронеж'
+
+-
+    id: 15
+    short_name: volgograd
+    name: 'Волгоград'
+
+-
+    id: 16
+    short_name: krasnodar
+    name: 'Краснодар'
+
+-
+    id: 17
+    short_name: saratov
+    name: 'Саратов'
+
+-
+    id: 18
+    short_name: tumen
+    name: 'Тюмень'
+
+-
+    id: 19
+    short_name: toliati
+    name: 'Тольятти'
+
+-
+    id: 20
+    short_name: taganrog
+    name: 'Таганрог'
+
+-
+    id: 21
+    short_name: tobolsk
+    name: 'Тобольск'

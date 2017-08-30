@@ -3,12 +3,10 @@
 cd "$( cd `dirname $0` && pwd )/.."
 
 if [ ! -z "`command -v composer`" ] ; then
-  composer config -g github-oauth.github.com 039ab9ce113a2639216e82b9f5e123a2a722fb01
   composer install --prefer-dist --no-interaction
   composer dumpautoload -o
 else
   [ ! -e "composer.phar" ] && php -r "readfile('https://getcomposer.org/installer');" | php
-  php composer.phar config -g github-oauth.github.com 039ab9ce113a2639216e82b9f5e123a2a722fb01
   php composer.phar install --prefer-dist --no-interaction
   php composer.phar dumpautoload -o
 fi
@@ -23,4 +21,5 @@ if [ ! -f $f ]; then
 fi
 done
 
-php bin/console cache:clear --env=prod
+php bin/console cache:clear --no-warmup --env=prod
+php bin/console cache:warmup --env=prod

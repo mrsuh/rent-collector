@@ -1,10 +1,10 @@
 <?php
 
-namespace AppBundle\Model\Logic\Filter;
+namespace AppBundle\Model\Logic\Filter\Expire;
 
 use Schema\Note\Note;
 
-class DateExpireFilter
+class DateFilter
 {
     /**
      * @var int

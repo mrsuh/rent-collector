@@ -6,13 +6,12 @@ use AppBundle\Model\Document\Note\NoteModel;
 use AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory;
 use AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer;
 use AppBundle\Model\Logic\Explorer\User\UserExplorerFactory;
-use AppBundle\Model\Logic\Filter\DateExpireFilter;
-use AppBundle\Model\Logic\Filter\DescriptionBlackListFilter;
-use AppBundle\Model\Logic\Filter\DescriptionUniqueFilter;
-use AppBundle\Model\Logic\Filter\ExternalIdUniqueFilter;
-use AppBundle\Model\Logic\Filter\PersonBlackListFilter;
-use AppBundle\Model\Logic\Filter\PhoneBlackListFilter;
-use AppBundle\Model\Logic\Filter\UniqueFilter;
+use AppBundle\Model\Logic\Filter\BlackList\PersonFilter;
+use AppBundle\Model\Logic\Filter\BlackList\PhoneFilter;
+use AppBundle\Model\Logic\Filter\Expire\DateFilter;
+use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
+use AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter;
+use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Model\Logic\Parser\Contact\ContactParserFactory;
 use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
 use AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory;
@@ -35,11 +34,12 @@ class CollectConsumer
 
     private $filter_expire_date;
     private $filter_unique_description;
-    private $filter_unique;
+    private $filter_unique_note;
     private $filter_unique_external_id;
     private $filter_black_list_description;
     private $filter_black_list_person;
     private $filter_black_list_phone;
+    private $filter_cleaner_description;
 
     private $explorer_subway_factory;
     private $explorer_tomita;
@@ -57,13 +57,14 @@ class CollectConsumer
         ContactParserFactory $parser_contact_factory,
         IdParserFactory $parser_id_factory,
 
-        DateExpireFilter $filter_expire_date,
-        DescriptionUniqueFilter $filter_unique_description,
-        UniqueFilter $filter_unique,
-        ExternalIdUniqueFilter $filter_unique_external_id,
-        DescriptionBlackListFilter $filter_black_list_description,
-        PersonBlackListFilter $filter_black_list_person,
-        PhoneBlackListFilter $filter_black_list_phone,
+        DateFilter $filter_expire_date,
+        DescriptionFilter $filter_unique_description,
+        NoteFilter $filter_unique_note,
+        ExternalIdFilter $filter_unique_external_id,
+        \AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter $filter_black_list_description,
+        PersonFilter $filter_black_list_person,
+        PhoneFilter $filter_black_list_phone,
+        \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter $filter_cleaner_description,
 
         SubwayExplorerFactory $explorer_subway_factory,
         TomitaExplorer $explorer_tomita,
@@ -83,11 +84,12 @@ class CollectConsumer
 
         $this->filter_expire_date            = $filter_expire_date;
         $this->filter_unique_description     = $filter_unique_description;
-        $this->filter_unique                 = $filter_unique;
+        $this->filter_unique_note            = $filter_unique_note;
         $this->filter_unique_external_id     = $filter_unique_external_id;
         $this->filter_black_list_description = $filter_black_list_description;
         $this->filter_black_list_person      = $filter_black_list_person;
         $this->filter_black_list_phone       = $filter_black_list_phone;
+        $this->filter_cleaner_description    = $filter_cleaner_description;
 
         $this->explorer_subway_factory = $explorer_subway_factory;
         $this->explorer_tomita         = $explorer_tomita;
@@ -108,21 +110,14 @@ class CollectConsumer
                 'message_id' => $message->getId()
             ]);
 
-            $parser_datetime    = $this->parser_datetime_factory->init($message->getSource());
-            $parser_description = $this->parser_description_factory->init($message->getSource());
-            $parser_photo       = $this->parser_photo_factory->init($message->getSource());
-            $parser_contact     = $this->parser_contact_factory->init($message->getSource());
-            $parser_id          = $this->parser_id_factory->init($message->getSource());
-
-            $explorer_user   = $this->explorer_user_factory->init($message->getSource());
-            $explorer_subway = $this->explorer_subway_factory->init($message->getSource());
-
+            $note = new Note();
 
             $this->logger->debug('Parsing id...', [
                 'message_id' => $message->getId()
             ]);
 
-            $id = $parser_id->parse($message->getNote());
+            $parser_id = $this->parser_id_factory->init($message->getSource());
+            $id        = $parser_id->parse($message->getNote());
 
             if (empty($id)) {
 
@@ -140,9 +135,10 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
-            $timestamp = $parser_datetime->parse($message->getNote());
+            $parser_datetime = $this->parser_datetime_factory->init($message->getSource());
+            $timestamp       = $parser_datetime->parse($message->getNote());
 
-            $note = (new Note())
+            $note
                 ->setExternalId($external_id)
                 ->setTimestamp($timestamp)
                 ->setCity($message->getSource()->getCity());
@@ -174,7 +170,10 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
-            $description = $parser_description->parse($message->getNote());
+            $parser_description = $this->parser_description_factory->init($message->getSource());
+            $description_raw    = $parser_description->parse($message->getNote());
+
+            $description = $this->filter_cleaner_description->clear($description_raw);
 
             $note->setDescription($description);
 
@@ -224,21 +223,13 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
+            $parser_contact = $this->parser_contact_factory->init($message->getSource());
+
             $contact = $parser_contact->parse($message->getNote());
+            $phones  = $tomita->getPhones();
 
-
-            $this->logger->debug('Exploring user...', [
-                'external_id' => $external_id
-            ]);
-
-            $user = $explorer_user->explore($contact->getExternalId());
-
-            $this->logger->debug('Exploring user... done', [
-                'external_id' => $external_id
-            ]);
-
-            if (null === $user) {
-                $this->logger->debug('Invalid explored user', [
+            if (null === $contact->getExternalId() && count($phones) === 0) {
+                $this->logger->debug('Invalid explored user and no phones', [
                     'external_id' => $external_id
                 ]);
                 unset($note);
@@ -246,14 +237,26 @@ class CollectConsumer
                 return false;
             }
 
-            $note->setContact(
-                (new Contact())
-                    ->setExternalId($contact->getExternalId())
+            $contact->setPhones($phones);
+
+            if (null !== $contact->getExternalId()) {
+                $this->logger->debug('Exploring user...', [
+                    'external_id' => $external_id
+                ]);
+
+                $explorer_user = $this->explorer_user_factory->init($message->getSource());
+                $user          = $explorer_user->explore($contact->getExternalId());
+
+                $this->logger->debug('Exploring user... done', [
+                    'external_id' => $external_id
+                ]);
+
+                $contact
                     ->setName($user->getFirstName() . ' ' . $user->getLastName())
-                    ->setLink($contact->getLink())
-                    ->setPhotoLink($user->getPhoto())
-                    ->setPhones($tomita->getPhones())
-            );
+                    ->setPhotoLink($user->getPhoto());
+            }
+
+            $note->setContact($contact);
 
             if (!$this->filter_black_list_person->isAllow($note)) {
                 $this->logger->debug('Filtered by black list person', [
@@ -278,6 +281,7 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
+            $parser_photo = $this->parser_photo_factory->init($message->getSource());
             foreach ($parser_photo->parse($message->getNote()) as $photo) {
                 $note->addPhoto($photo);
             }
@@ -287,6 +291,7 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
+            $explorer_subway = $this->explorer_subway_factory->init($message->getSource());
             foreach ($explorer_subway->explore($description) as $subway) {
                 $note->addSubway($subway->getId());
             }
@@ -318,7 +323,7 @@ class CollectConsumer
                 'external_id' => $external_id
             ]);
 
-            $unique_duplicates = $this->filter_unique->findDuplicates($note);
+            $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
 
             if (!empty($unique_duplicates)) {
                 $this->logger->debug('Filtered by unique', [

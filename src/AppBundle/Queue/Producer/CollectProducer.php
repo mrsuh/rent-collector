@@ -2,20 +2,22 @@
 
 namespace AppBundle\Queue\Producer;
 
-use AppBundle\Queue\Consumer\CollectConsumer;
 use AppBundle\Queue\Message\CollectMessage;
 
 class CollectProducer
 {
-    private $consumer;
+    private $queue;
+
+    const QUEUE = 'queue_collect';
 
     /**
      * CollectProducer constructor.
-     * @param CollectConsumer $consumer
+     * @param string $host
+     * @param string $port
      */
-    public function __construct(CollectConsumer $consumer)
+    public function __construct(string $host, string $port)
     {
-        $this->consumer = $consumer;
+        $this->queue = (new \Pheanstalk\Pheanstalk($host, $port))->useTube(self::QUEUE);
     }
 
     /**
@@ -24,7 +26,7 @@ class CollectProducer
      */
     public function publish(CollectMessage $message)
     {
-        $this->consumer->handle($message);
+        $this->queue->put(serialize($message));
 
         return true;
     }

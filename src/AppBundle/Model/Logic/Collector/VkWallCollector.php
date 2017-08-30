@@ -27,19 +27,29 @@ class VkWallCollector implements CollectorInterface
     }
 
     /**
-     * @param string $file_name
+     * @param Source $source
+     * @return string
+     */
+    private function getConfigName(Source $source)
+    {
+        return 'config_' . $source->getId();
+    }
+
+    /**
+     * @param Source $source
      * @return VkWallConfig
      */
-    private function getConfigFromFile(string $file_name)
+    private function getConfigFromFile(Source $source)
     {
-        $new_config = (new VkWallConfig())->setOffset(0)->setFinish(false);
+        $config_name = $this->getConfigName($source);
+        $new_config  = (new VkWallConfig())->setOffset(0)->setFinish(false);
 
-        if (!$this->storage->exists($file_name)) {
+        if (!$this->storage->exists($config_name)) {
 
             return $new_config;
         }
 
-        $instance = $this->storage->get($file_name);
+        $instance = $this->storage->get($config_name);
 
         $config = unserialize($instance);
 
@@ -52,13 +62,15 @@ class VkWallCollector implements CollectorInterface
     }
 
     /**
-     * @param string       $file_name
+     * @param Source       $source
      * @param VkWallConfig $config
      * @return bool
      */
-    private function setConfigToFile(string $file_name, VkWallConfig $config)
+    private function setConfigToFile(Source $source, VkWallConfig $config)
     {
-        return $this->storage->put($file_name, serialize($config));
+        $config_name = $this->getConfigName($source);
+
+        return $this->storage->put($config_name, serialize($config));
     }
 
     /**
@@ -88,12 +100,10 @@ class VkWallCollector implements CollectorInterface
                 return [];
             }
 
-            $file_name = 'source_' . $source->getId();
-
-            $config = $this->getConfigFromFile($file_name);
+            $config = $this->getConfigFromFile($source);
 
             if ($config->isFinish()) {
-                $this->setConfigToFile($file_name, $config->setOffset(0)->setFinish(false));
+                $this->setConfigToFile($source, $config->setOffset(0)->setFinish(false));
 
                 $this->logger->debug('There is no more notes', [
                     'source_id'   => $source->getId(),
@@ -103,26 +113,7 @@ class VkWallCollector implements CollectorInterface
                 return [];
             }
 
-            $this->logger->debug('', [
-                'source_id'   => $source->getId(),
-                'source_type' => $source->getType(),
-                'offset'      => $config->getOffset()
-            ]);
-
-            $params['offset'] = $config->getOffset();
-            $timestamp        = (new \DateTime())->modify('- 2 hour')->getTimestamp();
-
-            $this->logger->debug('Collect sleeping...', [
-                'source_id'   => $source->getId(),
-                'source_type' => $source->getType()
-            ]);
-
             usleep(200);
-
-            $this->logger->debug('Collect sleeping... done', [
-                'source_id'   => $source->getId(),
-                'source_type' => $source->getType()
-            ]);
 
             $this->logger->debug('Collect requesting...', [
                 'source_id'   => $source->getId(),
@@ -130,60 +121,21 @@ class VkWallCollector implements CollectorInterface
                 'params'      => $params
             ]);
 
-            $response_raw = $this->request->getWallRecords($params);
+            $params['offset'] = $config->getOffset();
 
-            $contents = $response_raw->getBody()->getContents();
+            $items_raw = $this->request($source, $params);
 
-            $this->logger->debug('Collect requesting... done', [
-                'source_id'   => $source->getId(),
-                'source_type' => $source->getType(),
-                'params'      => $params
-            ]);
-
-            $data = json_decode($contents, true);
-
-            if (!is_array($data)) {
-
-                $this->logger->error('Response has invalid json', [
-                    'source_id'   => $source->getId(),
-                    'source_type' => $source->getType(),
-                    'response'    => $contents
-                ]);
-
-                return [];
-            }
-
-            if (!array_key_exists('response', $data)) {
-
-                $this->logger->error('Response has not key "response"', [
-                    'source_id'   => $source->getId(),
-                    'source_type' => $source->getType(),
-                    'response'    => $data
-                ]);
-
-                return [];
-            }
-
-            if (!array_key_exists('items', $data['response'])) {
-
-                $this->logger->error('Response has not key "items"', [
-                    'source_id'   => $source->getId(),
-                    'source_type' => $source->getType(),
-                    'response'    => $data
-                ]);
-
-                return [];
-            }
-
-            $items_raw = $data['response']['items'];
             $items     = [];
             $finish    = false;
+            $timestamp = (new \DateTime())->modify('- 1 hours')->getTimestamp();
+
             foreach ($items_raw as $item) {
 
                 if (
                     array_key_exists('marked_as_ads', $item) &&
                     $item['marked_as_ads']
                 ) {
+
                     continue;
                 }
 
@@ -192,22 +144,24 @@ class VkWallCollector implements CollectorInterface
                     array_key_exists('is_pinned', $item) &&
                     $item['is_pinned']
                 ) {
+
                     continue;
                 }
 
                 if ($timestamp > $item['date']) {
                     $finish = true;
+
                     break;
                 }
 
                 $items[] = $item;
             }
 
-            if ($finish) {
-                $this->setConfigToFile($file_name, $config->setOffset(0)->setFinish(true));
-            } else {
-                $this->setConfigToFile($file_name, $config->setFinish($config->getOffset() + 5)->setFinish(false));
-            }
+            $config
+                ->setFinish($finish)
+                ->setOffset($finish ? 0 : $config->getOffset() + 5);
+
+            $this->setConfigToFile($source, $config);
 
             $this->logger->debug('Processing collect... done', [
                 'source_id'   => $source->getId(),
@@ -225,6 +179,61 @@ class VkWallCollector implements CollectorInterface
         }
 
         return $items;
+    }
+
+    /**
+     * @param Source $source
+     * @param array  $params
+     * @return array
+     */
+    private function request(Source $source, array $params)
+    {
+        $response_raw = $this->request->getWallRecords($params);
+
+        $contents = $response_raw->getBody()->getContents();
+
+        $this->logger->debug('Collect requesting... done', [
+            'source_id'   => $source->getId(),
+            'source_type' => $source->getType(),
+            'params'      => $params
+        ]);
+
+        $data = json_decode($contents, true);
+
+        if (!is_array($data)) {
+
+            $this->logger->error('Response has invalid json', [
+                'source_id'   => $source->getId(),
+                'source_type' => $source->getType(),
+                'response'    => $contents
+            ]);
+
+            return [];
+        }
+
+        if (!array_key_exists('response', $data)) {
+
+            $this->logger->error('Response has not key "response"', [
+                'source_id'   => $source->getId(),
+                'source_type' => $source->getType(),
+                'response'    => $data
+            ]);
+
+            return [];
+        }
+
+        if (!array_key_exists('items', $data['response'])) {
+
+            $this->logger->error('Response has not key "items"', [
+                'source_id'   => $source->getId(),
+                'source_type' => $source->getType(),
+                'response'    => $data
+            ]);
+
+            return [];
+        }
+
+        return $data['response']['items'];
     }
 }
 

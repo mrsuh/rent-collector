@@ -156,36 +156,43 @@ services:
 
 #filter ==============================================================
 
-    filter.unique.external_id:
-        class: AppBundle\Model\Logic\Filter\ExternalIdUniqueFilter
-        arguments:
-            - "@dm.hot"
-
     filter.black_list.description:
-        class: AppBundle\Model\Logic\Filter\DescriptionBlackListFilter
+        class: AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter
         arguments:
             - "@model.document.black_list"
 
     filter.black_list.person:
-        class: AppBundle\Model\Logic\Filter\PersonBlackListFilter
+        class: AppBundle\Model\Logic\Filter\BlackList\PersonFilter
         arguments:
             - "@model.document.black_list"
 
     filter.black_list.phone:
-        class: AppBundle\Model\Logic\Filter\PhoneBlackListFilter
+        class: AppBundle\Model\Logic\Filter\BlackList\PhoneFilter
         arguments:
             - "@model.document.black_list"
 
-    filter.expire.date:
-        class: AppBundle\Model\Logic\Filter\DateExpireFilter
 
-    filter.unique.description:
-        class: AppBundle\Model\Logic\Filter\DescriptionUniqueFilter
+    filter.cleaner.description:
+        class: AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter
+        arguments:
+
+
+    filter.expire.date:
+        class: AppBundle\Model\Logic\Filter\Expire\DateFilter
+
+
+    filter.unique.external_id:
+        class: AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter
         arguments:
             - "@dm.hot"
 
-    filter.unique:
-        class: AppBundle\Model\Logic\Filter\UniqueFilter
+    filter.unique.description:
+        class: AppBundle\Model\Logic\Filter\Unique\DescriptionFilter
+        arguments:
+            - "@dm.hot"
+
+    filter.unique.note:
+        class: AppBundle\Model\Logic\Filter\Unique\NoteFilter
         arguments:
             - "@dm.hot"
 
@@ -212,7 +219,8 @@ services:
     queue.collect.producer:
         class: AppBundle\Queue\Producer\CollectProducer
         arguments:
-            - '@queue.collect.consumer'
+            - '%queue.host%'
+            - '%queue.port%'
 
     queue.collect.consumer:
         class: AppBundle\Queue\Consumer\CollectConsumer
@@ -225,11 +233,12 @@ services:
 
             - '@filter.expire.date'
             - '@filter.unique.description'
-            - '@filter.unique'
+            - '@filter.unique.note'
             - "@filter.unique.external_id"
             - "@filter.black_list.description"
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
+            - "@filter.cleaner.description"
 
             - '@explorer.subway.factory'
             - '@explorer.tomita'
@@ -243,7 +252,8 @@ services:
     queue.publish.producer:
         class: AppBundle\Queue\Producer\PublishProducer
         arguments:
-            - '@queue.publish.consumer'
+            - '%queue.host%'
+            - '%queue.port%'
 
     queue.publish.consumer:
         class: AppBundle\Queue\Consumer\PublishConsumer

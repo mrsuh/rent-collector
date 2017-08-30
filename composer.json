@@ -29,7 +29,8 @@
     "symfony/yaml": "^3.1",
     "mrsuh/mongo-odm": "2.*",
     "mrsuh/vk-api": "^1.4",
-    "mrsuh/rent-schema": "^1.0"
+    "mrsuh/rent-schema": "^1.0",
+    "pda/pheanstalk": "^3.1"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",

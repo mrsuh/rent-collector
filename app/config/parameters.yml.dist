@@ -20,3 +20,6 @@ parameters:
 
     guzzle.timeout: 10
     guzzle.connect_timeout: 5
+
+    queue.port: 9090
+    queue.host: localhost

@@ -1,12 +1,12 @@
 <?php
 
-namespace AppBundle\Model\Logic\Filter;
+namespace AppBundle\Model\Logic\Filter\BlackList;
 
 use Schema\Note\Note;
 use AppBundle\Model\Document\BlackList\BlackListModel;
 use Schema\BlackList\Record;
 
-class PhoneBlackListFilter
+class PhoneFilter
 {
     /**
      * @var Record[]

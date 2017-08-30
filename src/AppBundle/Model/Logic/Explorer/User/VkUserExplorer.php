@@ -53,7 +53,8 @@ class VkUserExplorer implements UserExplorerInterface
         }
 
         if (null === $user) {
-            return null;
+
+            return new User();
         }
 
         foreach (['first_name', 'last_name', 'photo_100'] as $key) {

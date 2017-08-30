@@ -31,11 +31,9 @@ class VkWallContactParser implements ContactParserInterface
                 break;
         }
 
-        $text = $data['text'];
-
         if ($id < 0) {
-            preg_match('/\[id(\d+)\|.*\]/', $text, $match);
-            $id = array_key_exists(1, $match) ? $match[1] : -1;
+            preg_match('/\[id(\d+)\|.*\]/', $data['text'], $match);
+            $id = array_key_exists(1, $match) ? $match[1] : null;
         }
 
         return (new Contact())

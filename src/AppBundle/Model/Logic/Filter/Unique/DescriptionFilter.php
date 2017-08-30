@@ -1,11 +1,11 @@
 <?php
 
-namespace AppBundle\Model\Logic\Filter;
+namespace AppBundle\Model\Logic\Filter\Unique;
 
 use ODM\DocumentManager\DocumentManagerFactory;
 use Schema\Note\Note;
 
-class ExternalIdUniqueFilter
+class DescriptionFilter
 {
     /**
      * @var \ODM\DocumentManager\DocumentManager
@@ -13,7 +13,7 @@ class ExternalIdUniqueFilter
     private $dm_note;
 
     /**
-     * ExternalIdUniqueFilter constructor.
+     * DescriptionUniqueFilter constructor.
      * @param DocumentManagerFactory $dm_factory
      */
     public function __construct(DocumentManagerFactory $dm_factory)
@@ -23,13 +23,14 @@ class ExternalIdUniqueFilter
 
     /**
      * @param Note $note
-     * @return Note[]
+     * @return Note[]|array
      */
-    public function findDuplicates(Note $note)
+    public function findDuplicates(Note $note): array
     {
-        return $this->dm_note->find([
-            'external_id' => (string)$note->getExternalId(),
-            '_id'         => ['$ne' => $note->getId()]
-        ]);
+        return $this->dm_note->find(
+            [
+                'description_hash' => $note->getDescriptionHash(),
+                '_id'              => ['$ne' => $note->getId()]
+            ]);
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace AppBundle\Model\Logic\Filter;
+namespace AppBundle\Model\Logic\Filter\Unique;
 
 use Schema\Note\Note;
 use ODM\DocumentManager\DocumentManagerFactory;
 
-class UniqueFilter
+class NoteFilter
 {
     /**
      * @var \ODM\DocumentManager\DocumentManager
