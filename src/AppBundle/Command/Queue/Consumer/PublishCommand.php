@@ -20,7 +20,7 @@ class PublishCommand extends ContainerAwareCommand
         $port   = $this->getContainer()->getParameter('queue.port');
         $logger = $this->getContainer()->get('logger');
 
-        $consumer = $this->getContainer()->get('queue.collect.consumer');
+        $consumer = $this->getContainer()->get('queue.publish.consumer');
 
         $queue = new \Pheanstalk\Pheanstalk($host, $port);
 
