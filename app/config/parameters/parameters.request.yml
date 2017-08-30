@@ -1,3 +1,0 @@
-# This file is auto-generated during the composer install
-parameters:
-    request.base_uri.tomita: 'http://localhost:9080'
