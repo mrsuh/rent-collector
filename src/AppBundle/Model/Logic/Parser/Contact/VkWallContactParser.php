@@ -36,9 +36,7 @@ class VkWallContactParser implements ContactParserInterface
             $id = array_key_exists(1, $match) ? $match[1] : null;
         }
 
-        return (new Contact())
-            ->setExternalId($id)
-            ->setLink('https://vk.com/' . ($id > 0 ? 'id' . $id : 'club' . $id));
+        return $id;
     }
 }
 

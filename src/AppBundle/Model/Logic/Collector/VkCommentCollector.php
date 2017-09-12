@@ -73,6 +73,19 @@ class VkCommentCollector implements CollectorInterface
                 return [];
             }
 
+            foreach (['group_id', 'topic_id', 'count'] as $key) {
+                if (!array_key_exists($key, $params)) {
+                    $this->logger->error('Source params has not key', [
+                        'key'         => $key,
+                        'source_id'   => $source->getId(),
+                        'source_type' => $source->getType(),
+                        'parameters'  => $source->getParameters()
+                    ]);
+
+                    return [];
+                }
+            }
+
             $file_name = 'source_' . $source->getId();
 
             $params['start_comment_id'] = $this->getIdFromFile($file_name);
@@ -82,7 +95,7 @@ class VkCommentCollector implements CollectorInterface
                 'source_type' => $source->getType()
             ]);
 
-            usleep(200);
+            usleep(400000);
 
             $this->logger->debug('Collect sleeping... done', [
                 'source_id'   => $source->getId(),

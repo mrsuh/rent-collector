@@ -43,8 +43,6 @@ class ParseCommand extends ContainerAwareCommand
 
             try {
 
-                $logger->debug('Reserve message', ['message_id' => $message->getId()]);
-
                 $consumer->handle($message);
 
                 $queue->delete($job);

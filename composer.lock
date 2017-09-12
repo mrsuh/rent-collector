@@ -178,16 +178,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "b17e6153cb7f33c7e44eb59578dc12eee5dc8e12"
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/b17e6153cb7f33c7e44eb59578dc12eee5dc8e12",
-                "reference": "b17e6153cb7f33c7e44eb59578dc12eee5dc8e12",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/9dd73a03951357922d8aee6cc084500de93e2343",
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343",
                 "shasum": ""
             },
             "require": {
@@ -233,7 +233,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2017-03-06 11:59:08"
+            "time": "2017-09-11 07:24:36"
         },
         {
             "name": "doctrine/annotations",
@@ -1090,16 +1090,16 @@
         },
         {
             "name": "mrsuh/rent-schema",
-            "version": "1.2.4",
+            "version": "1.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrsuh/rent-schema.git",
-                "reference": "ec8255acb52e8d2133d1efc5e0aab0070d703278"
+                "reference": "886662f0cc1e6795c30aa3b8daf0eaf2a767a349"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/ec8255acb52e8d2133d1efc5e0aab0070d703278",
-                "reference": "ec8255acb52e8d2133d1efc5e0aab0070d703278",
+                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/886662f0cc1e6795c30aa3b8daf0eaf2a767a349",
+                "reference": "886662f0cc1e6795c30aa3b8daf0eaf2a767a349",
                 "shasum": ""
             },
             "require": {
@@ -1123,7 +1123,7 @@
                 }
             ],
             "description": "mongo schema for rent project",
-            "time": "2017-07-29 16:50:29"
+            "time": "2017-09-12 07:57:37"
         },
         {
             "name": "mrsuh/vk-api",
@@ -2357,16 +2357,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "13db89f6617d512df9ba6b6416fbc2cbbb5c9784"
+                "reference": "27d159bd9bd14a3bd9d3e136081c321a0d621c03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/13db89f6617d512df9ba6b6416fbc2cbbb5c9784",
-                "reference": "13db89f6617d512df9ba6b6416fbc2cbbb5c9784",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/27d159bd9bd14a3bd9d3e136081c321a0d621c03",
+                "reference": "27d159bd9bd14a3bd9d3e136081c321a0d621c03",
                 "shasum": ""
             },
             "require": {
@@ -2415,7 +2415,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2017-08-28 11:33:29"
+            "time": "2017-09-05 11:23:06"
         }
     ],
     "aliases": [],

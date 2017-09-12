@@ -6,6 +6,7 @@ use AppBundle\Queue\Message\ParseMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Symfony\Component\HttpKernel\Tests\controller_func;
 
 class CollectCommand extends ContainerAwareCommand
 {

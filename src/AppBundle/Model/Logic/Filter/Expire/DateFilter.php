@@ -20,11 +20,11 @@ class DateFilter
     }
 
     /**
-     * @param Note $note
+     * @param int $timestamp
      * @return bool
      */
-    public function isExpire(Note $note)
+    public function isExpire(int $timestamp)
     {
-        return (int)$this->timestamp >= (int)$note->getTimestamp();
+        return $timestamp < (int)$this->timestamp;
     }
 }

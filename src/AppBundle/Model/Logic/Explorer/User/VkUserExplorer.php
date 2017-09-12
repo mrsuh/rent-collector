@@ -33,7 +33,7 @@ class VkUserExplorer implements UserExplorerInterface
             throw new ExploreException('Has not key "response" in response');
         }
 
-        $user = null;
+        $data = [];
         foreach ($info['response'] as $i) {
             switch (true) {
                 case array_key_exists('id', $i):
@@ -47,26 +47,31 @@ class VkUserExplorer implements UserExplorerInterface
             }
 
             if ((string)$user_id === (string)$id) {
-                $user = $i;
+                $data = $i;
                 break;
             }
         }
 
-        if (null === $user) {
+        if (empty($data)) {
 
             return new User();
         }
 
-        foreach (['first_name', 'last_name', 'photo_100'] as $key) {
-            if (!array_key_exists($key, $user)) {
+        foreach (['first_name', 'blacklisted'] as $key) {
+            if (!array_key_exists($key, $data)) {
                 throw new ExploreException(sprintf('Has not key "%s" in response', $key));
             }
         }
 
-        return
-            (new User())
-                ->setFirstName($user['first_name'])
-                ->setLastName($user['last_name'])
-                ->setPhoto($user['photo_100']);
+        $user = new User();
+
+        $user->setName($data['first_name'])
+            ->setBlacklisted(false);
+
+        if ($data['blacklisted']) {
+            $user->setBlacklisted(true);
+        }
+
+        return $user;
     }
 }

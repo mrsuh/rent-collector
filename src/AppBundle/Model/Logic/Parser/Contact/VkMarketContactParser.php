@@ -18,11 +18,7 @@ class VkMarketContactParser implements ContactParserInterface
             throw new ParseException('Key "from_id" is not exists in array');
         }
 
-        $id = $data['from_id'];
-
-        return (new Contact())
-            ->setExternalId($id)
-            ->setLink('https://vk.com/id' . $id);
+        return $data['from_id'];
     }
 }
 

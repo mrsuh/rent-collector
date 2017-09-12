@@ -100,6 +100,19 @@ class VkWallCollector implements CollectorInterface
                 return [];
             }
 
+            foreach (['owner_id', 'count'] as $key) {
+                if (!array_key_exists($key, $params)) {
+                    $this->logger->error('Source params has not key', [
+                        'key'         => $key,
+                        'source_id'   => $source->getId(),
+                        'source_type' => $source->getType(),
+                        'parameters'  => $source->getParameters()
+                    ]);
+
+                    return [];
+                }
+            }
+
             $config = $this->getConfigFromFile($source);
 
             if ($config->isFinish()) {
@@ -113,7 +126,7 @@ class VkWallCollector implements CollectorInterface
                 return [];
             }
 
-            usleep(200);
+            usleep(400000);
 
             $this->logger->debug('Collect requesting...', [
                 'source_id'   => $source->getId(),

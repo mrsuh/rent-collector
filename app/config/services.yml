@@ -118,6 +118,9 @@ services:
     parser.id.factory:
         class: AppBundle\Model\Logic\Parser\Id\IdParserFactory
 
+    parser.link.factory:
+        class: AppBundle\Model\Logic\Parser\Link\LinkParserFactory
+
 #parser =============================================================
 
 
@@ -257,6 +260,7 @@ services:
             - '@parser.photo.factory'
             - '@parser.contact.factory'
             - '@parser.id.factory'
+            - '@parser.link.factory'
 
             - '@filter.expire.date'
             - '@filter.unique.description'
