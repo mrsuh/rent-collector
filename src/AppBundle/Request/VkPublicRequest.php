@@ -53,9 +53,15 @@ class VkPublicRequest
      */
     public function getCommentRecords(array $data): Response
     {
-        $data['v'] = $this->version;
+        $query = [
+            'group_id'         => $data['group_id'],
+            'topic_id'         => $data['topic_id'],
+            'count'            => $data['count'],
+            'start_comment_id' => $data['start_comment_id'],
+            'v'                => $this->version
+        ];
 
-        return $this->client->send(new Request('GET', $this->url . '/board.getComments'), ['query' => $data]);
+        return $this->client->send(new Request('GET', $this->url . '/board.getComments'), ['query' => $query]);
     }
 
     /**
@@ -65,15 +71,20 @@ class VkPublicRequest
      */
     public function getWallRecords(array $data): Response
     {
-        $data['v'] = $this->version;
         if (null === $this->app) {
 
             throw new RequestException('There is no app');
         }
 
-        $data['access_token'] = $this->app->getToken();
+        $query = [
+            'owner_id'     => $data['owner_id'],
+            'count'        => $data['count'],
+            'offset'       => $data['offset'],
+            'v'            => $this->version,
+            'access_token' => $this->app->getToken()
+        ];
 
-        return $this->client->send(new Request('GET', $this->url . '/wall.get'), ['query' => $data]);
+        return $this->client->send(new Request('GET', $this->url . '/wall.get'), ['query' => $query]);
     }
 
     /**
@@ -93,14 +104,12 @@ class VkPublicRequest
      */
     public function getUserInfo(int $user_id): Response
     {
-        $data = [
-            'query' => [
-                'user_ids' => $user_id,
-                'fields'   => 'photo_100',
-                'v'        => $this->version
-            ]
+        $query = [
+            'user_ids' => $user_id,
+            'fields'   => 'blacklisted',
+            'v'        => $this->version
         ];
 
-        return $this->client->send(new Request('GET', $this->url . '/users.get'), $data);
+        return $this->client->send(new Request('GET', $this->url . '/users.get'), ['query' => $query]);
     }
 }

@@ -8,7 +8,7 @@ interface ContactParserInterface
 {
     /**
      * @param array $data
-     * @return Contact
+     * @return string
      */
     public function parse(array $data);
 }

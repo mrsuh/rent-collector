@@ -1,19 +1,19 @@
 <?php
 
-namespace AppBundle\Model\Logic\Parser\Contact;
+namespace AppBundle\Model\Logic\Parser\Link;
 
 use AppBundle\Exception\AppException;
 use Schema\Parse\Record\Source;
 
-class ContactParserFactory
+class LinkParserFactory
 {
     /**
-     * @var ContactParserInterface[]
+     * @var LinkParserInterface[]
      */
     private $instances;
 
     /**
-     * ContactParserFactory constructor.
+     * IdParserFactory constructor.
      */
     public function __construct()
     {
@@ -22,9 +22,9 @@ class ContactParserFactory
 
     /**
      * @param Source $source
-     * @return ContactParserInterface
+     * @return LinkParserInterface
      */
-    public function init(Source $source)
+    public function init(Source $source): LinkParserInterface
     {
         $type = $source->getType();
 
@@ -37,18 +37,18 @@ class ContactParserFactory
 
     /**
      * @param string $type
-     * @return ContactParserInterface
+     * @return VkCommentLinkParser|VkWallLinkParser
      * @throws AppException
      */
     private function getInstance(string $type)
     {
         switch ($type) {
             case Source::TYPE_VK_COMMENT:
-                return new VkCommentContactParser();
+                return new VkCommentLinkParser();
 
                 break;
             case Source::TYPE_VK_WALL:
-                return new VkWallContactParser();
+                return new VkWallLinkParser();
 
                 break;
             default:

@@ -19,8 +19,10 @@ class SubwayCommand extends ContainerAwareCommand
         $dir = $this->getContainer()->getParameter('kernel.root_dir') . '/fixtures';
         foreach (glob($dir . '/subway_*') as $item) {
 
-            $file_ = $this->getContainer()->getParameter('kernel.root_dir') . '/fixtures/subway_' . $item . '.yml';
-            $file  = file_get_contents($file_);
+
+            $file = file_get_contents($item);
+
+            $file_name = basename($item);
 
             $list  = Yaml::parse($file);
             $lines = [];
@@ -30,7 +32,7 @@ class SubwayCommand extends ContainerAwareCommand
             foreach ($list as $l) {
 
                 if (array_key_exists($l['name'], $subways)) {
-                    echo $item . ' ' . $l['name'] . PHP_EOL;
+                    echo $file_name . ' ' . $l['name'] . PHP_EOL;
                 }
                 $subways[$l['name']] = $l;
             }
@@ -38,7 +40,10 @@ class SubwayCommand extends ContainerAwareCommand
             ksort($subways);
 
             foreach ($subways as $l) {
-                $lines [] = '<li><a href="/' . str_replace('_', '-', $item) . '/{{= it.req.realty }}?subway=' . $l['id'] . '">' . $l['name'] . '</a></li>';
+                $name     = str_replace('_', '-', $file_name);
+                $name     = str_replace('.yml', '', $name);
+                $name     = str_replace('subway-', '', $name);
+                $lines [] = '<li><a href="/' . $name . '/{{= it.req.realty }}?subway=' . $l['id'] . '">' . $l['name'] . '</a></li>';
             }
 
             $block_footer = '';
@@ -46,7 +51,7 @@ class SubwayCommand extends ContainerAwareCommand
                 $block_footer .= $line . PHP_EOL;
             }
 
-            file_put_contents('subway_' . $item . '.html.dot', $block_footer);
+            file_put_contents('subway_' . $file_name . '.html.dot', $block_footer);
 
             $map_lines = [];
             foreach ($subways as $l) {
@@ -59,13 +64,15 @@ class SubwayCommand extends ContainerAwareCommand
                 $map_lines [] = $line;
             }
 
-            $block_map = '<div class="' . str_replace('_', '-', $item) . '">' . PHP_EOL . '<ul>' . PHP_EOL;
+            $name      = str_replace('_', '-', $file_name);
+            $name      = str_replace('.yml', '', $name);
+            $block_map = '<div class="' . $name . '">' . PHP_EOL . '<ul>' . PHP_EOL;
             foreach ($map_lines as $line) {
                 $block_map .= '    ' . $line . PHP_EOL;
             }
             $block_map .= '<ul>' . PHP_EOL . '</div>';
 
-            file_put_contents('map_' . $item . '.html.dot', $block_map);
+            file_put_contents('map_' . $file_name . '.html.dot', $block_map);
         }
     }
 }

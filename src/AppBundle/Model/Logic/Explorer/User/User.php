@@ -4,25 +4,24 @@ namespace AppBundle\Model\Logic\Explorer\User;
 
 class User
 {
-    private $first_name;
-    private $last_name;
-    private $photo;
+    private $name;
+    private $blacklisted;
 
     /**
      * @return mixed
      */
-    public function getFirstName()
+    public function getName()
     {
-        return $this->first_name;
+        return $this->name;
     }
 
     /**
-     * @param $first_name
+     * @param $name
      * @return $this
      */
-    public function setFirstName($first_name)
+    public function setName($name)
     {
-        $this->first_name = $first_name;
+        $this->name = $name;
 
         return $this;
     }
@@ -30,37 +29,18 @@ class User
     /**
      * @return mixed
      */
-    public function getLastName()
+    public function getBlacklisted()
     {
-        return $this->last_name;
+        return $this->blacklisted;
     }
 
     /**
-     * @param $last_name
+     * @param $blacklisted
      * @return $this
      */
-    public function setLastName($last_name)
+    public function setBlacklisted($blacklisted)
     {
-        $this->last_name = $last_name;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPhoto()
-    {
-        return $this->photo;
-    }
-
-    /**
-     * @param $photo
-     * @return $this
-     */
-    public function setPhoto($photo)
-    {
-        $this->photo = $photo;
+        $this->blacklisted = $blacklisted;
 
         return $this;
     }

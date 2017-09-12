@@ -151,7 +151,7 @@
 -
     id: 226
     name: Сокол
-    regexp: /сокол/
+    regexp: /сокол$/
     color: ['#4DBE52']
     city: 'moskva'
 -

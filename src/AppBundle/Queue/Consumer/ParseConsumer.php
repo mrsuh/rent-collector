@@ -16,12 +16,11 @@ use AppBundle\Model\Logic\Parser\Contact\ContactParserFactory;
 use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
 use AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory;
 use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
+use AppBundle\Model\Logic\Parser\Link\LinkParserFactory;
 use AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory;
 use AppBundle\Queue\Message\CollectMessage;
 use AppBundle\Queue\Message\ParseMessage;
-use AppBundle\Queue\Message\PublishMessage;
 use AppBundle\Queue\Producer\CollectProducer;
-use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
 use Schema\Note\Note;
@@ -33,6 +32,7 @@ class ParseConsumer
     private $parser_photo_factory;
     private $parser_contact_factory;
     private $parser_id_factory;
+    private $parser_link_factory;
 
     private $filter_expire_date;
     private $filter_unique_description;
@@ -58,6 +58,7 @@ class ParseConsumer
         PhotoParserFactory $parser_photo_factory,
         ContactParserFactory $parser_contact_factory,
         IdParserFactory $parser_id_factory,
+        LinkParserFactory $parser_link_factory,
 
         DateFilter $filter_expire_date,
         DescriptionFilter $filter_unique_description,
@@ -83,6 +84,7 @@ class ParseConsumer
         $this->parser_photo_factory       = $parser_photo_factory;
         $this->parser_contact_factory     = $parser_contact_factory;
         $this->parser_id_factory          = $parser_id_factory;
+        $this->parser_link_factory        = $parser_link_factory;
 
         $this->filter_expire_date            = $filter_expire_date;
         $this->filter_unique_description     = $filter_unique_description;
@@ -114,12 +116,14 @@ class ParseConsumer
 
             $note = new Note();
 
-            $this->logger->debug('Parsing id...', [
-                'message_id' => $message->getId()
-            ]);
-
             $parser_id = $this->parser_id_factory->init($message->getSource());
             $id        = $parser_id->parse($message->getNote());
+
+            $parser_link = $this->parser_link_factory->init($message->getSource());
+
+            $link = $parser_link->parse($message->getSource(), $id);
+
+            $note->setLink($link);
 
             if (empty($id)) {
 
@@ -132,31 +136,24 @@ class ParseConsumer
 
             $external_id = $message->getSource()->getId() . '-' . $id;
 
-            $this->logger->debug('Parsing timestamp...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id
-            ]);
-
             $parser_datetime = $this->parser_datetime_factory->init($message->getSource());
             $timestamp       = $parser_datetime->parse($message->getNote());
 
-            $note
-                ->setExternalId($external_id)
-                ->setTimestamp($timestamp)
-                ->setCity($message->getSource()->getCity());
-
-            if ($this->filter_expire_date->isExpire($note)) {
+            if ($this->filter_expire_date->isExpire($timestamp)) {
                 $this->logger->debug('Filtered by expire date', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'timestamp'   => $timestamp,
+                    'date'        => \DateTime::createFromFormat('U', $timestamp)->format('Y-m-d H:i:s')
                 ]);
                 unset($note);
 
                 return false;
             }
 
-            $this->logger->debug('Filtering by unique external id', [
-                'external_id' => $external_id
-            ]);
+            $note
+                ->setExternalId($external_id)
+                ->setTimestamp($timestamp)
+                ->setCity($message->getSource()->getCity());
 
             if (!empty($this->filter_unique_external_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique external id', [
@@ -166,11 +163,6 @@ class ParseConsumer
 
                 return false;
             }
-
-            $this->logger->debug('Parsing description...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id
-            ]);
 
             $parser_description = $this->parser_description_factory->init($message->getSource());
             $description_raw    = $parser_description->parse($message->getNote());
@@ -192,10 +184,15 @@ class ParseConsumer
                 'external_id' => $external_id
             ]);
 
+            $time_start = time();
+
             $tomita = $this->explorer_tomita->explore($description);
 
+            $time_done = time();
+
             $this->logger->debug('Exploring tomita... done', [
-                'external_id' => $external_id
+                'external_id'  => $external_id,
+                'duration_sec' => $time_done - $time_start
             ]);
 
             if (Note::TYPE_ERR === (int)$tomita->getType()) {
@@ -227,10 +224,10 @@ class ParseConsumer
 
             $parser_contact = $this->parser_contact_factory->init($message->getSource());
 
-            $contact = $parser_contact->parse($message->getNote());
-            $phones  = $tomita->getPhones();
+            $contact_id = $parser_contact->parse($message->getNote());
+            $phones     = $tomita->getPhones();
 
-            if (null === $contact->getExternalId() && count($phones) === 0) {
+            if (null === $contact_id && count($phones) === 0) {
                 $this->logger->debug('Invalid explored user and no phones', [
                     'external_id' => $external_id
                 ]);
@@ -239,23 +236,35 @@ class ParseConsumer
                 return false;
             }
 
-            $contact->setPhones($phones);
+            $contact = new Contact();
+            $contact
+                ->setPhones($phones)
+                ->setExternalId($contact_id);
 
-            if (null !== $contact->getExternalId()) {
+            if (null !== $contact_id) {
                 $this->logger->debug('Exploring user...', [
                     'external_id' => $external_id
                 ]);
 
                 $explorer_user = $this->explorer_user_factory->init($message->getSource());
-                $user          = $explorer_user->explore($contact->getExternalId());
+                $user          = $explorer_user->explore($contact_id);
 
                 $this->logger->debug('Exploring user... done', [
                     'external_id' => $external_id
                 ]);
 
-                $contact
-                    ->setName($user->getFirstName() . ' ' . $user->getLastName())
-                    ->setPhotoLink($user->getPhoto());
+                if ($user->getBlacklisted()) {
+
+                    $this->logger->debug('Filtered by user blacklisted', [
+                        'external_id' => $external_id
+                    ]);
+
+                    unset($note);
+
+                    return false;
+                }
+
+                $contact->setName(null !== $user->getName() ? $user->getName() : 'unknow');
             }
 
             $note->setContact($contact);
@@ -278,30 +287,15 @@ class ParseConsumer
                 return false;
             }
 
-            $this->logger->debug('Parsing photo...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id
-            ]);
-
             $parser_photo = $this->parser_photo_factory->init($message->getSource());
             foreach ($parser_photo->parse($message->getNote()) as $photo) {
                 $note->addPhoto($photo);
             }
 
-            $this->logger->debug('Exploring subway...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id
-            ]);
-
             $explorer_subway = $this->explorer_subway_factory->init($message->getSource());
             foreach ($explorer_subway->explore($description) as $subway) {
                 $note->addSubway($subway->getId());
             }
-
-            $this->logger->debug('Finding description duplicates...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id
-            ]);
 
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
 
