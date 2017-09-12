@@ -95,7 +95,7 @@ class VkCommentCollector implements CollectorInterface
                 'source_type' => $source->getType()
             ]);
 
-            usleep(400000);
+            usleep(200000);
 
             $this->logger->debug('Collect sleeping... done', [
                 'source_id'   => $source->getId(),
