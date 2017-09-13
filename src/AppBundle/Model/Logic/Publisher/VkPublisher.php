@@ -170,7 +170,8 @@ class VkPublisher implements PublisherInterface
 
                 $this->logger->debug('Limitation of publications at this hour', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $note->getCity()
                 ]);
 
                 return false;
@@ -196,21 +197,24 @@ class VkPublisher implements PublisherInterface
 
                 $this->logger->debug('Uploading photo...', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $note->getCity()
                 ]);
 
                 $photo_id = $this->uploadPhoto($photo);
 
                 $this->logger->debug('Uploading photo... done', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $note->getCity()
                 ]);
 
                 if (null === $photo_id) {
 
                     $this->logger->error('Uploading photo... nullable photo id', [
                         'note_id'          => $note->getId(),
-                        'note_external_id' => $note->getExternalId()
+                        'note_external_id' => $note->getExternalId(),
+                        'city'             => $note->getCity()
                     ]);
 
                     continue;
@@ -221,19 +225,22 @@ class VkPublisher implements PublisherInterface
 
             $this->logger->debug('Publishing sleep...', [
                 'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
+                'note_external_id' => $note->getExternalId(),
+                'city'             => $note->getCity()
             ]);
 
             usleep(200000);
 
             $this->logger->debug('Publishing sleep... done', [
                 'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
+                'note_external_id' => $note->getExternalId(),
+                'city'             => $note->getCity()
             ]);
 
             $this->logger->debug('Publishing post...', [
                 'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
+                'note_external_id' => $note->getExternalId(),
+                'city'             => $note->getCity()
             ]);
 
             $this->request->wallPost([
@@ -246,7 +253,8 @@ class VkPublisher implements PublisherInterface
 
             $this->logger->debug('Publishing post... done', [
                 'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId()
+                'note_external_id' => $note->getExternalId(),
+                'city'             => $note->getCity()
             ]);
 
         } catch (\Exception $e) {
