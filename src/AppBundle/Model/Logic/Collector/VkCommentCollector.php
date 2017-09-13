@@ -102,7 +102,6 @@ class VkCommentCollector implements CollectorInterface
                 'source_type' => $source->getType()
             ]);
 
-
             $this->logger->debug('Collect requesting...', [
                 'source_id'   => $source->getId(),
                 'source_type' => $source->getType(),

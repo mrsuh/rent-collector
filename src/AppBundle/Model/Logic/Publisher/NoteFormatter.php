@@ -66,37 +66,6 @@ class NoteFormatter
 
     /**
      * @param Note $note
-     * @return string
-     */
-    public function formatLink(Note $note)
-    {
-        $link = 'https://socrent.ru/rent/saint-petersburg/';
-        switch ($note->getType()) {
-            case Note::TYPE_ROOM:
-                $link .= 'komnaty/room-p';
-                break;
-            case Note::TYPE_FLAT_1:
-                $link .= 'kvartiry/1-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_2:
-                $link .= 'kvartiry/2-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_3:
-                $link .= 'kvartiry/3-k-kvartira-p';
-                break;
-            case Note::TYPE_FLAT_N:
-                $link .= 'kvartiry/4-k-kvartira-p';
-                break;
-            case Note::TYPE_STUDIO:
-                $link .= 'kvartiry/studia-p';
-                break;
-        }
-
-        return $link . '.' . $note->getId();
-    }
-
-    /**
-     * @param Note $note
      * @return string[]
      */
     public function formatSubways(Note $note)

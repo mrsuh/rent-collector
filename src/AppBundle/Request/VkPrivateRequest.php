@@ -21,10 +21,10 @@ class VkPrivateRequest
     public function __construct(Client $client, User $user)
     {
         $this->auth = new AuthService([
-            'username'  => $user->getUsername(),
-            'password'  => $user->getPassword(),
-            'app_token' => $user->getAppToken(),
-            'scope'     => ['wall', 'photos']
+            'username' => $user->getUsername(),
+            'password' => $user->getPassword(),
+            'app_id'   => $user->getAppId(),
+            'scope'    => ['wall', 'photos']
         ]);
 
         $this->user    = $user;
