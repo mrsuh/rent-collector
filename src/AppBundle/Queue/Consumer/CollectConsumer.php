@@ -62,6 +62,8 @@ class CollectConsumer
 
             $note = $message->getNote();
 
+            $note->setId(str_replace('.', '', uniqid('', true)));
+
             $this->model_note->create($note);
 
             $this->producer_publish->publish((

@@ -52,7 +52,6 @@ class VkPublisher implements PublisherInterface
         $this->record     = $record;
         $this->user       = $user;
         $this->logger     = $logger;
-
     }
 
     /**
