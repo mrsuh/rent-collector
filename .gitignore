@@ -1,6 +1,7 @@
 /app/config/parameters.yml
 /app/config/parameters/parameters.dir.yml
 /app/config/parameters/parameters.request.yml
+/app/config/parameters/parameters.log.yml
 /app/config/crontab
 /build/
 /phpunit.xml

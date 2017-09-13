@@ -70,6 +70,9 @@
       },
       {
         "file": "app/config/parameters/parameters.request.yml"
+      },
+      {
+        "file": "app/config/parameters/parameters.log.yml"
       }
     ]
   }

@@ -11,7 +11,7 @@ monolog:
     handlers:
         main:
             type:         fingers_crossed
-            action_level: error
+            action_level: '%log.prod.level%'
             handler:      nested
         nested:
             type:  rotating_file

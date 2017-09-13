@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: parameters/parameters.dir.yml }
     - { resource: parameters/parameters.request.yml }
+    - { resource: parameters/parameters.log.yml }
     - { resource: security.yml }
     - { resource: services.yml }
 
