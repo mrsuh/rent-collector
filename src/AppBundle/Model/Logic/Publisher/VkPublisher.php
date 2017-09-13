@@ -186,9 +186,9 @@ class VkPublisher implements PublisherInterface
                 PHP_EOL . PHP_EOL;
             $postfix =
                 PHP_EOL . PHP_EOL .
-                '[' . $note->getContact()->getExternalId() . '| ' . $note->getContact()->getName() . ']' .
+                $note->getContact()->getName() .
                 PHP_EOL .
-                $this->formatter->formatLink($note);
+                $note->getLink();
 
             $message = $prefix . $note->getDescription() . $postfix;
 
