@@ -62,7 +62,7 @@ class CollectConsumer
 
             $note = $message->getNote();
 
-            $note->setId(str_replace('.', '', uniqid('', true)));
+            $note->setId($note->getExternalId());
 
             $this->model_note->create($note);
 

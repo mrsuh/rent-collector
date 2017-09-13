@@ -10,16 +10,14 @@ use ODM\Paginator\Paginator;
 class NoteModel
 {
     private $dm_note;
-    private $dm_note_cold;
 
     /**
      * NoteModel constructor.
      * @param DocumentManagerFactory $dm
      */
-    public function __construct(DocumentManagerFactory $dm, DocumentManagerFactory $dm_cold)
+    public function __construct(DocumentManagerFactory $dm)
     {
         $this->dm_note      = $dm->init(Note::class);
-        $this->dm_note_cold = $dm->init(Note::class);
     }
 
     /**
@@ -70,18 +68,6 @@ class NoteModel
      * @param Note $note
      * @return bool
      */
-    public function replaceToColdDB(Note $note)
-    {
-        $this->dm_note_cold->insert($note);
-        $this->dm_note->delete($note);
-
-        return true;
-    }
-
-    /**
-     * @param Note $note
-     * @return bool
-     */
     public function create(Note $note)
     {
         $this->dm_note->insert($note);
@@ -96,6 +82,17 @@ class NoteModel
     public function update(Note $note)
     {
         $this->dm_note->update($note);
+
+        return true;
+    }
+
+    /**
+     * @param Note $note
+     * @return bool
+     */
+    public function delete(Note $note)
+    {
+        $this->dm_note->delete($note);
 
         return true;
     }

@@ -26,7 +26,7 @@ class ExpireCommand extends ContainerAwareCommand
             };
 
             $logger->debug($note->getId() . ' expired');
-            $model_note->replaceToColdDB($note);
+            $model_note->delete($note);
             $count++;
         }
 

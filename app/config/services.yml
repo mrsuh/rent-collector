@@ -7,29 +7,17 @@ services:
 
 #odm ==================================================================
 
-    dbal.hot:
+    dbal:
        class: ODM\DBAL
        arguments:
-           - "%database.hot.host%"
-           - "%database.hot.port%"
-           - "%database.hot.name%"
-
-    dbal.cold:
-       class: ODM\DBAL
-       arguments:
-           - "%database.cold.host%"
-           - "%database.cold.port%"
-           - "%database.cold.name%"
+           - "%database.host%"
+           - "%database.port%"
+           - "%database.name%"
            
-    dm.hot:
+    dm:
        class: ODM\DocumentManager\DocumentManagerFactory
        arguments:
-           - "@dbal.hot"
-
-    dm.cold:
-       class: ODM\DocumentManager\DocumentManagerFactory
-       arguments:
-           - "@dbal.cold"
+           - "@dbal"
 
 #odm ==================================================================
 
@@ -39,43 +27,42 @@ services:
     model.document.black_list:
        class: AppBundle\Model\Document\BlackList\BlackListModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
     model.document.city:
        class: AppBundle\Model\Document\City\CityModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
     model.document.parse.record:
        class: AppBundle\Model\Document\Parse\Record\RecordModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
     model.document.parse.app:
         class: AppBundle\Model\Document\Parse\App\AppModel
         arguments:
-            - '@dm.hot'
+            - '@dm'
 
     model.document.publish.record:
        class: AppBundle\Model\Document\Publish\Record\RecordModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
     model.document.publish.user:
        class: AppBundle\Model\Document\Publish\User\UserModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
     model.document.note:
        class: AppBundle\Model\Document\Note\NoteModel
        arguments:
-           - '@dm.hot'
-           - '@dm.cold'
+           - '@dm'
 
     model.document.subway:
        class: AppBundle\Model\Document\City\SubwayModel
        arguments:
-           - '@dm.hot'
+           - '@dm'
 
 # model document =====================================================
 
@@ -187,17 +174,17 @@ services:
     filter.unique.external_id:
         class: AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter
         arguments:
-            - "@dm.hot"
+            - "@dm"
 
     filter.unique.description:
         class: AppBundle\Model\Logic\Filter\Unique\DescriptionFilter
         arguments:
-            - "@dm.hot"
+            - "@dm"
 
     filter.unique.note:
         class: AppBundle\Model\Logic\Filter\Unique\NoteFilter
         arguments:
-            - "@dm.hot"
+            - "@dm"
 
 #filter ==============================================================
 
