@@ -233,6 +233,7 @@ services:
             - "@publisher.factory"
             - "@model.document.publish.record"
             - "@model.document.note"
+            - "@model.document.city"
             - "@logger"
         tags:
             - { name: monolog.logger, channel: consumer_publish }

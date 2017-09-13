@@ -2,6 +2,7 @@
 
 namespace AppBundle\Queue\Consumer;
 
+use AppBundle\Model\Document\City\CityModel;
 use AppBundle\Model\Document\Note\NoteModel;
 use AppBundle\Model\Document\Publish\Record\RecordModel;
 use AppBundle\Model\Logic\Publisher\PublisherFactory;
@@ -15,6 +16,7 @@ class PublishConsumer
     private $logger;
     private $model_record;
     private $model_note;
+    private $model_city;
     private $publisher_factory;
 
     /**
@@ -28,11 +30,13 @@ class PublishConsumer
         PublisherFactory $publisher_factory,
         RecordModel $model_record,
         NoteModel $model_note,
+        CityModel $model_city,
         Logger $logger
     )
     {
         $this->model_record      = $model_record;
         $this->model_note        = $model_note;
+        $this->model_city        = $model_city;
         $this->logger            = $logger;
         $this->publisher_factory = $publisher_factory;
     }
@@ -50,9 +54,11 @@ class PublishConsumer
                 'city'        => $message->getSource()->getCity()
             ]);
 
+            $city = $this->model_city->findOneByShortName($message->getSource()->getCity());
+
             $note = $message->getNote();
 
-            if (empty($note->getSubways())) {
+            if (empty($note->getSubways()) && $city->hasSubway()) {
                 $this->logger->debug('There are no subways', [
                     'note_id'          => $note->getId(),
                     'note_external_id' => $note->getExternalId(),

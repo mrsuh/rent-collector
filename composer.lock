@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6f361d6ba1eda5ab59cc350ba93731e3",
-    "content-hash": "b1295d6c23df5bfd75f53f9cb2909e1d",
+    "hash": "ca76eb0f31553bbf9b8e565b6f6a0aed",
+    "content-hash": "2ee08af38c74dbd42789e7d6a2cff02f",
     "packages": [
         {
             "name": "behat/mink",
@@ -1090,16 +1090,16 @@
         },
         {
             "name": "mrsuh/rent-schema",
-            "version": "1.2.7",
+            "version": "1.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrsuh/rent-schema.git",
-                "reference": "7be9bbef8354180c986fd3ed3bd43754e5ee0faf"
+                "reference": "595e48b581797edb01dc9db81fc20133a1c57ba9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/7be9bbef8354180c986fd3ed3bd43754e5ee0faf",
-                "reference": "7be9bbef8354180c986fd3ed3bd43754e5ee0faf",
+                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/595e48b581797edb01dc9db81fc20133a1c57ba9",
+                "reference": "595e48b581797edb01dc9db81fc20133a1c57ba9",
                 "shasum": ""
             },
             "require": {
@@ -1123,7 +1123,7 @@
                 }
             ],
             "description": "mongo schema for rent project",
-            "time": "2017-09-13 05:24:21"
+            "time": "2017-09-13 18:59:37"
         },
         {
             "name": "mrsuh/vk-api",
