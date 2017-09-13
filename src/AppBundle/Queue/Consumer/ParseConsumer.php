@@ -306,11 +306,11 @@ class ParseConsumer
                 ]);
 
                 foreach ($description_duplicates as $duplicate) {
-                    $this->logger->debug('Replace to cold DB duplicate', [
+                    $this->logger->debug('Delete duplicate', [
                         'external_id'  => $external_id,
                         'duplicate_id' => $duplicate->getExternalId()
                     ]);
-                    $this->model_note->replaceToColdDB($duplicate);
+                    $this->model_note->delete($duplicate);
                 }
             }
 
@@ -327,12 +327,12 @@ class ParseConsumer
                 ]);
 
                 foreach ($unique_duplicates as $duplicate) {
-                    $this->logger->debug('Replace to cold DB duplicate', [
+                    $this->logger->debug('Delete duplicate', [
                         'external_id'  => $external_id,
                         'duplicate_id' => $duplicate->getExternalId()
                     ]);
 
-                    $this->model_note->replaceToColdDB($duplicate);
+                    $this->model_note->delete($duplicate);
                 }
             }
 
