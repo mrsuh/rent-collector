@@ -10,7 +10,7 @@ use AppBundle\Model\Logic\Filter\BlackList\PersonFilter;
 use AppBundle\Model\Logic\Filter\BlackList\PhoneFilter;
 use AppBundle\Model\Logic\Filter\Expire\DateFilter;
 use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
-use AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter;
+use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Model\Logic\Parser\Contact\ContactParserFactory;
 use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;

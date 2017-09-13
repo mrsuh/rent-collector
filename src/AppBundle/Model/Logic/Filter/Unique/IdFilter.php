@@ -5,7 +5,7 @@ namespace AppBundle\Model\Logic\Filter\Unique;
 use ODM\DocumentManager\DocumentManagerFactory;
 use Schema\Note\Note;
 
-class ExternalIdFilter
+class IdFilter
 {
     /**
      * @var \ODM\DocumentManager\DocumentManager
@@ -27,9 +27,6 @@ class ExternalIdFilter
      */
     public function findDuplicates(Note $note)
     {
-        return $this->dm_note->find([
-            'external_id' => (string)$note->getExternalId(),
-            '_id'         => ['$ne' => $note->getId()]
-        ]);
+        return $this->dm_note->find(['_id' => $note->getId()]);
     }
 }

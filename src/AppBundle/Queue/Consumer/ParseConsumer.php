@@ -10,7 +10,7 @@ use AppBundle\Model\Logic\Filter\BlackList\PersonFilter;
 use AppBundle\Model\Logic\Filter\BlackList\PhoneFilter;
 use AppBundle\Model\Logic\Filter\Expire\DateFilter;
 use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
-use AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter;
+use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Model\Logic\Parser\Contact\ContactParserFactory;
 use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
@@ -37,7 +37,7 @@ class ParseConsumer
     private $filter_expire_date;
     private $filter_unique_description;
     private $filter_unique_note;
-    private $filter_unique_external_id;
+    private $filter_unique_id;
     private $filter_black_list_description;
     private $filter_black_list_person;
     private $filter_black_list_phone;
@@ -63,7 +63,7 @@ class ParseConsumer
         DateFilter $filter_expire_date,
         DescriptionFilter $filter_unique_description,
         NoteFilter $filter_unique_note,
-        ExternalIdFilter $filter_unique_external_id,
+        IdFilter $filter_unique_id,
         \AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter $filter_black_list_description,
         PersonFilter $filter_black_list_person,
         PhoneFilter $filter_black_list_phone,
@@ -89,7 +89,7 @@ class ParseConsumer
         $this->filter_expire_date            = $filter_expire_date;
         $this->filter_unique_description     = $filter_unique_description;
         $this->filter_unique_note            = $filter_unique_note;
-        $this->filter_unique_external_id     = $filter_unique_external_id;
+        $this->filter_unique_id              = $filter_unique_id;
         $this->filter_black_list_description = $filter_black_list_description;
         $this->filter_black_list_person      = $filter_black_list_person;
         $this->filter_black_list_phone       = $filter_black_list_phone;
@@ -154,12 +154,13 @@ class ParseConsumer
             }
 
             $note
+                ->setId($external_id)
                 ->setExternalId($external_id)
                 ->setTimestamp($timestamp)
                 ->setCity($message->getSource()->getCity());
 
-            if (!empty($this->filter_unique_external_id->findDuplicates($note))) {
-                $this->logger->debug('Filtered by unique external id', [
+            if (!empty($this->filter_unique_id->findDuplicates($note))) {
+                $this->logger->debug('Filtered by unique id', [
                     'external_id' => $external_id,
                     'city'        => $message->getSource()->getCity()
                 ]);
@@ -312,6 +313,8 @@ class ParseConsumer
 
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
 
+            $is_duplicate = false;
+
             if (!empty($description_duplicates)) {
 
                 $this->logger->debug('Filtered by unique description', [
@@ -326,6 +329,7 @@ class ParseConsumer
                         'city'         => $message->getSource()->getCity()
                     ]);
                     $this->model_note->delete($duplicate);
+                    $is_duplicate = true;
                 }
             }
 
@@ -351,15 +355,23 @@ class ParseConsumer
                     ]);
 
                     $this->model_note->delete($duplicate);
+                    $is_duplicate = true;
                 }
             }
 
-            $this->producer_collect->publish((
-            (new CollectMessage())
-                ->setId($message->getId())
-                ->setSource($message->getSource())
-                ->setNote($note)
-            ));
+            if (!$is_duplicate) {
+                $this->producer_collect->publish((
+                (new CollectMessage())
+                    ->setId($message->getId())
+                    ->setSource($message->getSource())
+                    ->setNote($note)
+                ));
+            } else {
+                $this->logger->debug('Publishing canceled by duplicate', [
+                    'message_id' => $message->getId(),
+                    'city'       => $message->getSource()->getCity()
+                ]);
+            }
 
             $this->logger->debug('Handling message... done', [
                 'message_id' => $message->getId(),

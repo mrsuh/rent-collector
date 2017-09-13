@@ -171,8 +171,8 @@ services:
         class: AppBundle\Model\Logic\Filter\Expire\DateFilter
 
 
-    filter.unique.external_id:
-        class: AppBundle\Model\Logic\Filter\Unique\ExternalIdFilter
+    filter.unique.id:
+        class: AppBundle\Model\Logic\Filter\Unique\IdFilter
         arguments:
             - "@dm"
 
