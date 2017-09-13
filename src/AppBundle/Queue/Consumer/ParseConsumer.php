@@ -111,7 +111,8 @@ class ParseConsumer
         try {
 
             $this->logger->debug('Handling message...', [
-                'message_id' => $message->getId()
+                'message_id' => $message->getId(),
+                'city'       => $message->getSource()->getCity()
             ]);
 
             $note = new Note();
@@ -128,7 +129,8 @@ class ParseConsumer
             if (empty($id)) {
 
                 $this->logger->error('Parsed id is empty', [
-                    'message_id' => $message->getId()
+                    'message_id' => $message->getId(),
+                    'city'       => $message->getSource()->getCity()
                 ]);
 
                 return false;
@@ -143,7 +145,8 @@ class ParseConsumer
                 $this->logger->debug('Filtered by expire date', [
                     'external_id' => $external_id,
                     'timestamp'   => $timestamp,
-                    'date'        => \DateTime::createFromFormat('U', $timestamp)->format('Y-m-d H:i:s')
+                    'date'        => \DateTime::createFromFormat('U', $timestamp)->format('Y-m-d H:i:s'),
+                    'city'        => $message->getSource()->getCity()
                 ]);
                 unset($note);
 
@@ -157,7 +160,8 @@ class ParseConsumer
 
             if (!empty($this->filter_unique_external_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique external id', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
                 unset($note);
 
@@ -173,7 +177,8 @@ class ParseConsumer
 
             if (!$this->filter_black_list_description->isAllow($note)) {
                 $this->logger->debug('Filtered by black list description', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
                 unset($note);
 
@@ -181,7 +186,8 @@ class ParseConsumer
             }
 
             $this->logger->debug('Exploring tomita...', [
-                'external_id' => $external_id
+                'external_id' => $external_id,
+                'city'        => $message->getSource()->getCity()
             ]);
 
             $time_start = time();
@@ -192,12 +198,14 @@ class ParseConsumer
 
             $this->logger->debug('Exploring tomita... done', [
                 'external_id'  => $external_id,
-                'duration_sec' => $time_done - $time_start
+                'duration_sec' => $time_done - $time_start,
+                'city'         => $message->getSource()->getCity()
             ]);
 
             if (Note::TYPE_ERR === (int)$tomita->getType()) {
                 $this->logger->debug('Filtered by type', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
                 unset($note);
 
@@ -219,7 +227,8 @@ class ParseConsumer
 
             $this->logger->debug('Parsing contact...', [
                 'message_id'  => $message->getId(),
-                'external_id' => $external_id
+                'external_id' => $external_id,
+                'city'        => $message->getSource()->getCity()
             ]);
 
             $parser_contact = $this->parser_contact_factory->init($message->getSource());
@@ -243,20 +252,23 @@ class ParseConsumer
 
             if (null !== $contact_id) {
                 $this->logger->debug('Exploring user...', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
 
                 $explorer_user = $this->explorer_user_factory->init($message->getSource());
                 $user          = $explorer_user->explore($contact_id);
 
                 $this->logger->debug('Exploring user... done', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
 
                 if ($user->getBlacklisted()) {
 
                     $this->logger->debug('Filtered by user blacklisted', [
-                        'external_id' => $external_id
+                        'external_id' => $external_id,
+                        'city'        => $message->getSource()->getCity()
                     ]);
 
                     unset($note);
@@ -271,7 +283,8 @@ class ParseConsumer
 
             if (!$this->filter_black_list_person->isAllow($note)) {
                 $this->logger->debug('Filtered by black list person', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
                 unset($note);
 
@@ -302,13 +315,15 @@ class ParseConsumer
             if (!empty($description_duplicates)) {
 
                 $this->logger->debug('Filtered by unique description', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
 
                 foreach ($description_duplicates as $duplicate) {
                     $this->logger->debug('Delete duplicate', [
                         'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId()
+                        'duplicate_id' => $duplicate->getExternalId(),
+                        'city'         => $message->getSource()->getCity()
                     ]);
                     $this->model_note->delete($duplicate);
                 }
@@ -316,20 +331,23 @@ class ParseConsumer
 
             $this->logger->debug('Finding unique duplicates...', [
                 'message_id'  => $message->getId(),
-                'external_id' => $external_id
+                'external_id' => $external_id,
+                'city'        => $message->getSource()->getCity()
             ]);
 
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
 
             if (!empty($unique_duplicates)) {
                 $this->logger->debug('Filtered by unique', [
-                    'external_id' => $external_id
+                    'external_id' => $external_id,
+                    'city'        => $message->getSource()->getCity()
                 ]);
 
                 foreach ($unique_duplicates as $duplicate) {
                     $this->logger->debug('Delete duplicate', [
                         'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId()
+                        'duplicate_id' => $duplicate->getExternalId(),
+                        'city'         => $message->getSource()->getCity()
                     ]);
 
                     $this->model_note->delete($duplicate);
@@ -344,13 +362,15 @@ class ParseConsumer
             ));
 
             $this->logger->debug('Handling message... done', [
-                'message_id' => $message->getId()
+                'message_id' => $message->getId(),
+                'city'       => $message->getSource()->getCity()
             ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'message_id' => $message->getId(),
-                'error'      => $e->getMessage()
+                'error'      => $e->getMessage(),
+                'city'       => $message->getSource()->getCity()
             ]);
         }
     }

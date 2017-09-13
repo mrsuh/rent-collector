@@ -45,12 +45,18 @@ class PublishConsumer
     {
         try {
 
+            $this->logger->debug('Handle message', [
+                'external_id' => $message->getId(),
+                'city'        => $message->getSource()->getCity()
+            ]);
+
             $note = $message->getNote();
 
             if (empty($note->getSubways())) {
                 $this->logger->debug('There are no subways', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $message->getSource()->getCity()
                 ]);
 
                 return false;
@@ -59,7 +65,8 @@ class PublishConsumer
             if (empty($note->getPrice())) {
                 $this->logger->debug('There is no price', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $message->getSource()->getCity()
                 ]);
 
                 return false;
@@ -69,7 +76,8 @@ class PublishConsumer
 
                 $this->logger->debug('There are no photos', [
                     'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId()
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $message->getSource()->getCity()
                 ]);
 
                 return false;
@@ -99,7 +107,8 @@ class PublishConsumer
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'message_id' => $message->getId(),
-                'error'      => $e->getMessage()
+                'error'      => $e->getMessage(),
+                'city'       => $message->getSource()->getCity()
             ]);
         }
 

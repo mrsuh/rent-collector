@@ -18,7 +18,7 @@ class CollectCommand extends ContainerAwareCommand
     {
         $host   = $this->getContainer()->getParameter('queue.host');
         $port   = $this->getContainer()->getParameter('queue.port');
-        $logger = $this->getContainer()->get('logger');
+        $logger = $this->getContainer()->get('monolog.logger.consumer_collect');
 
         $consumer = $this->getContainer()->get('queue.collect.consumer');
 
