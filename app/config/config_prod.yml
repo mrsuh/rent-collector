@@ -16,7 +16,7 @@ monolog:
         nested:
             type:  rotating_file
             path:  "%kernel.logs_dir%/%kernel.environment%.log"
-            level: error
+            level: '%log.prod.level%'
             max_files: 30
         console:
             type:  console
