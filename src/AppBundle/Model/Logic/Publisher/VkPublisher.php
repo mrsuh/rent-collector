@@ -180,8 +180,8 @@ class VkPublisher implements PublisherInterface
                 $this->formatter->formatType($note) .
                 ' за ' .
                 $note->getPrice() .
-                ' руб. около метро ' .
-                implode(', ', $this->formatter->formatSubways($note)) .
+                ' руб. ' .
+                (!empty($note->getSubways()) ? 'около метро ' . implode(', ', $this->formatter->formatSubways($note)) : '') .
                 PHP_EOL . PHP_EOL;
             $postfix =
                 PHP_EOL . PHP_EOL .
