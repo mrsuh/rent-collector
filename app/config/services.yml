@@ -218,6 +218,8 @@ services:
             - '@queue.publish.producer'
             - '@model.document.note'
             - '@logger'
+        tags:
+            - { name: monolog.logger, channel: consumer_collect }
 
     queue.publish.producer:
         class: AppBundle\Queue\Producer\PublishProducer
@@ -232,6 +234,8 @@ services:
             - "@model.document.publish.record"
             - "@model.document.note"
             - "@logger"
+        tags:
+            - { name: monolog.logger, channel: consumer_publish }
 
     queue.parse.producer:
         class: AppBundle\Queue\Producer\ParseProducer
@@ -267,5 +271,7 @@ services:
             - '@model.document.note'
             - '@logger'
 
+        tags:
+            - { name: monolog.logger, channel: consumer_parse }
 
 #queue ===============================================================

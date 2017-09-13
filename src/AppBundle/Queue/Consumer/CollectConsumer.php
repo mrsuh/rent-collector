@@ -57,7 +57,8 @@ class CollectConsumer
         try {
 
             $this->logger->debug('Handling message...', [
-                'message_id' => $message->getId()
+                'message_id' => $message->getId(),
+                'city'       => $message->getSource()->getCity()
             ]);
 
             $note = $message->getNote();
@@ -74,13 +75,15 @@ class CollectConsumer
             ));
 
             $this->logger->debug('Handling message... done', [
-                'message_id' => $message->getId()
+                'message_id' => $message->getId(),
+                'city'       => $message->getSource()->getCity()
             ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'message_id' => $message->getId(),
-                'error'      => $e->getMessage()
+                'error'      => $e->getMessage(),
+                'city'       => $message->getSource()->getCity()
             ]);
         }
 
