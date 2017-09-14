@@ -31,7 +31,7 @@ class PhoneFilter
         $phones = implode(':', $note->getContact()->getPhones());
 
         foreach ($this->black_list as $record) {
-            if (1 === preg_match('/' . preg_quote($record->getText()) . '/', $phones)) {
+            if (1 === preg_match('/' . $record->getRegexp() . '/', $phones)) {
 
                 return false;
             }

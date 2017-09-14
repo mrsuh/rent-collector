@@ -31,7 +31,7 @@ class DescriptionFilter
         $description = mb_strtolower($note->getDescription());
 
         foreach ($this->black_list as $record) {
-            if (1 === preg_match('/' . preg_quote($record->getText()) . '/', $description)) {
+            if (1 === preg_match('/' . $record->getRegexp() . '/', $description)) {
 
                 return false;
             }

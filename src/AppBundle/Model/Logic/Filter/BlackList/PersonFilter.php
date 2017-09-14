@@ -31,7 +31,7 @@ class PersonFilter
         $id = $note->getContact()->getExternalId();
 
         foreach ($this->black_list as $record) {
-            if (1 === preg_match('/' . preg_quote($record->getText()) . '/', $id)) {
+            if (1 === preg_match('/' . $record->getRegexp() . '/', $id)) {
 
                 return false;
             }
