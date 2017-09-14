@@ -180,7 +180,7 @@ class VkPublisher implements PublisherInterface
             $prefix  =
                 $this->formatter->formatType($note) .
                 ' за ' .
-                $note->getPrice() .
+                $this->formatter->formatPrice((int)$note->getPrice()) .
                 ' руб. ' .
                 (!empty($note->getSubways()) ? 'около метро ' . implode(', ', $this->formatter->formatSubways($note)) : '') .
                 PHP_EOL . PHP_EOL;
