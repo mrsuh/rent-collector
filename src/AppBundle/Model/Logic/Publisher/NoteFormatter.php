@@ -65,6 +65,15 @@ class NoteFormatter
     }
 
     /**
+     * @param int $price
+     * @return string
+     */
+    public function formatPrice(int $price)
+    {
+        return number_format($price, 0, ' ', ' ');
+    }
+
+    /**
      * @param Note $note
      * @return string[]
      */
