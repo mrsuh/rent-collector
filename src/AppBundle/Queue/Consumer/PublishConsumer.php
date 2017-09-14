@@ -91,6 +91,15 @@ class PublishConsumer
 
             $record = $this->model_record->findOneByCity((new City())->setShortName($message->getSource()->getCity()));
 
+            if (!$record->isActive()) {
+                $this->logger->error('Publish record is not active for city', [
+                    'message_id' => $message->getId(),
+                    'city'       => $message->getSource()->getCity()
+                ]);
+
+                return false;
+            }
+
             if (null === $record) {
                 $this->logger->error('There is no publish record for city', [
                     'message_id' => $message->getId(),
