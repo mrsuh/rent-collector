@@ -257,7 +257,7 @@ services:
             - '@filter.expire.date'
             - '@filter.unique.description'
             - '@filter.unique.note'
-            - "@filter.unique.external_id"
+            - "@filter.unique.id"
             - "@filter.black_list.description"
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
