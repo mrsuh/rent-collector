@@ -78,11 +78,6 @@ class NoteFormatter
 
             $subway = $this->subways[$subway_id];
 
-            if (!($subways instanceof Subway)) {
-
-                continue;
-            }
-
             $subways[] = $subway->getName();
         }
 
