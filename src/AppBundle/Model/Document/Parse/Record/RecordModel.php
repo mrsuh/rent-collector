@@ -27,6 +27,15 @@ class RecordModel
     }
 
     /**
+     * @param string $city
+     * @return array|Record[]
+     */
+    public function findByCity(string $city)
+    {
+        return $this->dm->find(['city' => $city]);
+    }
+
+    /**
      * @param $id
      * @return null|Record
      */
