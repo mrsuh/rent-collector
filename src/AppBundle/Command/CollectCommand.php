@@ -5,13 +5,20 @@ namespace AppBundle\Command;
 use AppBundle\Queue\Message\ParseMessage;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CollectCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
-        $this->setName('app:collect');
+        $this->setName('app:collect')
+            ->addOption(
+                'city',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                null
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -22,8 +29,17 @@ class CollectCommand extends ContainerAwareCommand
         $logger       = $this->getContainer()->get('logger');
         $producer     = $this->getContainer()->get('queue.parse.producer');
 
+        $city    = $input->getOption('city');
+        $records = empty($city) ? $model_parser->findAll() : $model_parser->findByCity($city);
+
+        if (empty($records)) {
+            $logger->error('There is no records');
+
+            return false;
+        }
+
         $count = 0;
-        foreach ($model_parser->findAll() as $record) {
+        foreach ($records as $record) {
 
             $logger->debug('Collect record', [
                 'record' => $record->getName(),
