@@ -39,6 +39,11 @@ class CollectorFactory
     private $model_app;
 
     /**
+     * @var int
+     */
+    private $last_hours;
+
+    /**
      * CollectorFactory constructor.
      * @param VkPublicRequest $request
      * @param AppModel        $model
@@ -46,12 +51,13 @@ class CollectorFactory
      * @param string          $dir_tmp
      * @throws CollectException
      */
-    public function __construct(VkPublicRequest $request, AppModel $model_app, Logger $logger, string $dir_tmp)
+    public function __construct(VkPublicRequest $request, AppModel $model_app, Logger $logger, string $dir_tmp, int $last_hours)
     {
         $this->instances = [];
 
-        $this->logger  = $logger;
-        $this->dir_tmp = $dir_tmp;
+        $this->logger     = $logger;
+        $this->dir_tmp    = $dir_tmp;
+        $this->last_hours = $last_hours;
 
         $apps = $model_app->findAll();
         $app  = array_key_exists(0, $apps) ? $apps[0] : null;
@@ -94,7 +100,7 @@ class CollectorFactory
 
                 break;
             case Source::TYPE_VK_WALL:
-                return new VkWallCollector($this->request, $this->logger, $this->dir_tmp);
+                return new VkWallCollector($this->request, $this->logger, $this->dir_tmp, $this->last_hours);
 
                 break;
             default:
