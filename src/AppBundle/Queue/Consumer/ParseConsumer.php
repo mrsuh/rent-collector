@@ -213,15 +213,9 @@ class ParseConsumer
                 return false;
             }
 
-            $area  = $tomita->getArea();
-            $price = $tomita->getPrice();
-
             $note->setType((int)$tomita->getType());
 
-            if (-1 !== $area && 0 !== $area) {
-                $note->setArea($area);
-            }
-
+            $price = $tomita->getPrice();
             if (-1 !== $price && 0 !== $price) {
                 $note->setPrice($price);
             }
