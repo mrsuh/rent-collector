@@ -57,7 +57,7 @@ class VkUserExplorer implements UserExplorerInterface
             return new User();
         }
 
-        foreach (['first_name', 'blacklisted'] as $key) {
+        foreach (['first_name'] as $key) {
             if (!array_key_exists($key, $data)) {
                 throw new ExploreException(sprintf('Has not key "%s" in response', $key));
             }
@@ -68,7 +68,7 @@ class VkUserExplorer implements UserExplorerInterface
         $user->setName($data['first_name'])
             ->setBlacklisted(false);
 
-        if ($data['blacklisted']) {
+        if (array_key_exists('blacklisted', $data) && $data['blacklisted']) {
             $user->setBlacklisted(true);
         }
 
