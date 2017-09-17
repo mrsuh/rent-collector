@@ -7,7 +7,6 @@ class Tomita
     private $type;
     private $price;
     private $phones;
-    private $area;
 
     /**
      * @return mixed
@@ -43,25 +42,6 @@ class Tomita
     public function setPrice($price)
     {
         $this->price = $price;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getArea()
-    {
-        return $this->area;
-    }
-
-    /**
-     * @param $area
-     * @return $this
-     */
-    public function setArea($area)
-    {
-        $this->area = $area;
 
         return $this;
     }

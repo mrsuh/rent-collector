@@ -29,7 +29,7 @@ class TomitaExplorer
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        foreach (['type', 'phone', 'area', 'price'] as $key) {
+        foreach (['type', 'phone', 'price'] as $key) {
             if (!array_key_exists($key, $data)) {
                 throw new ExploreException((sprintf('Has not key "%s" in response', $key)));
             }
@@ -38,7 +38,6 @@ class TomitaExplorer
         return (new Tomita())
             ->setType($data['type'])
             ->setPrice($data['price'])
-            ->setArea($data['area'])
             ->setPhones($data['phone']);
 
     }
