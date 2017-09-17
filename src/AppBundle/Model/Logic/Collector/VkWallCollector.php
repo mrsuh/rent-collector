@@ -13,17 +13,19 @@ class VkWallCollector implements CollectorInterface
     private $request;
     private $logger;
     private $storage;
+    private $last_hours;
 
     /**
      * VkWallCollector constructor.
      * @param VkPublicRequest $request
      * @param string          $file_dir
      */
-    public function __construct(VkPublicRequest $request, Logger $logger, string $file_dir)
+    public function __construct(VkPublicRequest $request, Logger $logger, string $file_dir, int $last_hours)
     {
-        $this->request = $request;
-        $this->logger  = $logger;
-        $this->storage = new FileStorage($file_dir);
+        $this->request    = $request;
+        $this->logger     = $logger;
+        $this->storage    = new FileStorage($file_dir);
+        $this->last_hours = $last_hours;
     }
 
     /**
@@ -140,7 +142,7 @@ class VkWallCollector implements CollectorInterface
 
             $items     = [];
             $finish    = false;
-            $timestamp = (new \DateTime())->modify('- 1 hours')->getTimestamp();
+            $timestamp = (new \DateTime())->modify('- ' . $this->last_hours . ' hours')->getTimestamp();
 
             foreach ($items_raw as $item) {
 

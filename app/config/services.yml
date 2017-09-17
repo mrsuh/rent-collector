@@ -140,6 +140,7 @@ services:
             - '@model.document.parse.app'
             - '@logger'
             - '%dir.tmp%'
+            - '%request.vk.wall.last_hours%'
 
 #collector ===========================================================
 
