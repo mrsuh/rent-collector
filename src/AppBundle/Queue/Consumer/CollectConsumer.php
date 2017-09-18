@@ -80,6 +80,8 @@ class CollectConsumer
 
             $is_duplicate = false;
 
+            $description_duplicates = $this->filter_unique_description->findDuplicates($note);
+
             if (!empty($description_duplicates)) {
 
                 $this->logger->debug('Filtered by unique description', [
