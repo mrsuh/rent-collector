@@ -27,18 +27,10 @@ class NoteFilter
      */
     public function findDuplicates(Note $note): array
     {
-        $date = \DateTime::createFromFormat('U', $note->getTimestamp());
-        if (false === $date) {
-            $date = new \DateTime();
-        }
-
         return $this->dm_note->find(
             [
                 'contact.id' => $note->getContact()->getExternalId(),
                 'type'       => $note->getType(),
-                'timestamp'  => [
-                    '$gte' => $date->modify('- 4 weeks')->getTimestamp(),
-                ],
                 '_id'        => ['$ne' => $note->getId()]
             ]);
     }

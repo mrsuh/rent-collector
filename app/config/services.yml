@@ -218,6 +218,9 @@ services:
         arguments:
             - '@queue.publish.producer'
             - '@model.document.note'
+            - '@filter.unique.id'
+            - '@filter.unique.note'
+            - '@filter.unique.description'
             - '@logger'
         tags:
             - { name: monolog.logger, channel: consumer_collect }
