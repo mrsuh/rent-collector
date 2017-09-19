@@ -223,6 +223,16 @@ class VkPublisher implements PublisherInterface
                 $attachments[] = 'photo' . $this->user->getExternalId() . '_' . $photo_id;
             }
 
+            if (empty($attachments)) {
+                $this->logger->error('Can not upload attachments...', [
+                    'note_id'          => $note->getId(),
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $note->getCity()
+                ]);
+
+                return false;
+            }
+
             $this->logger->debug('Publishing sleep...', [
                 'note_id'          => $note->getId(),
                 'note_external_id' => $note->getExternalId(),
