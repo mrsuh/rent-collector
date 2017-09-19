@@ -15,6 +15,8 @@ class VkWallCollector implements CollectorInterface
     private $storage;
     private $last_hours;
 
+    private $unique_ids;
+
     /**
      * VkWallCollector constructor.
      * @param VkPublicRequest $request
@@ -26,6 +28,8 @@ class VkWallCollector implements CollectorInterface
         $this->logger     = $logger;
         $this->storage    = new FileStorage($file_dir);
         $this->last_hours = $last_hours;
+        $this->unique_ids = [];
+
     }
 
     /**
@@ -146,6 +150,25 @@ class VkWallCollector implements CollectorInterface
 
             foreach ($items_raw as $item) {
 
+                if (!array_key_exists('id', $item)) {
+                    $this->logger->error('Item has not key "id"', [
+                        'source_id'   => $source->getId(),
+                        'source_type' => $source->getType(),
+                        'params'      => $params
+                    ]);
+
+                    break;
+                }
+
+                $unique_id = $source->getId() . '-' . $item['id'];
+
+                if (in_array($unique_id, $this->unique_ids)) {
+
+                    continue;
+                }
+
+                $this->unique_ids[] = $unique_id;
+
                 if (
                     array_key_exists('marked_as_ads', $item) &&
                     $item['marked_as_ads']
@@ -174,7 +197,7 @@ class VkWallCollector implements CollectorInterface
 
             $config
                 ->setFinish($finish)
-                ->setOffset($finish ? 0 : $config->getOffset() + 5);
+                ->setOffset($finish ? 0 : $config->getOffset() + 10);
 
             $this->setConfigToFile($source, $config);
 
