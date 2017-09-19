@@ -62,7 +62,7 @@ class VkPublisher implements PublisherInterface
     {
         try {
 
-            usleep(200000);
+            usleep(500000);
             $response = $this->request->photosGetWallUploadServer([
                 'group_id' => $this->record->getGroupId()
             ]);
@@ -79,7 +79,7 @@ class VkPublisher implements PublisherInterface
 
             $upload_url = $get_photo_server_response['response']['upload_url'];
 
-            usleep(200000);
+            usleep(500000);
             $response = $this->request->uploadPhoto($upload_url, [
                 'name'     => 'photo',
                 'contents' => fopen($photo->getHigh(), 'r')
@@ -97,7 +97,7 @@ class VkPublisher implements PublisherInterface
             $server = $send_photo_response['server'];
             $hash   = $send_photo_response['hash'];
 
-            usleep(200000);
+            usleep(500000);
             $response = $this->request->photosSaveWallPhoto([
                 'photo'    => $photo,
                 'server'   => $server,
@@ -223,13 +223,23 @@ class VkPublisher implements PublisherInterface
                 $attachments[] = 'photo' . $this->user->getExternalId() . '_' . $photo_id;
             }
 
+            if (empty($attachments)) {
+                $this->logger->error('Can not upload attachments...', [
+                    'note_id'          => $note->getId(),
+                    'note_external_id' => $note->getExternalId(),
+                    'city'             => $note->getCity()
+                ]);
+
+                return false;
+            }
+
             $this->logger->debug('Publishing sleep...', [
                 'note_id'          => $note->getId(),
                 'note_external_id' => $note->getExternalId(),
                 'city'             => $note->getCity()
             ]);
 
-            usleep(200000);
+            usleep(500000);
 
             $this->logger->debug('Publishing sleep... done', [
                 'note_id'          => $note->getId(),

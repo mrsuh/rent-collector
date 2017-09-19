@@ -111,7 +111,15 @@ class PublishConsumer
 
             $publisher = $this->publisher_factory->init($record);
 
-            $publisher->publish($note);
+            if (!$publisher->publish($note)) {
+
+                $this->logger->error('Error publish message', [
+                    'message_id' => $message->getId(),
+                    'city'       => $message->getSource()->getCity()
+                ]);
+
+                return false;
+            }
 
             $note
                 ->setPublished(true)
