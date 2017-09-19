@@ -17,7 +17,7 @@ class NoteModel
      */
     public function __construct(DocumentManagerFactory $dm)
     {
-        $this->dm_note      = $dm->init(Note::class);
+        $this->dm_note = $dm->init(Note::class);
     }
 
     /**
@@ -55,12 +55,12 @@ class NoteModel
     public function findPublishedNotesByCityForPeriod(City $city, \DateTime $from, \DateTime $to)
     {
         return $this->dm_note->find([
-            'publishedTimestamp' => [
+            'published_timestamp' => [
                 '$gte' => $from->getTimestamp(),
                 '$lte' => $to->getTimestamp()
             ],
-            'city'               => $city->getShortName(),
-            'published'          => true
+            'city'                => $city->getShortName(),
+            'published'           => true
         ]);
     }
 
