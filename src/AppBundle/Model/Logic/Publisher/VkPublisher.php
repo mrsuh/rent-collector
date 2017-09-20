@@ -151,40 +151,40 @@ class VkPublisher implements PublisherInterface
 
             $save_photo_response = json_decode($response->getBody()->getContents(), true);
 
-            if (!isset($save_photo_response['response'])) {
+            if (!isset($save_photo_response['photo'])) {
 
                 $this->logger->error('Upload photo. Response has not key',
                     [
-                        'key'      => 'response',
+                        'key'      => 'photo',
                         'response' => $send_photo_response
                     ]);
 
                 return null;
             }
 
-            if (!isset($save_photo_response['response'][0])) {
+            if (!isset($save_photo_response['photo'][0])) {
 
                 $this->logger->error('Upload photo. Response has not key',
                     [
-                        'key'      => '0',
+                        'key'      => '[photo][0]',
                         'response' => $send_photo_response
                     ]);
 
                 return null;
             }
 
-            if (!isset($save_photo_response['response'][0]['id'])) {
+            if (!isset($save_photo_response['photo'][0]['photo'])) {
 
                 $this->logger->error('Upload photo. Response has not key',
                     [
-                        'key'      => 'id',
+                        'key'      => '[photo][0][photo]',
                         'response' => $send_photo_response
                     ]);
 
                 return null;
             }
 
-            return (int)$save_photo_response['response'][0]['id'];
+            return (int)$save_photo_response['photo'][0]['photo'];
 
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
