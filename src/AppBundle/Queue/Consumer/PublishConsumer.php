@@ -6,7 +6,6 @@ use AppBundle\Model\Document\City\CityModel;
 use AppBundle\Model\Document\Note\NoteModel;
 use AppBundle\Model\Document\Publish\Record\RecordModel;
 use AppBundle\Model\Logic\Publisher\PublisherFactory;
-use AppBundle\Queue\Message\CollectMessage;
 use AppBundle\Queue\Message\PublishMessage;
 use Monolog\Logger;
 use Schema\City\City;
