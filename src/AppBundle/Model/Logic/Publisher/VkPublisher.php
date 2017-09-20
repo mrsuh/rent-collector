@@ -67,13 +67,29 @@ class VkPublisher implements PublisherInterface
                 'group_id' => $this->record->getGroupId()
             ]);
 
-            $get_photo_server_response = json_decode($response->getBody()->getContents(), true);
+            $server_contents = $response->getBody()->getContents();
+
+            $get_photo_server_response = json_decode($server_contents, true);
 
             if (!isset($get_photo_server_response['response'])) {
+
+                $this->logger->error('Get upload photo server. Response has not key',
+                    [
+                        'key'      => 'upload',
+                        'response' => $server_contents
+                    ]);
+
                 return null;
             }
 
             if (!isset($get_photo_server_response['response']['upload_url'])) {
+
+                $this->logger->error('Get upload photo server. Response has not key',
+                    [
+                        'key'      => 'upload_url',
+                        'response' => $server_contents
+                    ]);
+
                 return null;
             }
 
@@ -85,10 +101,19 @@ class VkPublisher implements PublisherInterface
                 'contents' => fopen($photo->getHigh(), 'r')
             ]);
 
-            $send_photo_response = json_decode($response->getBody()->getContents(), true);
+            $photo_contents = $response->getBody()->getContents();
+
+            $send_photo_response = json_decode($photo_contents, true);
 
             foreach (['photo', 'server', 'hash'] as $key) {
                 if (!isset($send_photo_response[$key])) {
+
+                    $this->logger->error('Upload photo. Response has not key',
+                        [
+                            'key'      => $key,
+                            'response' => $photo_contents
+                        ]);
+
                     return null;
                 }
             }
@@ -108,14 +133,35 @@ class VkPublisher implements PublisherInterface
             $save_photo_response = json_decode($response->getBody()->getContents(), true);
 
             if (!isset($save_photo_response['response'])) {
+
+                $this->logger->error('Upload photo. Response has not key',
+                    [
+                        'key'      => 'response',
+                        'response' => $photo_contents
+                    ]);
+
                 return null;
             }
 
             if (!isset($save_photo_response['response'][0])) {
+
+                $this->logger->error('Upload photo. Response has not key',
+                    [
+                        'key'      => '0',
+                        'response' => $photo_contents
+                    ]);
+
                 return null;
             }
 
             if (!isset($save_photo_response['response'][0]['id'])) {
+
+                $this->logger->error('Upload photo. Response has not key',
+                    [
+                        'key'      => 'id',
+                        'response' => $photo_contents
+                    ]);
+
                 return null;
             }
 

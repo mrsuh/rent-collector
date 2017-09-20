@@ -200,6 +200,8 @@ services:
             - "@model.document.publish.user"
             - "@model.document.note"
             - "@logger"
+        tags:
+            - { name: monolog.logger, channel: consumer_publish }
 
 #publiser ============================================================
 

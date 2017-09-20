@@ -43,7 +43,7 @@ class BlackListCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if ($filter_phone->isAllow($note)) {
+            if (!$filter_phone->isAllow($note)) {
 
                 $logger->debug($note->getId() . ' delete by phone');
 
