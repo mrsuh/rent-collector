@@ -149,6 +149,13 @@ class VkPublisher implements PublisherInterface
                 'group_id' => $this->record->getGroupId()
             ]);
 
+            $this->logger->debug('Save photo request', [
+                'photo'    => $photo,
+                'server'   => $server,
+                'hash'     => $hash,
+                'group_id' => $this->record->getGroupId()
+            ]);
+
             $save_photo_contents = $response->getBody()->getContents();
 
             $save_photo_response = json_decode($save_photo_contents, true);
