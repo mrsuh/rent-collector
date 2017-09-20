@@ -149,42 +149,53 @@ class VkPublisher implements PublisherInterface
                 'group_id' => $this->record->getGroupId()
             ]);
 
-            $save_photo_response = json_decode($response->getBody()->getContents(), true);
+            $save_photo_contents = $response->getBody()->getContents();
 
-            if (!isset($save_photo_response['photo'])) {
+            $save_photo_response = json_decode($save_photo_contents, true);
 
-                $this->logger->error('Upload photo. Response has not key',
+            if (!is_array($get_photo_server_response)) {
+                $this->logger->error('Save photo. Response has invalid json',
                     [
-                        'key'      => 'photo',
-                        'response' => $send_photo_response
+                        'response' => $save_photo_contents
                     ]);
 
                 return null;
             }
 
-            if (!isset($save_photo_response['photo'][0])) {
+            if (!isset($save_photo_response['response'])) {
 
                 $this->logger->error('Upload photo. Response has not key',
                     [
-                        'key'      => '[photo][0]',
-                        'response' => $send_photo_response
+                        'key'      => 'response',
+                        'response' => $save_photo_response
                     ]);
 
                 return null;
             }
 
-            if (!isset($save_photo_response['photo'][0]['photo'])) {
+            if (!isset($save_photo_response['response'][0])) {
 
                 $this->logger->error('Upload photo. Response has not key',
                     [
-                        'key'      => '[photo][0][photo]',
-                        'response' => $send_photo_response
+                        'key'      => '0',
+                        'response' => $save_photo_response
                     ]);
 
                 return null;
             }
 
-            return $save_photo_response['photo'][0]['photo'];
+            if (!isset($save_photo_response['response'][0]['id'])) {
+
+                $this->logger->error('Upload photo. Response has not key',
+                    [
+                        'key'      => 'id',
+                        'response' => $save_photo_response
+                    ]);
+
+                return null;
+            }
+
+            return (int)$save_photo_response['response'][0]['id'];
 
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
