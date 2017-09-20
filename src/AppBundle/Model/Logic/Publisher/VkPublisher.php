@@ -249,7 +249,7 @@ class VkPublisher implements PublisherInterface
     {
         try {
 
-            if ($this->findPublishedNotesCountLastHour((new City())->setShortName($note->getCity())) > 1) {
+            if ($this->findPublishedNotesCountLastHour((new City())->setShortName($note->getCity())) >= 1) {
 
                 $this->logger->debug('Limitation of publications at this hour', [
                     'note_id'          => $note->getId(),
