@@ -184,7 +184,7 @@ class VkPublisher implements PublisherInterface
                 return null;
             }
 
-            return (int)$save_photo_response['photo'][0]['photo'];
+            return $save_photo_response['photo'][0]['photo'];
 
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
