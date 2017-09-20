@@ -153,7 +153,7 @@ class VkPublisher implements PublisherInterface
 
             $save_photo_response = json_decode($save_photo_contents, true);
 
-            if (!is_array($get_photo_server_response)) {
+            if (!is_array($save_photo_response)) {
                 $this->logger->error('Save photo. Response has invalid json',
                     [
                         'response' => $save_photo_contents
@@ -164,7 +164,7 @@ class VkPublisher implements PublisherInterface
 
             if (!isset($save_photo_response['response'])) {
 
-                $this->logger->error('Upload photo. Response has not key',
+                $this->logger->error('Save photo. Response has not key',
                     [
                         'key'      => 'response',
                         'response' => $save_photo_response
@@ -175,7 +175,7 @@ class VkPublisher implements PublisherInterface
 
             if (!isset($save_photo_response['response'][0])) {
 
-                $this->logger->error('Upload photo. Response has not key',
+                $this->logger->error('Save photo. Response has not key',
                     [
                         'key'      => '0',
                         'response' => $save_photo_response
@@ -186,7 +186,7 @@ class VkPublisher implements PublisherInterface
 
             if (!isset($save_photo_response['response'][0]['id'])) {
 
-                $this->logger->error('Upload photo. Response has not key',
+                $this->logger->error('Save photo. Response has not key',
                     [
                         'key'      => 'id',
                         'response' => $save_photo_response
