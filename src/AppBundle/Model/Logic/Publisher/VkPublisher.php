@@ -71,12 +71,22 @@ class VkPublisher implements PublisherInterface
 
             $get_photo_server_response = json_decode($server_contents, true);
 
+            if (!is_array($get_photo_server_response)) {
+                $this->logger->error('Get upload photo server. Response has invalid json',
+                    [
+                        'response' => $server_contents
+                    ]);
+
+                return null;
+            }
+
+
             if (!isset($get_photo_server_response['response'])) {
 
                 $this->logger->error('Get upload photo server. Response has not key',
                     [
                         'key'      => 'upload',
-                        'response' => $server_contents
+                        'response' => $get_photo_server_response
                     ]);
 
                 return null;
@@ -87,7 +97,7 @@ class VkPublisher implements PublisherInterface
                 $this->logger->error('Get upload photo server. Response has not key',
                     [
                         'key'      => 'upload_url',
-                        'response' => $server_contents
+                        'response' => $get_photo_server_response
                     ]);
 
                 return null;
@@ -105,13 +115,22 @@ class VkPublisher implements PublisherInterface
 
             $send_photo_response = json_decode($photo_contents, true);
 
+            if (!is_array($get_photo_server_response)) {
+                $this->logger->error('Upload photo. Response has invalid json',
+                    [
+                        'response' => $photo_contents
+                    ]);
+
+                return null;
+            }
+
             foreach (['photo', 'server', 'hash'] as $key) {
                 if (!isset($send_photo_response[$key])) {
 
                     $this->logger->error('Upload photo. Response has not key',
                         [
                             'key'      => $key,
-                            'response' => $photo_contents
+                            'response' => $send_photo_response
                         ]);
 
                     return null;
@@ -137,7 +156,7 @@ class VkPublisher implements PublisherInterface
                 $this->logger->error('Upload photo. Response has not key',
                     [
                         'key'      => 'response',
-                        'response' => $photo_contents
+                        'response' => $send_photo_response
                     ]);
 
                 return null;
@@ -148,7 +167,7 @@ class VkPublisher implements PublisherInterface
                 $this->logger->error('Upload photo. Response has not key',
                     [
                         'key'      => '0',
-                        'response' => $photo_contents
+                        'response' => $send_photo_response
                     ]);
 
                 return null;
@@ -159,7 +178,7 @@ class VkPublisher implements PublisherInterface
                 $this->logger->error('Upload photo. Response has not key',
                     [
                         'key'      => 'id',
-                        'response' => $photo_contents
+                        'response' => $send_photo_response
                     ]);
 
                 return null;
