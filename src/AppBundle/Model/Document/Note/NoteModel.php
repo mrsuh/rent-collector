@@ -60,7 +60,7 @@ class NoteModel
                 '$lte' => $to->getTimestamp()
             ],
             'city'                => $city->getShortName(),
-            'published'           => true
+            'published'           => 1
         ]);
     }
 
