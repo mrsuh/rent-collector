@@ -222,23 +222,7 @@ class VkPublisher implements PublisherInterface
             (new \DateTime())
         );
 
-        $count = 0;
-        $now   = new \DateTime();
-        foreach ($notes as $note) {
-            $date = \DateTime::createFromFormat('U', $note->getPublishedTimestamp());
-
-            if (false === $date) {
-                continue;
-            }
-
-            if ((int)$date->format('H') !== (int)$now->format('H')) {
-                continue;
-            }
-
-            $count++;
-        }
-
-        return $count;
+        return count($notes);
     }
 
     /**
