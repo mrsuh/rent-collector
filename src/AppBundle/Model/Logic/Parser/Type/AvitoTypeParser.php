@@ -27,22 +27,22 @@ class AvitoTypeParser implements TypeParserInterface
 
         $type = Note::TYPE_ERR;
         switch (true) {
-            case false !== mb_strrpos($type_str, '1-к'):
+            case false !== mb_strrpos($type_str, '1-к') && false !== mb_strrpos($type_str, 'кварт'):
                 $type = Note::TYPE_FLAT_1;
                 break;
-            case false !== mb_strrpos($type_str, '2-к'):
+            case false !== mb_strrpos($type_str, '2-к') && false !== mb_strrpos($type_str, 'кварт'):
                 $type = Note::TYPE_FLAT_2;
                 break;
-            case false !== mb_strrpos($type_str, '3-к'):
+            case false !== mb_strrpos($type_str, '3-к') && false !== mb_strrpos($type_str, 'кварт'):
                 $type = Note::TYPE_FLAT_3;
                 break;
-            case false !== mb_strrpos($type_str, '4-к'):
+            case false !== mb_strrpos($type_str, '4-к') && false !== mb_strrpos($type_str, 'кварт'):
                 $type = Note::TYPE_FLAT_N;
                 break;
-            case false !== mb_strrpos($type_str, 'комната'):
+            case false !== mb_strrpos($type_str, 'комн'):
                 $type = Note::TYPE_ROOM;
                 break;
-            case false !== mb_strrpos($type_str, 'студия'):
+            case false !== mb_strrpos($type_str, 'студ'):
                 $type = Note::TYPE_STUDIO;
                 break;
         }
