@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Request;
 class TomitaRequest
 {
     protected $client;
+    protected $url;
 
     /**
      * TomitaRequest constructor.

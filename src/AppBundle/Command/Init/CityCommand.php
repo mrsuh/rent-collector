@@ -19,7 +19,7 @@ class CityCommand extends ContainerAwareCommand
     {
         $file_path  = $this->getContainer()->getParameter('kernel.root_dir') . '/fixtures/city.yml';
         $list       = Yaml::parse(file_get_contents($file_path));
-        $dm_factory = $this->getContainer()->get('dm.hot');
+        $dm_factory = $this->getContainer()->get('dm');
         $dm_city    = $dm_factory->init(City::class);
         foreach ($list as $key => $val) {
 

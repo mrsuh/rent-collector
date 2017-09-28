@@ -21,13 +21,11 @@ class PhotoParserFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $type
      * @return PhotoParserInterface
      */
-    public function init(Source $source)
+    public function init(string $type): PhotoParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }
@@ -37,7 +35,7 @@ class PhotoParserFactory
 
     /**
      * @param string $type
-     * @return VkCommentPhotoParser|VkWallPhotoParser
+     * @return PhotoParserInterface
      * @throws AppException
      */
     private function getInstance(string $type)
@@ -48,6 +46,9 @@ class PhotoParserFactory
                 break;
             case Source::TYPE_VK_WALL:
                 return new VkWallPhotoParser();
+                break;
+            case Source::TYPE_AVITO:
+                return new AvitoPhotoParser();
                 break;
             default:
                 throw new AppException('Invalid type');

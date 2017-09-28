@@ -52,15 +52,14 @@ class NoteModel
      * @param \DateTime $to
      * @return Note[]
      */
-    public function findPublishedNotesByCityForPeriod(City $city, \DateTime $from, \DateTime $to)
+    public function findPublishedNotesByCityForPeriod(City $city, \DateTime $from)
     {
         return $this->dm_note->find([
             'published_timestamp' => [
-                '$gte' => $from->getTimestamp(),
-                '$lte' => $to->getTimestamp()
+                '$gte' => (int)$from->getTimestamp()
             ],
-            'city'                => $city->getShortName(),
-            'published'           => 1
+            'city'                => (string)$city->getShortName(),
+            'published'           => true
         ]);
     }
 

@@ -4,7 +4,6 @@ namespace AppBundle\Model\Logic\Publisher;
 
 use AppBundle\Model\Document\City\SubwayModel;
 use Schema\Note\Note;
-use Schema\City\Subway;
 
 class NoteFormatter
 {

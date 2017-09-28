@@ -43,8 +43,8 @@ class CollectConsumer
     )
     {
         $this->producer_publish = $producer_publish;
-        $this->model_note = $model_note;
-        $this->logger = $logger;
+        $this->model_note       = $model_note;
+        $this->logger           = $logger;
 
         $this->filter_unique_note        = $filter_unique_note;
         $this->filter_unique_id          = $filter_unique_id;
@@ -57,21 +57,24 @@ class CollectConsumer
      */
     public function handle(CollectMessage $message)
     {
+        $note = $message->getNote();
+
+        $id   = $note->getId();
+        $city = $message->getSource()->getCity();
+
         try {
 
             $this->logger->debug('Handling message...', [
-                'message_id' => $message->getId(),
-                'city'       => $message->getSource()->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
             $note = $message->getNote();
 
-            $external_id = $note->getExternalId();
-
             if (!empty($this->filter_unique_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique id', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
                 unset($note);
 
@@ -82,42 +85,28 @@ class CollectConsumer
 
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
 
-            if (!empty($description_duplicates)) {
-
-                $this->logger->debug('Filtered by unique description', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+            foreach ($description_duplicates as $duplicate) {
+                $this->logger->debug('Delete duplicate by unique description', [
+                    'id'           => $id,
+                    'city'         => $city,
+                    'duplicate_id' => $duplicate->getId()
                 ]);
-
-                foreach ($description_duplicates as $duplicate) {
-                    $this->logger->debug('Delete duplicate', [
-                        'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId(),
-                        'city'         => $message->getSource()->getCity()
-                    ]);
-                    $this->model_note->delete($duplicate);
-                    $is_duplicate = true;
-                }
+                $this->model_note->delete($duplicate);
+                $is_duplicate = true;
             }
 
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
 
-            if (!empty($unique_duplicates)) {
-                $this->logger->debug('Filtered by unique', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+
+            foreach ($unique_duplicates as $duplicate) {
+                $this->logger->debug('Delete duplicate by unique', [
+                    'id'           => $id,
+                    'city'         => $city,
+                    'duplicate_id' => $duplicate->getId()
                 ]);
 
-                foreach ($unique_duplicates as $duplicate) {
-                    $this->logger->debug('Delete duplicate', [
-                        'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId(),
-                        'city'         => $message->getSource()->getCity()
-                    ]);
-
-                    $this->model_note->delete($duplicate);
-                    $is_duplicate = true;
-                }
+                $this->model_note->delete($duplicate);
+                $is_duplicate = true;
             }
 
             $this->model_note->create($note);
@@ -125,28 +114,27 @@ class CollectConsumer
             if (!$is_duplicate) {
 
                 $this->logger->debug('Publishing note', [
-                    'message_id' => $message->getId(),
-                    'city'       => $message->getSource()->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
 
                 $this->producer_publish->publish((
                 (new PublishMessage())
-                    ->setId($message->getId())
                     ->setSource($message->getSource())
                     ->setNote($note)
                 ));
             }
 
             $this->logger->debug('Handling message... done', [
-                'message_id' => $message->getId(),
-                'city'       => $message->getSource()->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
-                'message_id' => $message->getId(),
-                'error'      => $e->getMessage(),
-                'city'       => $message->getSource()->getCity()
+                'id'        => $id,
+                'city'      => $city,
+                'exception' => $e->getMessage()
             ]);
         }
 

@@ -26,7 +26,6 @@ class SubwayCommand extends ContainerAwareCommand
 
             $list  = Yaml::parse($file);
             $lines = [];
-            $count = count($list);
 
             $subways = [];
             foreach ($list as $l) {

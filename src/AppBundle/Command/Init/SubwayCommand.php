@@ -19,7 +19,7 @@ class SubwayCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dir        = $this->getContainer()->getParameter('kernel.root_dir') . '/fixtures';
-        $dm_factory = $this->getContainer()->get('dm.hot');
+        $dm_factory = $this->getContainer()->get('dm');
         $dm_subway  = $dm_factory->init(Subway::class);
         foreach (glob($dir . '/subway_*') as $file_path) {
             $this->load($dm_subway, $file_path);

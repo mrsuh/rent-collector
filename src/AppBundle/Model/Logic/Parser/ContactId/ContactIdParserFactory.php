@@ -1,14 +1,14 @@
 <?php
 
-namespace AppBundle\Model\Logic\Parser\Contact;
+namespace AppBundle\Model\Logic\Parser\ContactId;
 
 use AppBundle\Exception\AppException;
 use Schema\Parse\Record\Source;
 
-class ContactParserFactory
+class ContactIdParserFactory
 {
     /**
-     * @var ContactParserInterface[]
+     * @var ContactIdParserInterface[]
      */
     private $instances;
 
@@ -21,13 +21,11 @@ class ContactParserFactory
     }
 
     /**
-     * @param Source $source
-     * @return ContactParserInterface
+     * @param string $type
+     * @return ContactIdParserInterface
      */
-    public function init(Source $source)
+    public function init(string $type): ContactIdParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }
@@ -37,18 +35,22 @@ class ContactParserFactory
 
     /**
      * @param string $type
-     * @return ContactParserInterface
+     * @return ContactIdParserInterface
      * @throws AppException
      */
     private function getInstance(string $type)
     {
         switch ($type) {
             case Source::TYPE_VK_COMMENT:
-                return new VkCommentContactParser();
+                return new VkCommentContactIdParser();
 
                 break;
             case Source::TYPE_VK_WALL:
-                return new VkWallContactParser();
+                return new VkWallContactIdParser();
+
+                break;
+            case Source::TYPE_AVITO:
+                return new AvitoContactIdParser();
 
                 break;
             default:

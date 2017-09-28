@@ -1,17 +1,22 @@
 <?php
 
-namespace AppBundle\Model\Logic\Parser\Contact;
+namespace AppBundle\Model\Logic\Parser\ContactId;
 
-use Schema\Note\Contact;
+use AppBundle\Exception\ParseException;
 
-class VkWallContactParser implements ContactParserInterface
+class VkWallContactIdParser implements ContactIdParserInterface
 {
     /**
-     * @param array $data
-     * @return Contact
+     * @param $data
+     * @return string
+     * @throws ParseException
      */
-    public function parse(array $data)
+    public function parse($data): string
     {
+        if (!is_array($data)) {
+            throw new ParseException(sprintf('%s: data is not an array', __CLASS__ . '\\' . __FUNCTION__));
+        }
+
         switch (true) {
             case array_key_exists('signer_id', $data):
                 $id = $data['signer_id'];
@@ -33,10 +38,10 @@ class VkWallContactParser implements ContactParserInterface
 
         if ($id < 0) {
             preg_match('/\[id(\d+)\|.*\]/', $data['text'], $match);
-            $id = array_key_exists(1, $match) ? $match[1] : null;
+            $id = array_key_exists(1, $match) ? $match[1] : '';
         }
 
-        return $id;
+        return (string)$id;
     }
 }
 

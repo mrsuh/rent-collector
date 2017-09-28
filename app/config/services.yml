@@ -85,13 +85,28 @@ services:
         arguments:
             - "@request.client"
 
+    request.avito:
+        class: AppBundle\Request\AvitoRequest
+        arguments:
+            - "@request.client"
+
 #request =============================================================
 
 
 #parser ==============================================================
 
-    parser.contact.factory:
-        class: AppBundle\Model\Logic\Parser\Contact\ContactParserFactory
+    parser.contact_id.factory:
+        class: AppBundle\Model\Logic\Parser\ContactId\ContactIdParserFactory
+
+    parser.contact_name.factory:
+        class: AppBundle\Model\Logic\Parser\ContactName\ContactNameParserFactory
+        arguments:
+            - "@explorer.user.factory"
+
+    parser.subway.factory:
+        class: AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory
+        arguments:
+            - "@explorer.subway.factory"
 
     parser.datetime.factory:
         class: AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory
@@ -107,6 +122,21 @@ services:
 
     parser.link.factory:
         class: AppBundle\Model\Logic\Parser\Link\LinkParserFactory
+
+    parser.type.factory:
+        class: AppBundle\Model\Logic\Parser\Type\TypeParserFactory
+        arguments:
+            - "@explorer.tomita"
+
+    parser.price.factory:
+        class: AppBundle\Model\Logic\Parser\Price\PriceParserFactory
+        arguments:
+            - "@explorer.tomita"
+
+    parser.phone.factory:
+        class: AppBundle\Model\Logic\Parser\Phone\PhoneParserFactory
+        arguments:
+            - "@explorer.tomita"
 
 #parser =============================================================
 
@@ -137,7 +167,11 @@ services:
         class: AppBundle\Model\Logic\Collector\CollectorFactory
         arguments:
             - '@request.public.vk'
+            - '@request.avito'
             - '@model.document.parse.app'
+            - '@parser.id.factory'
+            - '@parser.link.factory'
+            - '@parser.datetime.factory'
             - '@logger'
             - '%dir.tmp%'
             - '%request.vk.wall.last_hours%'
@@ -253,12 +287,14 @@ services:
     queue.parse.consumer:
         class: AppBundle\Queue\Consumer\ParseConsumer
         arguments:
-            - '@parser.datetime.factory'
             - '@parser.description.factory'
             - '@parser.photo.factory'
-            - '@parser.contact.factory'
-            - '@parser.id.factory'
-            - '@parser.link.factory'
+            - '@parser.contact_name.factory'
+            - '@parser.contact_id.factory'
+            - '@parser.type.factory'
+            - '@parser.price.factory'
+            - '@parser.phone.factory'
+            - '@parser.subway.factory'
 
             - '@filter.expire.date'
             - '@filter.unique.description'
@@ -268,10 +304,6 @@ services:
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
             - "@filter.cleaner.description"
-
-            - '@explorer.subway.factory'
-            - '@explorer.tomita'
-            - '@explorer.user.factory'
 
             - '@queue.collect.producer'
 

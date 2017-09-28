@@ -2,16 +2,22 @@
 
 namespace AppBundle\Model\Logic\Parser\Photo;
 
+use AppBundle\Exception\ParseException;
 use Schema\Note\Photo;
 
 class VkWallPhotoParser implements PhotoParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return Photo[]
+     * @throws ParseException
      */
-    public function parse(array $data)
+    public function parse($data)
     {
+        if (!is_array($data)) {
+            throw new ParseException(sprintf('%s: data is not an array', __CLASS__ . '\\' . __FUNCTION__));
+        }
+
         $photos = [];
 
         if (!array_key_exists('attachments', $data)) {

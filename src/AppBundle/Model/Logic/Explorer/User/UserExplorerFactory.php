@@ -29,13 +29,11 @@ class UserExplorerFactory
     }
 
     /**
-     * @param Source $source
-     * @return UserExplorerInterface
-     * @throws AppException
+     * @param string $type
+     * @return VkUserExplorer|mixed
      */
-    public function init(Source $source)
+    public function init(string $type)
     {
-        $type = $source->getType();
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }

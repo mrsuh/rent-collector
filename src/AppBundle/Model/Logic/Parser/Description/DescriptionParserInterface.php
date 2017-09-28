@@ -5,8 +5,8 @@ namespace AppBundle\Model\Logic\Parser\Description;
 interface DescriptionParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return string
      */
-    public function parse(array $data): string;
+    public function parse($data): string;
 }

@@ -21,13 +21,11 @@ class LinkParserFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $type
      * @return LinkParserInterface
      */
-    public function init(Source $source): LinkParserInterface
+    public function init(string $type): LinkParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }

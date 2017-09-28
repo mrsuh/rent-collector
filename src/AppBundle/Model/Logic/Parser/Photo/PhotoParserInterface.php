@@ -7,8 +7,8 @@ use Schema\Note\Photo;
 interface PhotoParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return Photo[]
      */
-    public function parse(array $data);
+    public function parse($data);
 }

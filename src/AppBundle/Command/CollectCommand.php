@@ -33,7 +33,7 @@ class CollectCommand extends ContainerAwareCommand
         $records = empty($city) ? $model_parser->findAll() : $model_parser->findByCity($city);
 
         if (empty($records)) {
-            $logger->error('There is no records');
+            $logger->error('There are no records');
 
             return false;
         }
@@ -55,18 +55,18 @@ class CollectCommand extends ContainerAwareCommand
 
                 $collector = $collector_factory->init($source);
 
-                while (!empty($notes = $collector->collect($source))) {
+                while (!empty($raws = $collector->collect($source))) {
 
                     $logger->debug('Collect request done', [
-                        'notes' => count($notes)
+                        'notes' => count($raws)
                     ]);
 
-                    foreach ($notes as $note) {
+                    foreach ($raws as $raw) {
                         $count++;
                         $message =
                             (new ParseMessage())
                                 ->setSource($source)
-                                ->setNote($note);
+                                ->setRaw($raw);
 
                         $producer->publish($message);
                     }

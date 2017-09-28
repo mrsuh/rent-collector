@@ -3,36 +3,38 @@
 namespace AppBundle\Queue\Consumer;
 
 use AppBundle\Model\Document\Note\NoteModel;
-use AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory;
-use AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer;
-use AppBundle\Model\Logic\Explorer\User\UserExplorerFactory;
 use AppBundle\Model\Logic\Filter\BlackList\PersonFilter;
 use AppBundle\Model\Logic\Filter\BlackList\PhoneFilter;
 use AppBundle\Model\Logic\Filter\Expire\DateFilter;
 use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
 use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
-use AppBundle\Model\Logic\Parser\Contact\ContactParserFactory;
-use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
+use AppBundle\Model\Logic\Parser\ContactId\ContactIdParserFactory;
+use AppBundle\Model\Logic\Parser\ContactName\ContactNameParserFactory;
 use AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory;
-use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
-use AppBundle\Model\Logic\Parser\Link\LinkParserFactory;
+use AppBundle\Model\Logic\Parser\Phone\PhoneParserFactory;
 use AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory;
+use AppBundle\Model\Logic\Parser\Price\PriceParserFactory;
+use AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory;
+use AppBundle\Model\Logic\Parser\Type\TypeParserFactory;
 use AppBundle\Queue\Message\CollectMessage;
 use AppBundle\Queue\Message\ParseMessage;
 use AppBundle\Queue\Producer\CollectProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
 use Schema\Note\Note;
+use Schema\Parse\Record\Source;
 
 class ParseConsumer
 {
-    private $parser_datetime_factory;
     private $parser_description_factory;
     private $parser_photo_factory;
-    private $parser_contact_factory;
-    private $parser_id_factory;
-    private $parser_link_factory;
+    private $parser_contact_name_factory;
+    private $parser_contact_id_factory;
+    private $parser_type_factory;
+    private $parser_price_factory;
+    private $parser_subway_factory;
+    private $parser_phone_factory;
 
     private $filter_expire_date;
     private $filter_unique_description;
@@ -43,22 +45,20 @@ class ParseConsumer
     private $filter_black_list_phone;
     private $filter_cleaner_description;
 
-    private $explorer_subway_factory;
-    private $explorer_tomita;
-    private $explorer_user_factory;
-
     private $producer_collect;
 
     private $model_note;
     private $logger;
 
     public function __construct(
-        DateTimeParserFactory $parser_datetime_factory,
         DescriptionParserFactory $parser_description_factory,
         PhotoParserFactory $parser_photo_factory,
-        ContactParserFactory $parser_contact_factory,
-        IdParserFactory $parser_id_factory,
-        LinkParserFactory $parser_link_factory,
+        ContactNameParserFactory $parser_contact_name_factory,
+        ContactIdParserFactory $parser_contact_id_factory,
+        TypeParserFactory $parser_type_factory,
+        PriceParserFactory $parser_price_factory,
+        PhoneParserFactory $parser_phone_factory,
+        SubwayParserFactory $parser_subway_factory,
 
         DateFilter $filter_expire_date,
         DescriptionFilter $filter_unique_description,
@@ -69,22 +69,20 @@ class ParseConsumer
         PhoneFilter $filter_black_list_phone,
         \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter $filter_cleaner_description,
 
-        SubwayExplorerFactory $explorer_subway_factory,
-        TomitaExplorer $explorer_tomita,
-        UserExplorerFactory $explorer_user_factory,
-
         CollectProducer $producer_collect,
 
         NoteModel $model_note,
         Logger $logger
     )
     {
-        $this->parser_datetime_factory    = $parser_datetime_factory;
-        $this->parser_description_factory = $parser_description_factory;
-        $this->parser_photo_factory       = $parser_photo_factory;
-        $this->parser_contact_factory     = $parser_contact_factory;
-        $this->parser_id_factory          = $parser_id_factory;
-        $this->parser_link_factory        = $parser_link_factory;
+        $this->parser_description_factory  = $parser_description_factory;
+        $this->parser_photo_factory        = $parser_photo_factory;
+        $this->parser_contact_name_factory = $parser_contact_name_factory;
+        $this->parser_contact_id_factory   = $parser_contact_id_factory;
+        $this->parser_type_factory         = $parser_type_factory;
+        $this->parser_price_factory        = $parser_price_factory;
+        $this->parser_phone_factory        = $parser_phone_factory;
+        $this->parser_subway_factory       = $parser_subway_factory;
 
         $this->filter_expire_date            = $filter_expire_date;
         $this->filter_unique_description     = $filter_unique_description;
@@ -95,10 +93,6 @@ class ParseConsumer
         $this->filter_black_list_phone       = $filter_black_list_phone;
         $this->filter_cleaner_description    = $filter_cleaner_description;
 
-        $this->explorer_subway_factory = $explorer_subway_factory;
-        $this->explorer_tomita         = $explorer_tomita;
-        $this->explorer_user_factory   = $explorer_user_factory;
-
         $this->producer_collect = $producer_collect;
 
         $this->model_note = $model_note;
@@ -108,275 +102,222 @@ class ParseConsumer
 
     public function handle(ParseMessage $message)
     {
+        $raw         = $message->getRaw();
+        $id          = $raw->getId();
+        $city        = $message->getSource()->getCity();
+        $source_type = $message->getSource()->getType();
+
         try {
 
             $this->logger->debug('Handling message...', [
-                'message_id' => $message->getId(),
-                'city'       => $message->getSource()->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
-            $note = new Note();
-
-            $parser_id = $this->parser_id_factory->init($message->getSource());
-            $id        = $parser_id->parse($message->getNote());
-
-            $parser_link = $this->parser_link_factory->init($message->getSource());
-
-            $link = $parser_link->parse($message->getSource(), $id);
-
-            $note->setLink($link);
-
-            if (empty($id)) {
-
-                $this->logger->error('Parsed id is empty', [
-                    'message_id' => $message->getId(),
-                    'city'       => $message->getSource()->getCity()
-                ]);
-
-                return false;
-            }
-
-            $external_id = $message->getSource()->getId() . '-' . $id;
-
-            $parser_datetime = $this->parser_datetime_factory->init($message->getSource());
-            $timestamp       = $parser_datetime->parse($message->getNote());
+            $timestamp = $raw->getTimestamp();
 
             if ($this->filter_expire_date->isExpire($timestamp)) {
                 $this->logger->debug('Filtered by expire date', [
-                    'external_id' => $external_id,
-                    'timestamp'   => $timestamp,
-                    'date'        => \DateTime::createFromFormat('U', $timestamp)->format('Y-m-d H:i:s'),
-                    'city'        => $message->getSource()->getCity()
+                    'id'        => $id,
+                    'city'      => $city,
+                    'timestamp' => $timestamp,
+                    'date'      => \DateTime::createFromFormat('U', $timestamp)->format('Y-m-d H:i:s')
                 ]);
-                unset($note);
 
                 return false;
             }
 
+            $note = new Note();
+
             $note
-                ->setId($external_id)
-                ->setExternalId($external_id)
+                ->setId($id)
+                ->setLink($message->getRaw()->getLink())
                 ->setTimestamp($timestamp)
-                ->setCity($message->getSource()->getCity());
+                ->setCity($city);
 
             if (!empty($this->filter_unique_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique id', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
                 unset($note);
 
                 return false;
             }
 
-            $parser_description = $this->parser_description_factory->init($message->getSource());
-            $description_raw    = $parser_description->parse($message->getNote());
+            /**
+             *  Description
+             */
+            $parser_description = $this->parser_description_factory->init($source_type);
+            $description_raw    = $parser_description->parse($raw->getContent());
 
             $description = $this->filter_cleaner_description->clear($description_raw);
 
+            if (!$this->filter_black_list_description->isAllow($description)) {
+                $this->logger->debug('Filtered by black list description', [
+                    'id'   => $id,
+                    'city' => $city
+                ]);
+                unset($note);
+
+                return false;
+            }
+
             $note->setDescription($description);
 
-            if (!$this->filter_black_list_description->isAllow($note)) {
-                $this->logger->debug('Filtered by black list description', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+            $is_duplicate           = false;
+            $description_duplicates = $this->filter_unique_description->findDuplicates($note);
+            foreach ($description_duplicates as $duplicate) {
+                $this->logger->debug('Delete duplicate by unique description', [
+                    'id'           => $id,
+                    'city'         => $city,
+                    'duplicate_id' => $duplicate->getId()
+                ]);
+                $this->model_note->delete($duplicate);
+                $is_duplicate = true;
+            }
+
+            /**
+             * Contact id
+             */
+            $parser_contact_id = $this->parser_contact_id_factory->init($source_type);
+            $contact_id        = $parser_contact_id->parse($raw->getContent());
+
+            if (empty($contact_id)) {
+                $this->logger->debug('Empty contact id', [
+                    'id'   => $id,
+                    'city' => $city
                 ]);
                 unset($note);
 
                 return false;
             }
 
-            $this->logger->debug('Exploring tomita...', [
-                'external_id' => $external_id,
-                'city'        => $message->getSource()->getCity()
-            ]);
+            if (!$this->filter_black_list_person->isAllow($contact_id)) {
+                $this->logger->debug('Filtered by black list contact id', [
+                    'id'   => $id,
+                    'city' => $city
+                ]);
+                unset($note);
 
-            $time_start = time();
+                return false;
+            }
 
-            $tomita = $this->explorer_tomita->explore($description);
+            /**
+             * Contact name
+             */
+            $parser_contact_name = $this->parser_contact_name_factory->init($source_type);
 
-            $time_done = time();
+            if (Source::TYPE_AVITO === $source_type) {
+                $contact_name = $parser_contact_name->parse($raw->getContent());
+            } else {
+                $contact_name = $parser_contact_name->parse($contact_id);
+            }
 
-            $this->logger->debug('Exploring tomita... done', [
-                'external_id'  => $external_id,
-                'duration_sec' => $time_done - $time_start,
-                'city'         => $message->getSource()->getCity()
-            ]);
+            $contact =
+                (new Contact())
+                    ->setId($contact_id)
+                    ->setName($contact_name);
 
-            if (Note::TYPE_ERR === (int)$tomita->getType()) {
+            $note->setContact($contact);
+
+            /**
+             *  Type
+             */
+            $parser_type = $this->parser_type_factory->init($source_type);
+            $type        = $parser_type->parse($raw->getContent());
+
+            if (Note::TYPE_ERR === (int)$type) {
                 $this->logger->debug('Filtered by type', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
                 unset($note);
 
                 return false;
             }
 
-            $note->setType((int)$tomita->getType());
+            $note->setType((int)$type);
 
-            $price = $tomita->getPrice();
+            /**
+             *  Price
+             */
+            $parser_price = $this->parser_price_factory->init($source_type);
+            $price        = $parser_price->parse($raw->getContent());
+
             if (-1 !== $price && 0 !== $price) {
                 $note->setPrice($price);
             }
 
-            $this->logger->debug('Parsing contact...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id,
-                'city'        => $message->getSource()->getCity()
-            ]);
+            /**
+             * Phone
+             */
+            $parser_phone = $this->parser_phone_factory->init($source_type);
+            $phones       = $parser_phone->parse($raw->getContent());
 
-            $parser_contact = $this->parser_contact_factory->init($message->getSource());
-
-            $contact_id = $parser_contact->parse($message->getNote());
-            $phones     = $tomita->getPhones();
-
-            if (null === $contact_id && count($phones) === 0) {
-                $this->logger->debug('Invalid explored user and no phones', [
-                    'external_id' => $external_id
-                ]);
-                unset($note);
-
-                return false;
-            }
-
-            $contact = new Contact();
-            $contact
-                ->setPhones($phones)
-                ->setExternalId($contact_id);
-
-            if (null !== $contact_id) {
-                $this->logger->debug('Exploring user...', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
-                ]);
-
-                $explorer_user = $this->explorer_user_factory->init($message->getSource());
-                $user          = $explorer_user->explore($contact_id);
-
-                $this->logger->debug('Exploring user... done', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
-                ]);
-
-                if ($user->getBlacklisted()) {
-
-                    $this->logger->debug('Filtered by user blacklisted', [
-                        'external_id' => $external_id,
-                        'city'        => $message->getSource()->getCity()
-                    ]);
-
-                    unset($note);
-
-                    return false;
-                }
-
-                $contact->setName(null !== $user->getName() ? $user->getName() : 'unknow');
-            }
-
-            $note->setContact($contact);
-
-            if (!$this->filter_black_list_person->isAllow($note)) {
-                $this->logger->debug('Filtered by black list person', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
-                ]);
-                unset($note);
-
-                return false;
-            }
+            $contact->setPhones($phones);
 
             if (!$this->filter_black_list_phone->isAllow($note)) {
                 $this->logger->debug('Filtered by black list phone', [
-                    'external_id' => $external_id
+                    'id'   => $id,
+                    'city' => $city
                 ]);
                 unset($note);
 
                 return false;
             }
 
-            $parser_photo = $this->parser_photo_factory->init($message->getSource());
-            foreach ($parser_photo->parse($message->getNote()) as $photo) {
+            /**
+             * Photo
+             */
+            $parser_photo = $this->parser_photo_factory->init($source_type);
+            foreach ($parser_photo->parse($raw->getContent()) as $photo) {
                 $note->addPhoto($photo);
             }
 
-            $explorer_subway = $this->explorer_subway_factory->init($message->getSource());
-            foreach ($explorer_subway->explore($description) as $subway) {
+            /**
+             * Subway
+             */
+            $parser_subway = $this->parser_subway_factory->init($source_type);
+            foreach ($parser_subway->parse($raw->getContent(), $city) as $subway) {
                 $note->addSubway($subway->getId());
             }
 
-            $description_duplicates = $this->filter_unique_description->findDuplicates($note);
-
-            $is_duplicate = false;
-
-            if (!empty($description_duplicates)) {
-
-                $this->logger->debug('Filtered by unique description', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
-                ]);
-
-                foreach ($description_duplicates as $duplicate) {
-                    $this->logger->debug('Delete duplicate', [
-                        'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId(),
-                        'city'         => $message->getSource()->getCity()
-                    ]);
-                    $this->model_note->delete($duplicate);
-                    $is_duplicate = true;
-                }
-            }
-
-            $this->logger->debug('Finding unique duplicates...', [
-                'message_id'  => $message->getId(),
-                'external_id' => $external_id,
-                'city'        => $message->getSource()->getCity()
-            ]);
-
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
-
-            if (!empty($unique_duplicates)) {
-                $this->logger->debug('Filtered by unique', [
-                    'external_id' => $external_id,
-                    'city'        => $message->getSource()->getCity()
+            foreach ($unique_duplicates as $duplicate) {
+                $this->logger->debug('Delete duplicate by unique', [
+                    'id'           => $id,
+                    'city'         => $city,
+                    'duplicate_id' => $duplicate->getId()
                 ]);
 
-                foreach ($unique_duplicates as $duplicate) {
-                    $this->logger->debug('Delete duplicate', [
-                        'external_id'  => $external_id,
-                        'duplicate_id' => $duplicate->getExternalId(),
-                        'city'         => $message->getSource()->getCity()
-                    ]);
-
-                    $this->model_note->delete($duplicate);
-                    $is_duplicate = true;
-                }
+                $this->model_note->delete($duplicate);
+                $is_duplicate = true;
             }
 
             if (!$is_duplicate) {
                 $this->producer_collect->publish((
                 (new CollectMessage())
-                    ->setId($message->getId())
                     ->setSource($message->getSource())
                     ->setNote($note)
                 ));
             } else {
                 $this->logger->debug('Publishing canceled by duplicate', [
-                    'message_id' => $message->getId(),
-                    'city'       => $message->getSource()->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
             }
 
             $this->logger->debug('Handling message... done', [
-                'message_id' => $message->getId(),
-                'city'       => $message->getSource()->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
-                'message_id' => $message->getId(),
-                'error'      => $e->getMessage(),
-                'city'       => $message->getSource()->getCity()
+                'id'        => $id,
+                'city'      => $city,
+                'exception' => $e->getMessage()
             ]);
         }
     }

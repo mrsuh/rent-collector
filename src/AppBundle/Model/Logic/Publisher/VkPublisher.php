@@ -218,8 +218,7 @@ class VkPublisher implements PublisherInterface
     {
         $notes = $this->model_note->findPublishedNotesByCityForPeriod(
             $city,
-            (new \DateTime())->modify('- 1 hour'),
-            (new \DateTime())
+            (new \DateTime())->modify('- 3 hour')
         );
 
         return count($notes);
@@ -231,14 +230,16 @@ class VkPublisher implements PublisherInterface
      */
     public function publish(Note $note)
     {
+        $id   = $note->getId();
+        $city = $note->getCity();
+
         try {
 
             if ($this->findPublishedNotesCountLastHour((new City())->setShortName($note->getCity())) >= 1) {
 
                 $this->logger->debug('Limitation of publications at this hour', [
-                    'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId(),
-                    'city'             => $note->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
 
                 return false;
@@ -263,25 +264,22 @@ class VkPublisher implements PublisherInterface
             foreach ($note->getPhotos() as $photo) {
 
                 $this->logger->debug('Uploading photo...', [
-                    'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId(),
-                    'city'             => $note->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
 
                 $photo_id = $this->uploadPhoto($photo);
 
                 $this->logger->debug('Uploading photo... done', [
-                    'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId(),
-                    'city'             => $note->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
 
                 if (null === $photo_id) {
 
                     $this->logger->error('Uploading photo... nullable photo id', [
-                        'note_id'          => $note->getId(),
-                        'note_external_id' => $note->getExternalId(),
-                        'city'             => $note->getCity()
+                        'id'   => $id,
+                        'city' => $city
                     ]);
 
                     continue;
@@ -292,32 +290,18 @@ class VkPublisher implements PublisherInterface
 
             if (empty($attachments)) {
                 $this->logger->error('Can not upload attachments...', [
-                    'note_id'          => $note->getId(),
-                    'note_external_id' => $note->getExternalId(),
-                    'city'             => $note->getCity()
+                    'id'   => $id,
+                    'city' => $city
                 ]);
 
                 return false;
             }
 
-            $this->logger->debug('Publishing sleep...', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId(),
-                'city'             => $note->getCity()
-            ]);
-
             usleep(500000);
 
-            $this->logger->debug('Publishing sleep... done', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId(),
-                'city'             => $note->getCity()
-            ]);
-
             $this->logger->debug('Publishing post...', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId(),
-                'city'             => $note->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
             $this->request->wallPost([
@@ -329,9 +313,8 @@ class VkPublisher implements PublisherInterface
             ]);
 
             $this->logger->debug('Publishing post... done', [
-                'note_id'          => $note->getId(),
-                'note_external_id' => $note->getExternalId(),
-                'city'             => $note->getCity()
+                'id'   => $id,
+                'city' => $city
             ]);
 
         } catch (\Exception $e) {

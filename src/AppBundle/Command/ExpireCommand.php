@@ -21,7 +21,7 @@ class ExpireCommand extends ContainerAwareCommand
 
         $count = 0;
         foreach ($model_note->findAll() as $note) {
-            if (!$filter_date->isExpire($note)) {
+            if (!$filter_date->isExpire($note->getTimestamp())) {
                 continue;
             };
 
