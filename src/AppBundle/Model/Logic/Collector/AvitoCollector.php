@@ -124,7 +124,7 @@ class AvitoCollector implements CollectorInterface
                 return [];
             }
 
-            usleep(200000);
+            usleep(random_int(200000, 800000));
 
             $link_list = $source->getLink();
 
@@ -173,7 +173,7 @@ class AvitoCollector implements CollectorInterface
 
                 try {
 
-                    usleep(200000);
+                    usleep(random_int(200000, 800000));
 
                     $this->logger->debug('Request item', [
                         'link' => $raw->getLink()
@@ -247,10 +247,16 @@ class AvitoCollector implements CollectorInterface
 
         $dom->load($content);
 
+        file_put_contents('komn.html', $content);
+
         $list = $dom->find('.catalog-list .description-title');
+
+        echo 'LINKS' . PHP_EOL;
 
         $notes = [];
         foreach ($list as $elem) {
+
+            echo 'LINK' . PHP_EOL;
 
             $link_elems = $elem->find('.description-title-link');
 
