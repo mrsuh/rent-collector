@@ -18,6 +18,11 @@ class CollectCommand extends ContainerAwareCommand
                 null,
                 InputOption::VALUE_OPTIONAL,
                 null
+            )->addOption(
+                'record',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                null
             );
     }
 
@@ -32,6 +37,8 @@ class CollectCommand extends ContainerAwareCommand
         $city    = $input->getOption('city');
         $records = empty($city) ? $model_parser->findAll() : $model_parser->findByCity($city);
 
+        $record_id = $input->getOption('record');
+
         if (empty($records)) {
             $logger->error('There are no records');
 
@@ -45,6 +52,11 @@ class CollectCommand extends ContainerAwareCommand
                 'record' => $record->getName(),
                 'city'   => $record->getCity(),
             ]);
+
+            if (!empty($record_id) && $record_id !== $record->getId()) {
+
+                continue;
+            }
 
             foreach ($record->getSources() as $source) {
 
