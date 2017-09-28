@@ -21,9 +21,11 @@ class AvitoCollector implements CollectorInterface
 
     /**
      * AvitoCollector constructor.
-     * @param AvitoRequest $request
-     * @param Logger       $logger
-     * @param string       $file_dir
+     * @param AvitoRequest          $request
+     * @param DateTimeParserFactory $parser_datetime_factory
+     * @param Logger                $logger
+     * @param string                $file_dir
+     * @param int                   $last_hours
      */
     public function __construct(
         AvitoRequest $request,
@@ -144,8 +146,6 @@ class AvitoCollector implements CollectorInterface
 
             $contents = $response->getBody()->getContents();
 
-            // $contents = file_get_contents('/Users/newuser/web/rent-collector/var/list.html');
-
             $notes = $this->getLinks($source, $contents);
 
             $raws   = [];
@@ -252,8 +252,10 @@ class AvitoCollector implements CollectorInterface
         $notes = [];
         foreach ($list as $elem) {
 
-            $link_elems = $elem->find('.description-title-link')[0];
+            $link_elems = $elem->find('.description-title-link');
+
             if (!array_key_exists(0, $link_elems)) {
+
                 continue;
             }
 
@@ -262,6 +264,11 @@ class AvitoCollector implements CollectorInterface
             $link      = preg_replace('/^\//', '', $link_elem->href);
 
             preg_match('/\._(\d+)$/', $link, $match);
+
+            if (!array_key_exists(1, $match)) {
+
+                continue;
+            }
 
             $id = $source->getId() . '-' . $match[1];
 
