@@ -252,7 +252,13 @@ class AvitoCollector implements CollectorInterface
         $notes = [];
         foreach ($list as $elem) {
 
-            $link_elem = $elem->find('.description-title-link')[0];
+            $link_elems = $elem->find('.description-title-link')[0];
+            if (!array_key_exists(0, $link_elems)) {
+                continue;
+            }
+
+            $link_elem = $link_elems[0];
+
             $link      = preg_replace('/^\//', '', $link_elem->href);
 
             preg_match('/\._(\d+)$/', $link, $match);
