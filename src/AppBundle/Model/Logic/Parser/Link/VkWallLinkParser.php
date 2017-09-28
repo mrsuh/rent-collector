@@ -13,7 +13,7 @@ class VkWallLinkParser implements LinkParserInterface
      * @return string
      * @throws ParseException
      */
-    public function parse(Source $source, string $id)
+    public function parse(Source $source, string $id): string
     {
         $params = json_decode($source->getParameters(), true);
 

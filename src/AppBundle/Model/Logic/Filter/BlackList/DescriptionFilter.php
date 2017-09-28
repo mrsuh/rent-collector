@@ -2,7 +2,6 @@
 
 namespace AppBundle\Model\Logic\Filter\BlackList;
 
-use Schema\Note\Note;
 use AppBundle\Model\Document\BlackList\BlackListModel;
 use Schema\BlackList\Record;
 
@@ -23,12 +22,12 @@ class DescriptionFilter
     }
 
     /**
-     * @param Note $note
+     * @param string $description_raw
      * @return bool
      */
-    public function isAllow(Note $note): bool
+    public function isAllow(string $description_raw): bool
     {
-        $description = mb_strtolower($note->getDescription());
+        $description = mb_strtolower($description_raw);
 
         foreach ($this->black_list as $record) {
             if (1 === preg_match('/' . $record->getRegexp() . '/', $description)) {

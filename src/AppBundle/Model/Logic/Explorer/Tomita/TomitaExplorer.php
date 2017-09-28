@@ -7,15 +7,24 @@ use AppBundle\Request\TomitaRequest;
 
 class TomitaExplorer
 {
+    /**
+     * @var TomitaRequest
+     */
     private $request;
 
     /**
-     * TomitaExplorer constructor.
+     * @var Tomita[]
+     */
+    private $cache;
+
+    /**
+     * TomitaService constructor.
      * @param TomitaRequest $request
      */
     public function __construct(TomitaRequest $request)
     {
         $this->request = $request;
+        $this->cache   = [];
     }
 
     /**
@@ -23,11 +32,34 @@ class TomitaExplorer
      * @return Tomita
      * @throws ExploreException
      */
-    public function explore(string $text): Tomita
+    public function explore(string $text)
+    {
+        $key = md5($text);
+
+        if (!array_key_exists($key, $this->cache)) {
+
+            $this->cache[$key] = $this->exploreTomita($text);
+        }
+
+        return $this->cache[$key];
+    }
+
+    /**
+     * @param string $text
+     * @return Tomita
+     * @throws ExploreException
+     */
+    private function exploreTomita(string $text)
     {
         $response = $this->request->parse($text);
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $content = $response->getBody()->getContents();
+
+        $data = json_decode($content, true);
+
+        if (!is_array($data)) {
+            throw new ExploreException('Response has invalid json');
+        }
 
         foreach (['type', 'phone', 'price'] as $key) {
             if (!array_key_exists($key, $data)) {
@@ -35,11 +67,11 @@ class TomitaExplorer
             }
         }
 
-        return (new Tomita())
-            ->setType($data['type'])
-            ->setPrice($data['price'])
-            ->setPhones($data['phone']);
-
+        return
+            (new Tomita())
+                ->setType($data['type'])
+                ->setPrice($data['price'])
+                ->setPhones($data['phone']);
     }
 }
 

@@ -11,5 +11,5 @@ interface LinkParserInterface
      * @param string $id
      * @return string
      */
-    public function parse(Source $source, string $id);
+    public function parse(Source $source, string $id): string;
 }

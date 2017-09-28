@@ -2,29 +2,44 @@
 
 namespace AppBundle\Queue\Message;
 
-use Schema\Note\Note;
+use AppBundle\Model\Logic\Collector\RawData;
 use Schema\Parse\Record\Source;
 
 class ParseMessage
 {
-    private $id;
-
-    private $note;
+    /**
+     * @var RawData
+     */
+    private $raw;
 
     /**
      * @var Source
      */
     private $source;
 
-    public function __construct()
+    /**
+     * @return RawData
+     */
+    public function getRaw(): RawData
     {
-        $this->id = uniqid();
+        return $this->raw;
     }
 
     /**
-     * @return Source|null
+     * @param RawData $raw
+     * @return $this
      */
-    public function getSource()
+    public function setRaw(RawData $raw)
+    {
+        $this->raw = $raw;
+
+        return $this;
+    }
+
+    /**
+     * @return Source
+     */
+    public function getSource(): Source
     {
         return $this->source;
     }
@@ -36,33 +51,6 @@ class ParseMessage
     public function setSource(Source $source)
     {
         $this->source = $source;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return array
-     */
-    public function getNote()
-    {
-        return $this->note;
-    }
-
-    /**
-     * @param $note
-     * @return $this
-     */
-    public function setNote($note)
-    {
-        $this->note = $note;
 
         return $this;
     }

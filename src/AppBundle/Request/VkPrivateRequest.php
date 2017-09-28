@@ -9,6 +9,8 @@ use Schema\Publish\User\User;
 
 class VkPrivateRequest
 {
+    private $auth;
+    private $user;
     private $client;
     private $url;
     private $version;

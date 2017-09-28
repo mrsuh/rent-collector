@@ -3,7 +3,6 @@
 namespace AppBundle\Model\Logic\Explorer\Subway;
 
 use AppBundle\Model\Document\City\SubwayModel;
-use Schema\Parse\Record\Source;
 
 class SubwayExplorerFactory
 {
@@ -28,13 +27,11 @@ class SubwayExplorerFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $city
      * @return SubwayExplorer
      */
-    public function init(Source $source)
+    public function init(string $city)
     {
-        $city = $source->getCity();
-
         if (!array_key_exists($city, $this->instances)) {
             $subways = $this->model_subway->findByCity($city);
 

@@ -2,8 +2,6 @@
 
 namespace AppBundle\Model\Logic\Filter\Expire;
 
-use Schema\Note\Note;
-
 class DateFilter
 {
     /**

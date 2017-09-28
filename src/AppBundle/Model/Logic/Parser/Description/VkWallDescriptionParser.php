@@ -7,13 +7,17 @@ use AppBundle\Exception\ParseException;
 class VkWallDescriptionParser implements DescriptionParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return string
      * @throws ParseException
      */
-    public function parse(array $data): string
+    public function parse($data): string
     {
-        if (!array_key_exists('date', $data)) {
+        if (!is_array($data)) {
+            throw new ParseException(sprintf('%s: data is not an array', __CLASS__ . '\\' . __FUNCTION__));
+        }
+
+        if (!array_key_exists('text', $data)) {
             throw new ParseException('Key "text" is not exists in array');
         }
 

@@ -2,7 +2,6 @@
 
 namespace AppBundle\Model\Logic\Filter\BlackList;
 
-use Schema\Note\Note;
 use AppBundle\Model\Document\BlackList\BlackListModel;
 use Schema\BlackList\Record;
 
@@ -23,13 +22,11 @@ class PersonFilter
     }
 
     /**
-     * @param Note $note
+     * @param string $id
      * @return bool
      */
-    public function isAllow(Note $note)
+    public function isAllow(string $id)
     {
-        $id = $note->getContact()->getExternalId();
-
         foreach ($this->black_list as $record) {
             if (1 === preg_match('/' . $record->getRegexp() . '/', $id)) {
 

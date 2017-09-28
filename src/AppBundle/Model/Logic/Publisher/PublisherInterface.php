@@ -3,8 +3,6 @@
 namespace AppBundle\Model\Logic\Publisher;
 
 use Schema\Note\Note;
-use Schema\Publish\Record\Record;
-use Schema\Publish\User\User;
 
 interface PublisherInterface
 {

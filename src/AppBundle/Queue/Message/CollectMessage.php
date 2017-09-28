@@ -7,43 +7,20 @@ use Schema\Parse\Record\Source;
 
 class CollectMessage
 {
-    private $id;
-
-    private $note;
-
     /**
      * @var Source
      */
     private $source;
 
-    public function __construct()
-    {
-        $this->id = uniqid();
-    }
+    /**
+     * @var Note
+     */
+    private $note;
 
     /**
-     * @return string
+     * @return Source
      */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param string $id
-     * @return $this
-     */
-    public function setId(string $id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return Source|null
-     */
-    public function getSource()
+    public function getSource(): Source
     {
         return $this->source;
     }
@@ -62,16 +39,16 @@ class CollectMessage
     /**
      * @return Note
      */
-    public function getNote()
+    public function getNote(): Note
     {
         return $this->note;
     }
 
     /**
-     * @param $note
+     * @param Note $note
      * @return $this
      */
-    public function setNote($note)
+    public function setNote(Note $note)
     {
         $this->note = $note;
 

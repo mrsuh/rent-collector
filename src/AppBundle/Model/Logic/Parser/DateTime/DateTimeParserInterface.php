@@ -5,9 +5,9 @@ namespace AppBundle\Model\Logic\Parser\DateTime;
 interface DateTimeParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return int
      */
-    public function parse(array $data): int;
+    public function parse($data): int;
 }
 

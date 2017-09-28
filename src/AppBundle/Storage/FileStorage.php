@@ -53,7 +53,7 @@ class FileStorage
     public function get(string $path)
     {
         if (!$this->exists($path)) {
-            $this->put($path, []);
+            $this->put($path, json_encode([]));
 
             return '';
         }

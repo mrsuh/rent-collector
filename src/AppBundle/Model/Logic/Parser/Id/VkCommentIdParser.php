@@ -7,17 +7,21 @@ use AppBundle\Exception\ParseException;
 class VkCommentIdParser implements IdParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return string
      * @throws ParseException
      */
-    public function parse(array $data)
+    public function parse($data): string
     {
+        if (!is_array($data)) {
+            throw new ParseException(sprintf('%s: data is not an array', __CLASS__ . '\\' . __FUNCTION__));
+        }
+
         if (!array_key_exists('id', $data)) {
             throw new ParseException('Key "id" is not exists in array');
         }
 
-        return $data['id'];
+        return (string)$data['id'];
     }
 }
 

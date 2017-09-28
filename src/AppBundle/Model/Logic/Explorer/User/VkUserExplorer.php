@@ -10,12 +10,18 @@ class VkUserExplorer implements UserExplorerInterface
     private $request;
 
     /**
+     * @var User[]
+     */
+    private $cache;
+
+    /**
      * VkUserExplorer constructor.
      * @param VkPublicRequest $request
      */
     public function __construct(VkPublicRequest $request)
     {
         $this->request = $request;
+        $this->cache   = [];
     }
 
     /**
@@ -24,6 +30,22 @@ class VkUserExplorer implements UserExplorerInterface
      * @throws ExploreException
      */
     public function explore(int $id): User
+    {
+        $key = $id;
+
+        if (!array_key_exists($key, $this->cache)) {
+            $this->cache[$key] = $this->exploreUser($id);
+        }
+
+        return $this->cache[$key];
+    }
+
+    /**
+     * @param string $id
+     * @return User
+     * @throws ExploreException
+     */
+    private function exploreUser(string $id)
     {
         $response = $this->request->getUserInfo($id);
 
@@ -63,10 +85,10 @@ class VkUserExplorer implements UserExplorerInterface
             }
         }
 
-        $user = new User();
-
-        $user->setName($data['first_name'])
-            ->setBlacklisted(false);
+        $user =
+            (new User())
+                ->setName($data['first_name'])
+                ->setBlacklisted(false);
 
         if (array_key_exists('blacklisted', $data) && $data['blacklisted']) {
             $user->setBlacklisted(true);

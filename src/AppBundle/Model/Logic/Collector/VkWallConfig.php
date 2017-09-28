@@ -4,7 +4,6 @@ namespace AppBundle\Model\Logic\Collector;
 
 class VkWallConfig
 {
-
     /**
      * @var int
      */

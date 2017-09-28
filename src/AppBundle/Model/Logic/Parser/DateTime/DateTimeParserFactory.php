@@ -21,13 +21,11 @@ class DateTimeParserFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $type
      * @return DateTimeParserInterface
      */
-    public function init(Source $source)
+    public function init(string $type): DateTimeParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }
@@ -37,7 +35,7 @@ class DateTimeParserFactory
 
     /**
      * @param string $type
-     * @return VkCommentDateTimeParser|VkWallDateTimeParser
+     * @return DateTimeParserInterface
      * @throws AppException
      */
     private function getInstance(string $type)
@@ -48,6 +46,9 @@ class DateTimeParserFactory
                 break;
             case Source::TYPE_VK_WALL:
                 return new VkWallDateTimeParser();
+                break;
+            case Source::TYPE_AVITO:
+                return new AvitoDateTimeParser();
                 break;
             default:
                 throw new AppException('Invalid type');

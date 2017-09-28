@@ -21,13 +21,11 @@ class DescriptionParserFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $type
      * @return DescriptionParserInterface
      */
-    public function init(Source $source)
+    public function init(string $type): DescriptionParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }
@@ -37,7 +35,7 @@ class DescriptionParserFactory
 
     /**
      * @param string $type
-     * @return VkCommentDescriptionParser|VkWallDescriptionParser
+     * @return DescriptionParserInterface
      * @throws AppException
      */
     private function getInstance(string $type)
@@ -48,6 +46,9 @@ class DescriptionParserFactory
                 break;
             case Source::TYPE_VK_WALL:
                 return new VkWallDescriptionParser();
+                break;
+            case Source::TYPE_AVITO:
+                return new AvitoDescriptionParser();
                 break;
             default:
                 throw new AppException('Invalid type');

@@ -5,8 +5,8 @@ namespace AppBundle\Model\Logic\Parser\Id;
 interface IdParserInterface
 {
     /**
-     * @param array $data
+     * @param $data
      * @return string
      */
-    public function parse(array $data);
+    public function parse($data): string;
 }

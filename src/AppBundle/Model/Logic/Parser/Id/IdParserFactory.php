@@ -21,13 +21,11 @@ class IdParserFactory
     }
 
     /**
-     * @param Source $source
+     * @param string $type
      * @return IdParserInterface
      */
-    public function init(Source $source): IdParserInterface
+    public function init(string $type): IdParserInterface
     {
-        $type = $source->getType();
-
         if (!array_key_exists($type, $this->instances)) {
             $this->instances[$type] = $this->getInstance($type);
         }
