@@ -254,7 +254,7 @@ class AvitoCollector implements CollectorInterface
 
             $link_elems = $elem->find('.description-title-link');
 
-            if (!array_key_exists(0, $link_elems)) {
+            if (count($link_elems) === 0) {
 
                 continue;
             }
