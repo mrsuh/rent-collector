@@ -247,16 +247,10 @@ class AvitoCollector implements CollectorInterface
 
         $dom->load($content);
 
-        file_put_contents('komn.html', $content);
-
         $list = $dom->find('.catalog-list .description-title');
-
-        echo 'LINKS' . PHP_EOL;
 
         $notes = [];
         foreach ($list as $elem) {
-
-            echo 'LINK' . PHP_EOL;
 
             $link_elems = $elem->find('.description-title-link');
 
