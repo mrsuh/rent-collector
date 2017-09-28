@@ -224,7 +224,7 @@ class VkCommentCollector implements CollectorInterface
         $notes = [];
         foreach ($items as $item) {
 
-            $id        = $this->parser_id->parse($item);
+            $id        = $source->getId() . '-' . $this->parser_id->parse($item);
             $link      = $this->parser_link->parse($source, $id);
             $timestamp = $this->parser_datetime->parse($item);
 
