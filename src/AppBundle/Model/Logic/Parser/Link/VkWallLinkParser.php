@@ -29,6 +29,8 @@ class VkWallLinkParser implements LinkParserInterface
 
         //https://vk.com/fungroup?w=wall-57466174_309390
 
+        $id = str_replace($source->getId() . '-', '', $id);
+
         return $source->getLink() . '?w=wall' . $params['owner_id'] . '_' . $id;
     }
 }
