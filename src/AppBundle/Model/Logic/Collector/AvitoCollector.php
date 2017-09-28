@@ -124,7 +124,7 @@ class AvitoCollector implements CollectorInterface
                 return [];
             }
 
-            usleep(200000);
+            usleep(random_int(200000, 800000));
 
             $link_list = $source->getLink();
 
@@ -173,7 +173,7 @@ class AvitoCollector implements CollectorInterface
 
                 try {
 
-                    usleep(200000);
+                    usleep(random_int(200000, 800000));
 
                     $this->logger->debug('Request item', [
                         'link' => $raw->getLink()
