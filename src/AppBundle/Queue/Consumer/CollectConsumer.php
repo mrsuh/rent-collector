@@ -13,8 +13,6 @@ use Monolog\Logger;
 
 class CollectConsumer
 {
-    private $producer_publish;
-
     private $model_note;
     private $logger;
 
@@ -24,7 +22,6 @@ class CollectConsumer
 
     /**
      * CollectConsumer constructor.
-     * @param PublishProducer   $producer_publish
      * @param NoteModel         $model_note
      * @param IdFilter          $filter_unique_id
      * @param NoteFilter        $filter_unique_note
@@ -32,7 +29,6 @@ class CollectConsumer
      * @param Logger            $logger
      */
     public function __construct(
-        PublishProducer $producer_publish,
         NoteModel $model_note,
 
         IdFilter $filter_unique_id,
@@ -42,7 +38,6 @@ class CollectConsumer
         Logger $logger
     )
     {
-        $this->producer_publish = $producer_publish;
         $this->model_note       = $model_note;
         $this->logger           = $logger;
 
@@ -81,8 +76,6 @@ class CollectConsumer
                 return false;
             }
 
-            $is_duplicate = false;
-
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
 
             foreach ($description_duplicates as $duplicate) {
@@ -92,11 +85,9 @@ class CollectConsumer
                     'duplicate_id' => $duplicate->getId()
                 ]);
                 $this->model_note->delete($duplicate);
-                $is_duplicate = true;
             }
 
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
-
 
             foreach ($unique_duplicates as $duplicate) {
                 $this->logger->debug('Delete duplicate by unique', [
@@ -106,24 +97,9 @@ class CollectConsumer
                 ]);
 
                 $this->model_note->delete($duplicate);
-                $is_duplicate = true;
             }
 
             $this->model_note->create($note);
-
-            if (!$is_duplicate) {
-
-                $this->logger->debug('Publishing note', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-
-                $this->producer_publish->publish((
-                (new PublishMessage())
-                    ->setSource($message->getSource())
-                    ->setNote($note)
-                ));
-            }
 
             $this->logger->debug('Handling message... done', [
                 'id'   => $id,
