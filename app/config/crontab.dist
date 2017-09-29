@@ -1,2 +1,2 @@
-* * * * * /bin/sh {dir}/bin/crontab/collect
+*/5 * * * * /bin/sh {dir}/bin/crontab/collect
 0 5 * * * /bin/sh {dir}/bin/crontab/expire
