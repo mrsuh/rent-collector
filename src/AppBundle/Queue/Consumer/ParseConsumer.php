@@ -19,7 +19,9 @@ use AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory;
 use AppBundle\Model\Logic\Parser\Type\TypeParserFactory;
 use AppBundle\Queue\Message\CollectMessage;
 use AppBundle\Queue\Message\ParseMessage;
+use AppBundle\Queue\Message\PublishMessage;
 use AppBundle\Queue\Producer\CollectProducer;
+use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
 use Schema\Note\Note;
@@ -46,10 +48,34 @@ class ParseConsumer
     private $filter_cleaner_description;
 
     private $producer_collect;
+    private $producer_publish;
 
     private $model_note;
     private $logger;
 
+    /**
+     * ParseConsumer constructor.
+     * @param DescriptionParserFactory                                  $parser_description_factory
+     * @param PhotoParserFactory                                        $parser_photo_factory
+     * @param ContactNameParserFactory                                  $parser_contact_name_factory
+     * @param ContactIdParserFactory                                    $parser_contact_id_factory
+     * @param TypeParserFactory                                         $parser_type_factory
+     * @param PriceParserFactory                                        $parser_price_factory
+     * @param PhoneParserFactory                                        $parser_phone_factory
+     * @param SubwayParserFactory                                       $parser_subway_factory
+     * @param DateFilter                                                $filter_expire_date
+     * @param DescriptionFilter                                         $filter_unique_description
+     * @param NoteFilter                                                $filter_unique_note
+     * @param IdFilter                                                  $filter_unique_id
+     * @param \AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter $filter_black_list_description
+     * @param PersonFilter                                              $filter_black_list_person
+     * @param PhoneFilter                                               $filter_black_list_phone
+     * @param \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter   $filter_cleaner_description
+     * @param CollectProducer                                           $producer_collect
+     * @param PublishProducer                                           $producer_publish
+     * @param NoteModel                                                 $model_note
+     * @param Logger                                                    $logger
+     */
     public function __construct(
         DescriptionParserFactory $parser_description_factory,
         PhotoParserFactory $parser_photo_factory,
@@ -70,6 +96,7 @@ class ParseConsumer
         \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter $filter_cleaner_description,
 
         CollectProducer $producer_collect,
+        PublishProducer $producer_publish,
 
         NoteModel $model_note,
         Logger $logger
@@ -94,6 +121,7 @@ class ParseConsumer
         $this->filter_cleaner_description    = $filter_cleaner_description;
 
         $this->producer_collect = $producer_collect;
+        $this->producer_publish = $producer_publish;
 
         $this->model_note = $model_note;
 
@@ -296,8 +324,14 @@ class ParseConsumer
             }
 
             if (!$is_duplicate) {
-                $this->producer_collect->publish((
-                (new CollectMessage())
+
+                $this->logger->debug('Publishing note', [
+                    'id'   => $id,
+                    'city' => $city
+                ]);
+
+                $this->producer_publish->publish((
+                (new PublishMessage())
                     ->setSource($message->getSource())
                     ->setNote($note)
                 ));
@@ -307,6 +341,12 @@ class ParseConsumer
                     'city' => $city
                 ]);
             }
+
+            $this->producer_collect->publish((
+            (new CollectMessage())
+                ->setSource($message->getSource())
+                ->setNote($note)
+            ));
 
             $this->logger->debug('Handling message... done', [
                 'id'   => $id,

@@ -252,7 +252,6 @@ services:
     queue.collect.consumer:
         class: AppBundle\Queue\Consumer\CollectConsumer
         arguments:
-            - '@queue.publish.producer'
             - '@model.document.note'
             - '@filter.unique.id'
             - '@filter.unique.note'
@@ -306,6 +305,7 @@ services:
             - "@filter.cleaner.description"
 
             - '@queue.collect.producer'
+            - '@queue.publish.producer'
 
             - '@model.document.note'
             - '@logger'
