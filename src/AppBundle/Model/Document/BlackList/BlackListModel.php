@@ -40,12 +40,12 @@ class BlackListModel
 
 
     /**
-     * @param string $type
+     * @param int $type
      * @return Record[]
      */
-    public function findByType(string $type)
+    public function findByType(int $type)
     {
-        return $this->dm_black_list->find(['type' => $type]);
+        return $this->dm_black_list->find(['type' => (int)$type]);
     }
 
     /**
