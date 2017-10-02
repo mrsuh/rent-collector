@@ -25,7 +25,7 @@ class BlackListCommand extends ContainerAwareCommand
         $count = 0;
         foreach ($model_note->findAll() as $note) {
 
-            if (!$filter_person->isAllow($note)) {
+            if (!$filter_person->isAllow($note->getContact()->getId())) {
 
                 $logger->debug($note->getId() . ' delete by person');
 
@@ -34,7 +34,7 @@ class BlackListCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if (!$filter_description->isAllow($note)) {
+            if (!$filter_description->isAllow($note->getDescription())) {
 
                 $logger->debug($note->getId() . ' delete by description');
 
