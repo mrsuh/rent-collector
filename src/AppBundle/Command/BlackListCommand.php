@@ -59,7 +59,7 @@ class BlackListCommand extends ContainerAwareCommand
         if (empty($to_delete)) {
             $output->writeln('There are no notes to delete');
 
-            return;
+            return false;
         }
 
         $helper = $this->getHelper('question');
@@ -71,6 +71,10 @@ class BlackListCommand extends ContainerAwareCommand
             foreach ($to_delete as $note) {
                 $model_note->delete($note);
             }
+        } else {
+            $output->writeln('There are no notes were deleted');
+
+            return false;
         }
 
         $output->writeln(sprintf('Total deleted notes %s', $count));
