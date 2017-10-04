@@ -30,7 +30,7 @@ class DescriptionFilter
         $description = mb_strtolower($description_raw);
 
         foreach ($this->black_list as $record) {
-            echo $record->getRegexp() . PHP_EOL;
+
             if (1 === preg_match('/' . $record->getRegexp() . '/', $description)) {
 
                 return false;
