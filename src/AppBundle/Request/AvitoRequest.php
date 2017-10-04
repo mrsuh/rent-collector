@@ -102,7 +102,7 @@ class AvitoRequest
     {
         $proxy = $this->currentProxy();
 
-        if (!$proxy) {
+        if (null === $proxy) {
             $this->resetProxy();
             throw new RequestException('Invalid proxy');
         }
@@ -178,7 +178,7 @@ class AvitoRequest
         }
 
         if (!array_key_exists($this->proxy_index, $this->proxies)) {
-            $this->resetProxy();
+            return null;
         }
 
         return $this->proxies[$this->proxy_index];
