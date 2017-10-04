@@ -177,6 +177,10 @@ class AvitoRequest
             $this->proxy_index = $this->getProxyIndex();
         }
 
+        if (!array_key_exists($this->proxy_index, $this->proxies)) {
+            $this->resetProxy();
+        }
+
         return $this->proxies[$this->proxy_index];
     }
 
