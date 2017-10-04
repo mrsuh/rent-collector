@@ -36,6 +36,11 @@ class AvitoRequest
     private $proxies;
 
     /**
+     * @var int
+     */
+    private $proxy_index;
+
+    /**
      * AvitoRequest constructor.
      * @param Client $client
      * @param string $proxy_list_path
@@ -95,9 +100,10 @@ class AvitoRequest
      */
     private function proxyRequest(Request $request, array $data = [], $try = 0)
     {
-        $proxy = current($this->proxies);
+        $proxy = $this->currentProxy();
 
         if (!$proxy) {
+            $this->resetProxy();
             throw new RequestException('Invalid proxy');
         }
 
@@ -115,7 +121,7 @@ class AvitoRequest
                 throw $e;
             }
 
-            next($this->proxies);
+            $this->nextProxy();
 
             $response = $this->proxyRequest($request, $data, ++$try);
         }
@@ -123,7 +129,7 @@ class AvitoRequest
         $content = $response->getBody()->getContents();
 
         if (false !== mb_strrpos(mb_strtolower($content), 'доступ временно ограничен')) {
-            next($this->proxies);
+            $this->nextProxy();
 
             $response = $this->proxyRequest($request, $data);
         }
@@ -131,5 +137,64 @@ class AvitoRequest
         $response->getBody()->rewind();
 
         return $response;
+    }
+
+    /**
+     * @return int
+     */
+    private function getProxyIndex()
+    {
+        if (file_exists('proxy_index')) {
+            return (int)file_get_contents('proxy_index');
+        }
+
+        $this->setProxyIndex(0);
+
+        return 0;
+    }
+
+    /**
+     * @param int $index
+     * @return bool
+     */
+    private function setProxyIndex(int $index)
+    {
+        file_put_contents('proxy_index', $index);
+
+        return true;
+    }
+
+    /**
+     * @return string
+     */
+    private function currentProxy()
+    {
+        if (null === $this->proxy_index) {
+            $this->proxy_index = $this->getProxyIndex();
+        }
+
+        return $this->proxies[$this->proxy_index];
+    }
+
+    /**
+     * @return bool
+     */
+    private function nextProxy()
+    {
+        $this->proxy_index++;
+        $this->setProxyIndex($this->proxy_index);
+
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function resetProxy()
+    {
+        $this->proxy_index = 0;
+        $this->setProxyIndex($this->proxy_index);
+
+        return true;
     }
 }
