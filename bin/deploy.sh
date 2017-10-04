@@ -11,9 +11,7 @@ else
   php composer.phar dumpautoload -o
 fi
 
-files[1]='app/config/black_list.description.yml'
-files[2]='app/config/black_list.person.yml'
-files[3]='app/config/parser.yml'
+files[0]='app/config/proxy_list.yml'
 
 for f in "${files[@]}";  do
 if [ ! -f $f ]; then
