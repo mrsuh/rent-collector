@@ -121,6 +121,8 @@ class AvitoRequest
                 throw $e;
             }
 
+            $this->logger->info('proxy request exception', ['proxy' => $proxy, 'uri' => $request->getUri(), 'exception' => $e->getMessage()]);
+
             $this->nextProxy();
 
             $response = $this->proxyRequest($request, $data, ++$try);
@@ -130,6 +132,8 @@ class AvitoRequest
 
         if (false !== mb_strrpos(mb_strtolower($content), 'доступ временно ограничен')) {
             $this->nextProxy();
+
+            $this->logger->info('proxy request access denied', ['proxy' => $proxy, 'uri' => $request->getUri()]);
 
             $response = $this->proxyRequest($request, $data);
         }
