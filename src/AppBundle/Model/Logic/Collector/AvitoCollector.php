@@ -170,14 +170,7 @@ class AvitoCollector implements CollectorInterface
 
             $raws    = [];
             $finish  = false;
-
-            $index = 0;
             foreach ($notes as $raw) {
-                $index++;
-
-                if ($index > 5) {
-                    continue;
-                }
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
 
