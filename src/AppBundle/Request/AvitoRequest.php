@@ -53,6 +53,8 @@ class AvitoRequest
         $this->agent_index = $this->getAgentIndex();
 
         $this->count = 0;
+
+        echo 'MEMORY ' . (memory_get_usage() / 1024 / 1024) . 'MB' . PHP_EOL;
     }
 
     /**
@@ -121,6 +123,8 @@ class AvitoRequest
      */
     public function queryClean(string $method, string $path, array $params = [])
     {
+        echo 'MEMORY ' . (memory_get_usage() / 1024 / 1024) . 'MB' . PHP_EOL;
+
         $url = $path;
         $ch  = curl_init();
         switch ($method) {
@@ -177,7 +181,7 @@ class AvitoRequest
 
         curl_close($ch);
 
-        return new Response($status, [], $server_output);
+        return new Response(200, [], $server_output);
     }
 
     /**
