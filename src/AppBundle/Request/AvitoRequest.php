@@ -160,7 +160,8 @@ class AvitoRequest
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        $this->logger->debug('request', ['agent' => $agent, 'path' => $path]);
+        $this->logger->debug('request', ['count' => $this->count, 'agent' => $agent, 'path' => $path]);
+        $this->count++;
 
         $server_output = curl_exec($ch);
 

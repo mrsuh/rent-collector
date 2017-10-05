@@ -146,8 +146,6 @@ class AvitoCollector implements CollectorInterface
 
             $contents = $response->getBody()->getContents();
 
-            file_put_contents('cont2.html', $contents);
-
             $notes = $this->getLinks($source, $contents);
 
             $raws   = [];
