@@ -30,7 +30,12 @@ class BlackListCommand extends ContainerAwareCommand
 
             if (!$filter_person->isAllow($note->getContact()->getId())) {
 
-                $logger->debug($note->getId() . ' will be deleted by person');
+                $logger->debug($note->getId() . ' will be deleted by person',
+                    [
+                        'id'     => $note->getId(),
+                        'person' => $note->getContact()->getId()
+                    ]
+                );
 
                 $to_delete[] = $note;
                 $count++;
@@ -39,7 +44,12 @@ class BlackListCommand extends ContainerAwareCommand
 
             if (!$filter_description->isAllow($note->getDescription())) {
 
-                $logger->debug($note->getId() . ' will be deleted by description');
+                $logger->debug($note->getId() . ' will be deleted by description',
+                    [
+                        'id'          => $note->getId(),
+                        'description' => $note->getDescriptionHash()
+                    ]
+                );
 
                 $to_delete[] = $note;
                 $count++;
@@ -48,7 +58,12 @@ class BlackListCommand extends ContainerAwareCommand
 
             if (!$filter_phone->isAllow($note)) {
 
-                $logger->debug($note->getId() . ' will be deleted by phone');
+                $logger->debug($note->getId() . ' will be deleted by phone',
+                    [
+                        'id'    => $note->getId(),
+                        'phone' => implode(' ', $note->getContact()->getPhones())
+                    ]
+                );
 
                 $to_delete[] = $note;
                 $count++;
