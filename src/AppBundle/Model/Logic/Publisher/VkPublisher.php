@@ -218,7 +218,7 @@ class VkPublisher implements PublisherInterface
     {
         $notes = $this->model_note->findPublishedNotesByCityForPeriod(
             $city,
-            (new \DateTime())->modify('- 3 hour')
+            (new \DateTime())->modify('- 4 hour')
         );
 
         return count($notes);
@@ -237,12 +237,12 @@ class VkPublisher implements PublisherInterface
 
             if ($this->findPublishedNotesCountLastHour((new City())->setShortName($note->getCity())) >= 1) {
 
-                $this->logger->debug('Limitation of publications at this hour', [
+                $this->logger->info('Limitation of publications at this hour', [
                     'id'   => $id,
                     'city' => $city
                 ]);
 
-                return false;
+                return true;
             }
 
             $prefix  =
