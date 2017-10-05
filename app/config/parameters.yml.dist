@@ -18,4 +18,4 @@ parameters:
     queue.port: 9090
     queue.host: localhost
 
-    path.proxy_list: '%kernel.root_dir%/config/proxy_list.yml'
+    file.user_agents: '%kernel.root_dir%/config/user_agents'

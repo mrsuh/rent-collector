@@ -6,10 +6,11 @@ use AppBundle\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Monolog\Logger;
-use Symfony\Component\Yaml\Yaml;
 
 class AvitoRequest
 {
+    const AGENT = 'user_agent';
+
     /**
      * @var Client
      */
@@ -28,41 +29,30 @@ class AvitoRequest
     /**
      * @var array
      */
-    private $headers;
-
-    /**
-     * @var array
-     */
-    private $proxies;
+    private $agents;
 
     /**
      * @var int
      */
-    private $proxy_index;
+    private $agent_index;
+
+    private $count;
 
     /**
      * AvitoRequest constructor.
      * @param Client $client
-     * @param string $proxy_list_path
+     * @param Logger $logger
      */
-    public function __construct(Client $client, Logger $logger, string $proxy_list_path)
+    public function __construct(Client $client, Logger $logger, string $path_user_agents)
     {
         $this->client = $client;
         $this->logger = $logger;
         $this->url    = 'https://www.avito.ru/';
 
-        $this->headers = [
-            'accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'accept-encoding'           => 'gzip, deflate, sdch, br',
-            'accept-language'           => 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
-            'cache-control'             => 'max-age=0',
-            'referer'                   => 'https://www.avito.ru/',
-            'upgrade-insecure-requests' => '1',
-            'user-agent'                => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36',
-            'cookie'                    => 'u=26isga9z.1gac0ni.fjwbjucs2z;'
-        ];
+        $this->agents      = explode(PHP_EOL, file_get_contents($path_user_agents));
+        $this->agent_index = $this->getAgentIndex();
 
-        $this->proxies = Yaml::parse(file_get_contents($proxy_list_path));
+        $this->count = 0;
     }
 
     /**
@@ -78,7 +68,7 @@ class AvitoRequest
             'page' => $page
         ];
 
-        return $this->proxyRequest(new Request('GET', $this->url . $url, $this->headers), ['query' => $query]);
+        return $this->queryClean('GET', $this->url . $url, $query);
     }
 
     /**
@@ -87,55 +77,34 @@ class AvitoRequest
      */
     public function getRecord(string $url): Response
     {
-        return $this->proxyRequest(new Request('GET', $this->url . $url, $this->headers));
+        return $this->queryClean('GET', $this->url . $url);
     }
 
     /**
      * @param Request $request
      * @param array   $data
-     * @param int     $try
      * @return mixed|\Psr\Http\Message\ResponseInterface
      * @throws RequestException
-     * @throws \Exception
      */
-    private function proxyRequest(Request $request, array $data = [], $try = 0)
+    private function accessRequest(Request $request, array $data = [])
     {
-        $proxy = $this->currentProxy();
+        $agent = $this->nextAgent();
 
-        if (null === $proxy) {
-            $this->resetProxy();
-            throw new RequestException('Invalid proxy');
-        }
+        $data['headers'] = [
+            'User-Agent' => $agent,
+            'Cookie'     => 'f=5.cc913c231fb04ced4b5abdd419952845a68643d4d8df96e9a68643d4d8df96e9a68643d4d8df96e9ba029cd346349f36c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d0246b8ae4e81acb9fa143114829cf33ca746b8ae4e81acb9fae2415097439d4047d50b96489ab264edaf305aadb1df8ceba09db4af14a5e9adbc8794f0f6ce82fe3de19da9ed218fe2e2415097439d4047143114829cf33ca746b8ae4e81acb9fa3de19da9ed218fe2fb0fb526bb39450a87829363e2d856a2b5b87f59517a23f23de19da9ed218fe23de19da9ed218fe2c772035eab81f5e187829363e2d856a2143114829cf33ca7aacc085410276950b362cba29273a079b629ecbcdeab3d430389ebfa631afd29d7d1f37e9cbae09d1f522017d20e30eb662cd990eb56f6055335ad04dacb1d9b38f0f5e6e0d2832ed5b80124e38d26c7f65dca5b7a8f20315dcded8022a3c9fccbf1a5019b899285164b09365f5308e7618389eb0521524862d16ec2199c9f402da10fb74cac1eab2da10fb74cac1eab73f45b5206a1053e0e8ba0fc9b38f7fb5be628aeda7a6ae8;'
+        ];
 
-        try {
+        $this->logger->debug('request', ['count' => $this->count, 'agent' => $agent, 'uri' => $request->getUri()->getPath()]);
+        $this->count++;
 
-            $data['proxy'] = $proxy;
-
-            $this->logger->debug('proxy request', ['proxy' => $proxy, 'uri' => $request->getUri()]);
-
-            $response = $this->client->send($request, $data);
-
-        } catch (\Exception $e) {
-
-            if ($try > 5) {
-                throw $e;
-            }
-
-            $this->logger->info('proxy request exception', ['proxy' => $proxy, 'uri' => $request->getUri(), 'exception' => $e->getMessage()]);
-
-            $this->nextProxy();
-
-            $response = $this->proxyRequest($request, $data, ++$try);
-        }
+        $response = $this->client->send($request, $data);
 
         $content = $response->getBody()->getContents();
 
         if (false !== mb_strrpos(mb_strtolower($content), 'доступ временно ограничен')) {
-            $this->nextProxy();
 
-            $this->logger->info('proxy request access denied', ['proxy' => $proxy, 'uri' => $request->getUri()]);
-
-            $response = $this->proxyRequest($request, $data);
+            throw new RequestException('Access denied');
         }
 
         $response->getBody()->rewind();
@@ -144,15 +113,83 @@ class AvitoRequest
     }
 
     /**
-     * @return int
+     * @param string $method
+     * @param string $path
+     * @param array  $params
+     * @return Response
+     * @throws RequestException
      */
-    private function getProxyIndex()
+    public function queryClean(string $method, string $path, array $params = [])
     {
-        if (file_exists('proxy_index')) {
-            return (int)file_get_contents('proxy_index');
+        $url = $path;
+        $ch  = curl_init();
+        switch ($method) {
+            case 'POST':
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+                break;
+            case 'DELETE':
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+                break;
+            case 'PUT':
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+                break;
+            case 'GET':
+                curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
+                break;
         }
 
-        $this->setProxyIndex(0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+
+        $agent = $this->nextAgent();
+
+        $headers = [
+            'User-Agent: ' . $agent,
+            'Cookie: ' . 'f=5.cc913c231fb04ced4b5abdd419952845a68643d4d8df96e9a68643d4d8df96e9a68643d4d8df96e9ba029cd346349f36c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d0246b8ae4e81acb9fa143114829cf33ca746b8ae4e81acb9fae2415097439d4047d50b96489ab264edaf305aadb1df8ceba09db4af14a5e9adbc8794f0f6ce82fe3de19da9ed218fe2e2415097439d4047143114829cf33ca746b8ae4e81acb9fa3de19da9ed218fe2fb0fb526bb39450a87829363e2d856a2b5b87f59517a23f23de19da9ed218fe23de19da9ed218fe2c772035eab81f5e187829363e2d856a2143114829cf33ca7aacc085410276950b362cba29273a079b629ecbcdeab3d430389ebfa631afd29d7d1f37e9cbae09d1f522017d20e30eb662cd990eb56f6055335ad04dacb1d9b38f0f5e6e0d2832ed5b80124e38d26c7f65dca5b7a8f20315dcded8022a3c9fccbf1a5019b899285164b09365f5308e7618389eb0521524862d16ec2199c9f402da10fb74cac1eab2da10fb74cac1eab73f45b5206a1053e0e8ba0fc9b38f7fb5be628aeda7a6ae8;'
+        ];
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $this->logger->debug('request', ['count' => $this->count, 'agent' => $agent, 'path' => $path]);
+        $this->count++;
+
+        $server_output = curl_exec($ch);
+
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (302 === $status) {
+            throw new RequestException('Access denied');
+        }
+
+        if (200 !== $status) {
+            throw new RequestException('Invalid response');
+        }
+
+        curl_close($ch);
+
+        return new Response($status, [], $server_output);
+    }
+
+    /**
+     * @return int
+     */
+    private function getAgentIndex()
+    {
+        if (file_exists(self::AGENT)) {
+            return (int)file_get_contents(self::AGENT);
+        }
+
+        $this->setAgentIndex(0);
 
         return 0;
     }
@@ -161,48 +198,26 @@ class AvitoRequest
      * @param int $index
      * @return bool
      */
-    private function setProxyIndex(int $index)
+    private function setAgentIndex(int $index)
     {
-        file_put_contents('proxy_index', $index);
+        file_put_contents(self::AGENT, $index);
 
         return true;
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    private function currentProxy()
+    private function nextAgent()
     {
-        if (null === $this->proxy_index) {
-            $this->proxy_index = $this->getProxyIndex();
+        $this->agent_index++;
+
+        if (!array_key_exists($this->agent_index, $this->agents)) {
+            $this->agent_index = 0;
         }
 
-        if (!array_key_exists($this->proxy_index, $this->proxies)) {
-            return null;
-        }
+        $this->setAgentIndex($this->agent_index);
 
-        return $this->proxies[$this->proxy_index];
-    }
-
-    /**
-     * @return bool
-     */
-    private function nextProxy()
-    {
-        $this->proxy_index++;
-        $this->setProxyIndex($this->proxy_index);
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    private function resetProxy()
-    {
-        $this->proxy_index = 0;
-        $this->setProxyIndex($this->proxy_index);
-
-        return true;
+        return $this->agents[$this->agent_index];
     }
 }

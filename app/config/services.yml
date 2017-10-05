@@ -90,7 +90,7 @@ services:
         arguments:
             - "@request.client"
             - "@logger"
-            - "%path.proxy_list%"
+            - "%file.user_agents%"
 
 #request =============================================================
 
