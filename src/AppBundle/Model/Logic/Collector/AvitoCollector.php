@@ -124,7 +124,7 @@ class AvitoCollector implements CollectorInterface
                 return [];
             }
 
-            usleep(200000);
+            usleep(1000000);
 
             $link_list = $source->getLink();
 
@@ -146,7 +146,7 @@ class AvitoCollector implements CollectorInterface
 
             $contents = $response->getBody()->getContents();
 
-            file_put_contents('av_list.html', $contents);
+            file_put_contents('cont2.html', $contents);
 
             $notes = $this->getLinks($source, $contents);
 
@@ -175,7 +175,7 @@ class AvitoCollector implements CollectorInterface
 
                 try {
 
-                    usleep(200000);
+                    usleep(1000000);
 
                     $this->logger->debug('Request item', [
                         'link' => $raw->getLink()
