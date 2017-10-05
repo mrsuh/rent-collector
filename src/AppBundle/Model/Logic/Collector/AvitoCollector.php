@@ -148,8 +148,9 @@ class AvitoCollector implements CollectorInterface
 
             $notes = $this->getLinks($source, $contents);
 
-            $raws   = [];
-            $finish = false;
+            $raws    = [];
+            $finish  = false;
+            $raw_dom = new Dom();
             foreach ($notes as $raw) {
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
@@ -193,7 +194,6 @@ class AvitoCollector implements CollectorInterface
 
                 $raw_content = $raw_response->getBody()->getContents();
 
-                $raw_dom = new Dom();
                 $raw_dom->load($raw_content);
 
                 $raw->setContent($raw_dom);
