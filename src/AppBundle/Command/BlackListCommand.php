@@ -47,7 +47,7 @@ class BlackListCommand extends ContainerAwareCommand
                 $logger->debug($note->getId() . ' will be deleted by description',
                     [
                         'id'          => $note->getId(),
-                        'description' => $note->getDescriptionHash()
+                        'description' => $note->getDescription()
                     ]
                 );
 
