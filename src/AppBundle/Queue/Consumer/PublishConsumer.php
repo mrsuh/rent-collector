@@ -46,13 +46,13 @@ class PublishConsumer
      */
     public function handle(PublishMessage $message)
     {
-        $id   = $message->getNote()->getId();
-        $city = $message->getNote()->getCity();
+        $id        = $message->getNote()->getId();
+        $city_name = $message->getNote()->getCity();
         try {
 
             $this->logger->debug('Handle message', [
                 'id'   => $id,
-                'city' => $city
+                'city' => $city_name
             ]);
 
             $city = $this->model_city->findOneByShortName($message->getSource()->getCity());
@@ -62,7 +62,7 @@ class PublishConsumer
             if (empty($note->getSubways()) && $city->hasSubway()) {
                 $this->logger->debug('There are no subways', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -71,7 +71,7 @@ class PublishConsumer
             if (empty($note->getPrice())) {
                 $this->logger->debug('There is no price', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -81,7 +81,7 @@ class PublishConsumer
 
                 $this->logger->debug('There are no photos', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -92,7 +92,7 @@ class PublishConsumer
             if (!$record->isActive()) {
                 $this->logger->info('Publish record is not active for city', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -101,7 +101,7 @@ class PublishConsumer
             if (null === $record) {
                 $this->logger->error('There is no publish record for city', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -113,7 +113,7 @@ class PublishConsumer
 
                 $this->logger->error('Error publish message', [
                     'id'   => $id,
-                    'city' => $city
+                    'city' => $city_name
                 ]);
 
                 return false;
@@ -128,7 +128,7 @@ class PublishConsumer
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'id'        => $id,
-                'city'      => $city,
+                'city'      => $city_name,
                 'exception' => $e->getMessage()
             ]);
         }

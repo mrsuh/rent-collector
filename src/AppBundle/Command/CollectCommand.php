@@ -3,6 +3,7 @@
 namespace AppBundle\Command;
 
 use AppBundle\Queue\Message\ParseMessage;
+use PHPHtmlParser\Dom;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -75,6 +76,9 @@ class CollectCommand extends ContainerAwareCommand
 
                     foreach ($raws as $raw) {
                         $count++;
+
+                        $raw = $collector->handle($raw);
+
                         $message =
                             (new ParseMessage())
                                 ->setSource($source)
