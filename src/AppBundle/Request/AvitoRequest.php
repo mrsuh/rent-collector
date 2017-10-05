@@ -67,6 +67,7 @@ class AvitoRequest
             'user' => 1,
             'view' => 'list',
             's'    => 104, //order by date
+            'i'    => 1,//photo only
             'page' => $page
         ];
 
@@ -93,8 +94,7 @@ class AvitoRequest
         $agent = $this->nextAgent();
 
         $data['headers'] = [
-            'User-Agent' => $agent,
-            'Cookie'     => 'f=5.cc913c231fb04ced4b5abdd419952845a68643d4d8df96e9a68643d4d8df96e9a68643d4d8df96e9ba029cd346349f36c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d02c1e8912fd5a48d0246b8ae4e81acb9fa143114829cf33ca746b8ae4e81acb9fae2415097439d4047d50b96489ab264edaf305aadb1df8ceba09db4af14a5e9adbc8794f0f6ce82fe3de19da9ed218fe2e2415097439d4047143114829cf33ca746b8ae4e81acb9fa3de19da9ed218fe2fb0fb526bb39450a87829363e2d856a2b5b87f59517a23f23de19da9ed218fe23de19da9ed218fe2c772035eab81f5e187829363e2d856a2143114829cf33ca7aacc085410276950b362cba29273a079b629ecbcdeab3d430389ebfa631afd29d7d1f37e9cbae09d1f522017d20e30eb662cd990eb56f6055335ad04dacb1d9b38f0f5e6e0d2832ed5b80124e38d26c7f65dca5b7a8f20315dcded8022a3c9fccbf1a5019b899285164b09365f5308e7618389eb0521524862d16ec2199c9f402da10fb74cac1eab2da10fb74cac1eab73f45b5206a1053e0e8ba0fc9b38f7fb5be628aeda7a6ae8;'
+            'User-Agent' => $agent
         ];
 
         $this->logger->debug('request', ['count' => $this->count, 'agent' => $agent, 'uri' => $request->getUri()->getPath()]);

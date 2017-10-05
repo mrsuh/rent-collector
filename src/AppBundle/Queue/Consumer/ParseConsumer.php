@@ -197,9 +197,11 @@ class ParseConsumer
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
             foreach ($description_duplicates as $duplicate) {
                 $this->logger->debug('Delete duplicate by unique description', [
-                    'id'           => $id,
-                    'city'         => $city,
-                    'duplicate_id' => $duplicate->getId()
+                    'id'               => $id,
+                    'city'             => $city,
+                    'duplicate_id'     => $duplicate->getId(),
+                    'description'      => $note->getDescription(),
+                    'description_hash' => $note->getDescriptionHash()
                 ]);
                 $this->model_note->delete($duplicate);
                 $is_duplicate = true;

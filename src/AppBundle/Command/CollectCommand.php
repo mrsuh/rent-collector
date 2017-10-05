@@ -75,6 +75,9 @@ class CollectCommand extends ContainerAwareCommand
 
                     foreach ($raws as $raw) {
                         $count++;
+
+                        $raw = $collector->handle($raw);
+
                         $message =
                             (new ParseMessage())
                                 ->setSource($source)

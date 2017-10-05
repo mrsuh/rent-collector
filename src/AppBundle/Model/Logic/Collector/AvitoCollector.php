@@ -135,7 +135,27 @@ class AvitoCollector implements CollectorInterface
                 'page'        => $config->getPage()
             ]);
 
-            $response = $this->request->getList($link_list, $config->getPage());
+            try {
+
+                $response = $this->request->getList($link_list, $config->getPage());
+
+            } catch (\Exception $e) {
+
+                $this->logger->error('Collect list requesting... done', [
+                    'source_id'   => $source->getId(),
+                    'source_type' => $source->getType(),
+                    'link'        => $link_list,
+                    'page'        => $config->getPage()
+                ]);
+
+                $this->setConfigToFile($source,
+                    $config
+                        ->setPage(1)
+                        ->setFinish(false)
+                );
+
+                return [];
+            }
 
             $this->logger->debug('Collect list requesting... done', [
                 'source_id'   => $source->getId(),
@@ -150,7 +170,6 @@ class AvitoCollector implements CollectorInterface
 
             $raws    = [];
             $finish  = false;
-            $raw_dom = new Dom();
             foreach ($notes as $raw) {
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
@@ -194,17 +213,18 @@ class AvitoCollector implements CollectorInterface
 
                 $raw_content = $raw_response->getBody()->getContents();
 
-                $raw_dom->load($raw_content);
+                $raw->setContent($raw_content);
 
-                $raw->setContent($raw_dom);
                 $raw->setLink('https://www.avito.ru/' . $raw->getLink());
 
                 $raws[] = $raw;
+                gc_collect_cycles();
             }
 
             if (empty($raws)) {
                 $this->setConfigToFile($source,
                     $config
+                        ->setTimestamp(date('U'))
                         ->setPage(1)
                         ->setFinish(false)
                 );
@@ -282,6 +302,19 @@ class AvitoCollector implements CollectorInterface
         }
 
         return $notes;
+    }
+
+    /**
+     * @param RawData $data
+     * @return RawData
+     */
+    public function handle(RawData $data)
+    {
+        $dom     = new Dom();
+        $content = $dom->load($data->getContent());
+        $data->setContent($content);
+
+        return $data;
     }
 }
 
