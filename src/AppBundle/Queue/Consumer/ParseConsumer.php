@@ -6,6 +6,7 @@ use AppBundle\Model\Document\Note\NoteModel;
 use AppBundle\Model\Logic\Filter\BlackList\PersonFilter;
 use AppBundle\Model\Logic\Filter\BlackList\PhoneFilter;
 use AppBundle\Model\Logic\Filter\Expire\DateFilter;
+use AppBundle\Model\Logic\Filter\RawContent\RawContentFilterFactory;
 use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
 use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
@@ -46,6 +47,7 @@ class ParseConsumer
     private $filter_black_list_person;
     private $filter_black_list_phone;
     private $filter_cleaner_description;
+    private $filter_raw_content_factory;
 
     private $producer_collect;
     private $producer_publish;
@@ -94,6 +96,7 @@ class ParseConsumer
         PersonFilter $filter_black_list_person,
         PhoneFilter $filter_black_list_phone,
         \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter $filter_cleaner_description,
+        RawContentFilterFactory $filter_raw_content_factory,
 
         CollectProducer $producer_collect,
         PublishProducer $producer_publish,
@@ -102,11 +105,11 @@ class ParseConsumer
         Logger $logger
     )
     {
-        $this->parser_description_factory  = $parser_description_factory;
-        $this->parser_photo_factory        = $parser_photo_factory;
-        $this->parser_contact_name_factory = $parser_contact_name_factory;
-        $this->parser_contact_id_factory   = $parser_contact_id_factory;
-        $this->parser_type_factory         = $parser_type_factory;
+        $this->parser_description_factory    = $parser_description_factory;
+        $this->parser_photo_factory          = $parser_photo_factory;
+        $this->parser_contact_name_factory   = $parser_contact_name_factory;
+        $this->parser_contact_id_factory     = $parser_contact_id_factory;
+        $this->parser_type_factory           = $parser_type_factory;
         $this->parser_price_factory        = $parser_price_factory;
         $this->parser_phone_factory        = $parser_phone_factory;
         $this->parser_subway_factory       = $parser_subway_factory;
@@ -119,6 +122,7 @@ class ParseConsumer
         $this->filter_black_list_person      = $filter_black_list_person;
         $this->filter_black_list_phone       = $filter_black_list_phone;
         $this->filter_cleaner_description    = $filter_cleaner_description;
+        $this->filter_raw_content_factory    = $filter_raw_content_factory;
 
         $this->producer_collect = $producer_collect;
         $this->producer_publish = $producer_publish;
@@ -134,6 +138,10 @@ class ParseConsumer
         $id          = $raw->getId();
         $city        = $message->getSource()->getCity();
         $source_type = $message->getSource()->getType();
+
+        $raw_content_filter = $this->filter_raw_content_factory->init($source_type);
+
+        $raw_content_filter->handle($raw);
 
         try {
 

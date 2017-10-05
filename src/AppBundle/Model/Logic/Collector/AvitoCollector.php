@@ -168,9 +168,16 @@ class AvitoCollector implements CollectorInterface
 
             $notes = $this->getLinks($source, $contents);
 
-            $raws    = [];
-            $finish  = false;
+            $raws   = [];
+            $finish = false;
+            $index  = 0;
             foreach ($notes as $raw) {
+
+                if ($index > 10) {
+                    continue;
+                }
+
+                $index++;
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
 
@@ -302,19 +309,6 @@ class AvitoCollector implements CollectorInterface
         }
 
         return $notes;
-    }
-
-    /**
-     * @param RawData $data
-     * @return RawData
-     */
-    public function handle(RawData $data)
-    {
-        $dom     = new Dom();
-        $content = $dom->load($data->getContent());
-        $data->setContent($content);
-
-        return $data;
     }
 }
 

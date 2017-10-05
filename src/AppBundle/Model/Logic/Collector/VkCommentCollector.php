@@ -238,14 +238,5 @@ class VkCommentCollector implements CollectorInterface
 
         return $notes;
     }
-
-    /**
-     * @param RawData $data
-     * @return RawData
-     */
-    public function handle(RawData $data)
-    {
-        return $data;
-    }
 }
 

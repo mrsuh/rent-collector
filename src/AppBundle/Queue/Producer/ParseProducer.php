@@ -27,6 +27,7 @@ class ParseProducer
     public function publish(ParseMessage $message)
     {
         $this->queue->put(serialize($message));
+        unset($message->getRaw()->content);
 
         return true;
     }
