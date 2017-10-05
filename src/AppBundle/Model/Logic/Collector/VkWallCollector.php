@@ -306,14 +306,5 @@ class VkWallCollector implements CollectorInterface
 
         return $data['response']['items'];
     }
-
-    /**
-     * @param RawData $data
-     * @return RawData
-     */
-    public function handle(RawData $data)
-    {
-        return $data;
-    }
 }
 

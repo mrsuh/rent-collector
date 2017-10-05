@@ -73,10 +73,8 @@ class CollectCommand extends ContainerAwareCommand
                         'notes' => count($raws)
                     ]);
 
-                    foreach ($raws as $index => $raw) {
+                    foreach ($raws as $raw) {
                         $count++;
-
-                        $raw = $collector->handle($raw);
 
                         $message =
                             (new ParseMessage())
@@ -84,10 +82,9 @@ class CollectCommand extends ContainerAwareCommand
                                 ->setRaw($raw);
 
                         $producer->publish($message);
-
-                        unset($raws[$index]);
-                        gc_collect_cycles();
                     }
+
+                    gc_collect_cycles();
                 }
             }
         }

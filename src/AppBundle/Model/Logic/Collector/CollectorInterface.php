@@ -11,11 +11,5 @@ interface CollectorInterface
      * @return array
      */
     public function collect(Source $source);
-
-    /**
-     * @param RawData $data
-     * @return RawData
-     */
-    public function handle(RawData $data);
 }
 

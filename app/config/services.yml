@@ -223,6 +223,9 @@ services:
         arguments:
             - "@dm"
 
+    filter.raw_content.factory:
+        class: AppBundle\Model\Logic\Filter\RawContent\RawContentFilterFactory
+
 #filter ==============================================================
 
 
@@ -305,6 +308,7 @@ services:
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
             - "@filter.cleaner.description"
+            - "@filter.raw_content.factory"
 
             - '@queue.collect.producer'
             - '@queue.publish.producer'

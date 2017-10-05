@@ -53,8 +53,6 @@ class AvitoRequest
         $this->agent_index = $this->getAgentIndex();
 
         $this->count = 0;
-
-        echo 'MEMORY ' . (memory_get_usage() / 1024 / 1024) . 'MB' . PHP_EOL;
     }
 
     /**

@@ -168,8 +168,8 @@ class AvitoCollector implements CollectorInterface
 
             $notes = $this->getLinks($source, $contents);
 
-            $raws    = [];
-            $finish  = false;
+            $raws   = [];
+            $finish = false;
             foreach ($notes as $raw) {
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
@@ -218,7 +218,6 @@ class AvitoCollector implements CollectorInterface
                 $raw->setLink('https://www.avito.ru/' . $raw->getLink());
 
                 $raws[] = $raw;
-                gc_collect_cycles();
             }
 
             if (empty($raws)) {
@@ -302,19 +301,6 @@ class AvitoCollector implements CollectorInterface
         }
 
         return $notes;
-    }
-
-    /**
-     * @param RawData $data
-     * @return RawData
-     */
-    public function handle(RawData $data)
-    {
-        $dom     = new Dom();
-        $content = $dom->load($data->getContent());
-        $data->setContent($content);
-
-        return $data;
     }
 }
 
