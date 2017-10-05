@@ -12,7 +12,7 @@ class RawData
 
     private $timestamp;
 
-    public $content;
+    private $content;
 
     /**
      * @return mixed

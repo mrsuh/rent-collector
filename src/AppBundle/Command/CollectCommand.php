@@ -73,7 +73,7 @@ class CollectCommand extends ContainerAwareCommand
                         'notes' => count($raws)
                     ]);
 
-                    foreach ($raws as &$raw) {
+                    foreach ($raws as $raw) {
                         $count++;
 
                         $message =

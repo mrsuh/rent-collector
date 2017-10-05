@@ -170,14 +170,7 @@ class AvitoCollector implements CollectorInterface
 
             $raws   = [];
             $finish = false;
-            $index  = 0;
             foreach ($notes as $raw) {
-
-                if ($index > 10) {
-                    continue;
-                }
-
-                $index++;
 
                 if ($raw->getTimestamp() < $config->getTimestamp()) {
 
@@ -225,7 +218,6 @@ class AvitoCollector implements CollectorInterface
                 $raw->setLink('https://www.avito.ru/' . $raw->getLink());
 
                 $raws[] = $raw;
-                gc_collect_cycles();
             }
 
             if (empty($raws)) {
