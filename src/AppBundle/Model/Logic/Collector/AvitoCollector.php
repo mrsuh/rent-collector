@@ -220,11 +220,8 @@ class AvitoCollector implements CollectorInterface
 
                 $raw_content = $raw_response->getBody()->getContents();
 
-//                $raw_dom = new Dom();
-//                $raw_dom->load($raw_content);
-
                 $raw->setContent($raw_content);
-//                $raw->setContent($raw_dom);
+
                 $raw->setLink('https://www.avito.ru/' . $raw->getLink());
 
                 $raws[] = $raw;
@@ -234,6 +231,7 @@ class AvitoCollector implements CollectorInterface
             if (empty($raws)) {
                 $this->setConfigToFile($source,
                     $config
+                        ->setTimestamp(date('U'))
                         ->setPage(1)
                         ->setFinish(false)
                 );
