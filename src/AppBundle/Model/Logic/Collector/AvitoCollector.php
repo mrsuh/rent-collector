@@ -141,11 +141,12 @@ class AvitoCollector implements CollectorInterface
 
             } catch (\Exception $e) {
 
-                $this->logger->error('Collect list requesting... done', [
+                $this->logger->error('Collect list requesting...', [
                     'source_id'   => $source->getId(),
                     'source_type' => $source->getType(),
                     'link'        => $link_list,
-                    'page'        => $config->getPage()
+                    'page'        => $config->getPage(),
+                    'exception'   => $e->getMessage()
                 ]);
 
                 $this->setConfigToFile($source,
