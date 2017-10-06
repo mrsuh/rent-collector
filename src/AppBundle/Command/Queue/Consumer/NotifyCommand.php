@@ -20,7 +20,7 @@ class NotifyCommand extends ContainerAwareCommand
         $port   = $this->getContainer()->getParameter('queue.port');
         $logger = $this->getContainer()->get('monolog.logger.consumer_notify');
 
-        $consumer = $this->getContainer()->get('queue.collect.consumer');
+        $consumer = $this->getContainer()->get('queue.notify.consumer');
 
         $queue = new \Pheanstalk\Pheanstalk($host, $port);
 
