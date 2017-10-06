@@ -312,11 +312,26 @@ services:
 
             - '@queue.collect.producer'
             - '@queue.publish.producer'
+            - '@queue.notify.producer'
 
             - '@model.document.note'
             - '@logger'
 
         tags:
             - { name: monolog.logger, channel: consumer_parse }
+
+    queue.notify.producer:
+        class: AppBundle\Queue\Producer\NotifyProducer
+        arguments:
+            - '%queue.host%'
+            - '%queue.port%'
+
+    queue.notify.consumer:
+        class: AppBundle\Queue\Consumer\NotifyConsumer
+        arguments:
+            - '@mailer'
+            - '@logger'
+        tags:
+            - { name: monolog.logger, channel: consumer_notify }
 
 #queue ===============================================================

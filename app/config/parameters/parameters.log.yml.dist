@@ -3,3 +3,4 @@ parameters:
     log.consumer_collect.level: error
     log.consumer_parse.level: error
     log.consumer_publish.level: error
+    log.consumer_notify.level: error

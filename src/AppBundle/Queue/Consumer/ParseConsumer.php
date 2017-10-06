@@ -19,9 +19,11 @@ use AppBundle\Model\Logic\Parser\Price\PriceParserFactory;
 use AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory;
 use AppBundle\Model\Logic\Parser\Type\TypeParserFactory;
 use AppBundle\Queue\Message\CollectMessage;
+use AppBundle\Queue\Message\NotifyMessage;
 use AppBundle\Queue\Message\ParseMessage;
 use AppBundle\Queue\Message\PublishMessage;
 use AppBundle\Queue\Producer\CollectProducer;
+use AppBundle\Queue\Producer\NotifyProducer;
 use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
@@ -51,6 +53,7 @@ class ParseConsumer
 
     private $producer_collect;
     private $producer_publish;
+    private $producer_notify;
 
     private $model_note;
     private $logger;
@@ -100,6 +103,7 @@ class ParseConsumer
 
         CollectProducer $producer_collect,
         PublishProducer $producer_publish,
+        NotifyProducer $producer_notify,
 
         NoteModel $model_note,
         Logger $logger
@@ -126,6 +130,7 @@ class ParseConsumer
 
         $this->producer_collect = $producer_collect;
         $this->producer_publish = $producer_publish;
+        $this->producer_notify  = $producer_notify;
 
         $this->model_note = $model_note;
 
@@ -335,7 +340,7 @@ class ParseConsumer
 
             if (!$is_duplicate) {
 
-                $this->logger->debug('Publishing note', [
+                $this->logger->debug('Publish/Notify note', [
                     'id'   => $id,
                     'city' => $city
                 ]);
@@ -345,8 +350,13 @@ class ParseConsumer
                     ->setSource($message->getSource())
                     ->setNote($note)
                 ));
+
+                $this->producer_notify->publish((
+                (new NotifyMessage())
+                    ->setNote($note)
+                ));
             } else {
-                $this->logger->debug('Publishing canceled by duplicate', [
+                $this->logger->debug('Publish/Notify canceled by duplicate', [
                     'id'   => $id,
                     'city' => $city
                 ]);
