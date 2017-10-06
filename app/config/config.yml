@@ -45,32 +45,39 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
-    spool:     { type: memory }
 
 monolog:
     handlers:
         consumer_collect:
             type:     rotating_file
             path:     '%kernel.logs_dir%/consumer-collect.log'
-            level: '%log.consumer_collect.level%'
+            level:    '%log.consumer_collect.level%'
             channels: ['consumer_collect']
             max_files: 7
 
         consumer_parse:
             type:     rotating_file
             path:     '%kernel.logs_dir%/consumer-parse.log'
-            level: '%log.consumer_parse.level%'
+            level:    '%log.consumer_parse.level%'
             channels: ['consumer_parse']
             max_files: 7
 
         consumer_publish:
             type:     rotating_file
             path:     '%kernel.logs_dir%/consumer-publish.log'
-            level: '%log.consumer_publish.level%'
+            level:    '%log.consumer_publish.level%'
             channels: ['consumer_publish']
+            max_files: 7
+
+        consumer_notify:
+            type:     rotating_file
+            path:     '%kernel.logs_dir%/consumer-notify.log'
+            level:    '%log.consumer_notify.level%'
+            channels: ['consumer_notify']
             max_files: 7
 
     channels:
        - "consumer_collect"
        - "consumer_parse"
        - "consumer_publish"
+       - "consumer_notify"
