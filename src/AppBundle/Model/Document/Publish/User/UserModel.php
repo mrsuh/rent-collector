@@ -45,6 +45,14 @@ class UserModel
     }
 
     /**
+     * @return null|User
+     */
+    public function findOne()
+    {
+        return $this->dm->findOne();
+    }
+
+    /**
      * @param User $obj
      * @return User
      */

@@ -45,6 +45,15 @@ class RecordModel
     }
 
     /**
+     * @param string $name
+     * @return null|Record
+     */
+    public function findOneByName(string $name)
+    {
+        return $this->dm->findOne(['name' => $name]);
+    }
+
+    /**
      * @param Record $obj
      * @return Record
      */
@@ -64,5 +73,14 @@ class RecordModel
         $this->dm->update($obj);
 
         return $obj;
+    }
+
+    /**
+     * @param Record $obj
+     * @return \MongoDB\DeleteResult
+     */
+    public function delete(Record $obj)
+    {
+        return $this->dm->delete($obj);
     }
 }

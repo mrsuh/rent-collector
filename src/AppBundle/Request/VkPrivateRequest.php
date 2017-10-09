@@ -109,4 +109,66 @@ class VkPrivateRequest
             return $this->authRequest($request, $data, $try);
         }
     }
+
+    public function groupsSearch(int $city, string $query): Response
+    {
+        $form_params = [
+            'v'            => $this->version,
+            'access_token' => $this->auth->getToken(),
+            'q'            => $query,
+            'city_id'      => $city,
+            'sort'         => 2,
+            'count'        => 500
+        ];
+
+        return $this->authRequest(new Request('POST', $this->url . '/groups.search'), ['form_params' => $form_params]);
+    }
+
+    public function databaseGetCountries(): Response
+    {
+        $form_params = [
+            'v'            => $this->version,
+            'access_token' => $this->auth->getToken(),
+            'count'        => 5,
+            'code'         => 'RU',
+            'need_all'     => 1
+        ];
+
+        return $this->authRequest(new Request('POST', $this->url . '/database.getCountries'), ['form_params' => $form_params]);
+    }
+
+    public function boardGetTopics(int $group_id): Response
+    {
+        $form_params = [
+            'v'            => $this->version,
+            'access_token' => $this->auth->getToken(),
+            'group_id'     => $group_id
+        ];
+
+        return $this->authRequest(new Request('POST', $this->url . '/board.getTopics'), ['form_params' => $form_params]);
+    }
+
+    public function databaseGetCities(string $query): Response
+    {
+        $form_params = [
+            'v'            => $this->version,
+            'access_token' => $this->auth->getToken(),
+            'group_id'     => 5,
+            'country_id'   => 1,
+            'q'            => $query
+        ];
+
+        return $this->authRequest(new Request('POST', $this->url . '/database.getCities'), ['form_params' => $form_params]);
+    }
+
+    public function groupsGetById(array $group_ids): Response
+    {
+        $form_params = [
+            'v'            => $this->version,
+            'access_token' => $this->auth->getToken(),
+            'group_ids'    => implode(',', $group_ids)
+        ];
+
+        return $this->authRequest(new Request('POST', $this->url . '/groups.getById'), ['form_params' => $form_params]);
+    }
 }
