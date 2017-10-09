@@ -41,22 +41,6 @@ class NotifyConsumer
                 'city' => $city
             ]);
 
-            if ('sankt-peterburg' === $note->getCity() && in_array(13, $note->getSubways())) {
-
-                $this->logger->debug('Handling message...notify', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-
-                $message = $this->mailer->createMessage()
-                    ->setSubject('Уведомление')
-                    ->setTo('mrsuh6@gmail.com')
-                    ->setFrom('notify@socrent.ru')
-                    ->setBody($note->getLink() . '<br>' . $note->getDescription(), 'text/html');
-
-                $this->mailer->send($message);
-            }
-
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'id'        => $id,
