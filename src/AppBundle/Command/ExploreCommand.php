@@ -483,7 +483,8 @@ class ExploreCommand extends ContainerAwareCommand
 
         $items = $data['response']['items'];
 
-        $count = 0;
+        $count       = 0;
+        $contact_ids = [];
         foreach ($items as $item) {
             $contact_id = $this->parser_contact_id_comment->parse($item);
 
@@ -496,6 +497,18 @@ class ExploreCommand extends ContainerAwareCommand
 
                 continue;
             }
+
+            if (in_array($contact_id, $contact_ids)) {
+
+                $this->logger->debug('Explore topic note fail', [
+                    'note'   => $item['text'],
+                    'reason' => 'contact_id is already in used'
+                ]);
+
+                continue;
+            }
+
+            $contact_ids[] = $contact_id;
 
             $text = $item['text'];
 
