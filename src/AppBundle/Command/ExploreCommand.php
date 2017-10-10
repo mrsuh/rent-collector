@@ -123,7 +123,7 @@ class ExploreCommand extends ContainerAwareCommand
             $count = 0;
             foreach ($groups as $group) {
 
-                if ($count >= 10) {
+                if ($count >= 100) {
 
                     $this->logger->debug('Explore city stop. Limit by count', [
                         'city'  => $city_name,
@@ -162,7 +162,9 @@ class ExploreCommand extends ContainerAwareCommand
                     continue;
                 }
 
-                if ($this->exploreGroup($city_name, $group_id)) {
+                $group_type = 'group' === $group['type'];
+
+                if ($this->exploreGroup($city_name, $group_id, $group_type)) {
                     $this->logger->info('Explore group is valid', [
                         'city'     => $city_name,
                         'group_id' => $group_id
@@ -247,15 +249,16 @@ class ExploreCommand extends ContainerAwareCommand
     /**
      * @param string $city
      * @param int    $group_id
+     * @param bool   $is_group
      * @return bool
      */
-    private function exploreGroup(string $city, int $group_id)
+    private function exploreGroup(string $city, int $group_id, bool $is_group)
     {
         $exists_record = $this->model_parse_record->findOneByName($group_id);
 
         $record = new Record();
         $record->setCity($city);
-        $record->setLink('https://vk.com/club' . $group_id);
+        $record->setLink(sprintf('https://vk.com/%s%s', ($is_group ? 'club' : 'public'), $group_id));
         $record->setName($group_id);
 
         $sources = [];
@@ -271,7 +274,7 @@ class ExploreCommand extends ContainerAwareCommand
                     ->setId('wall')
                     ->setCity($city)
                     ->setType(Source::TYPE_VK_WALL)
-                    ->setLink(sprintf('https://vk.com/club%s', $group_id))
+                    ->setLink(sprintf('https://vk.com/%s%s', ($is_group ? 'club' : 'public'), $group_id))
                     ->setParameters(sprintf('{"owner_id": "-%s", "count": 50}', $group_id));
         } elseif (null !== $exists_record && null !== $exists_source = $this->model_parse_source->findOneById($exists_record, 'wall')) {
 
