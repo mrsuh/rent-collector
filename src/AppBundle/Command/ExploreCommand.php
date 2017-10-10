@@ -69,7 +69,12 @@ class ExploreCommand extends ContainerAwareCommand
 
     protected function configure()
     {
-        $this->setName('app:explore-groups');
+        $this->setName('app:explore-groups')->addOption(
+            'city',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            null
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -104,12 +109,18 @@ class ExploreCommand extends ContainerAwareCommand
         $this->parser_contact_id_comment = $this->getContainer()->get('parser.contact_id.factory')->init(Source::TYPE_VK_COMMENT);
         $this->parser_contact_id_wall    = $this->getContainer()->get('parser.contact_id.factory')->init(Source::TYPE_VK_WALL);
 
-        $query      = 'снять квартиру';
-        $model_city = $this->getContainer()->get('model.document.city');
+        $query       = 'снять квартиру';
+        $model_city  = $this->getContainer()->get('model.document.city');
+        $city_option = $input->getOption('city');
         foreach ($model_city->findAll() as $city) {
 
             $city_id   = $city->getVkId();
             $city_name = $city->getShortName();
+
+            if ($city_name !== $city_option) {
+
+                continue;
+            }
 
             $this->logger->info('Explore city', [
                 'city'       => $city_name,
@@ -178,8 +189,6 @@ class ExploreCommand extends ContainerAwareCommand
                     ]);
                 }
             }
-
-            break;
         }
 
         $this->deleteInvalidRecords();
