@@ -20,6 +20,8 @@ class VkCommentCollector implements CollectorInterface
     private $parser_link;
     private $parser_datetime;
 
+    private $last_hours;
+
     /**
      * VkCommentCollector constructor.
      * @param VkPublicRequest   $request
@@ -34,7 +36,8 @@ class VkCommentCollector implements CollectorInterface
         LinkParserFactory $parser_link_factory,
         DateTimeParserFactory $parser_datetime_factory,
         Logger $logger,
-        string $file_dir)
+        string $file_dir,
+        int $last_hours)
     {
         $this->request = $request;
         $this->logger  = $logger;
@@ -44,6 +47,8 @@ class VkCommentCollector implements CollectorInterface
         $this->parser_id       = $parser_id_factory->init($source_type);
         $this->parser_link     = $parser_link_factory->init($source_type);
         $this->parser_datetime = $parser_datetime_factory->init($source_type);
+
+        $this->last_hours = $last_hours;
     }
 
     /**
@@ -221,12 +226,18 @@ class VkCommentCollector implements CollectorInterface
             'source_type' => $source->getType(),
         ]);
 
-        $notes = [];
+        $notes          = [];
+        $timestamp_last = (new \DateTime())->modify('- ' . $this->last_hours . ' hours')->getTimestamp();
         foreach ($items as $item) {
 
             $id        = $source->getId() . '-' . $this->parser_id->parse($item);
             $link      = $this->parser_link->parse($source, $id);
             $timestamp = $this->parser_datetime->parse($item);
+
+            if ($timestamp_last > $timestamp) {
+
+                continue;
+            }
 
             $notes[] =
                 (new RawData())

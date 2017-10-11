@@ -117,7 +117,7 @@ class ExploreCommand extends ContainerAwareCommand
             $city_id   = $city->getVkId();
             $city_name = $city->getShortName();
 
-            if ($city_name !== $city_option) {
+            if (!empty($city_option) && $city_name !== $city_option) {
 
                 continue;
             }

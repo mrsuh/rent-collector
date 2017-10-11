@@ -122,7 +122,8 @@ class CollectorFactory
                     $this->parser_link_factory,
                     $this->parser_datetime_factory,
                     $this->logger,
-                    $this->dir_tmp
+                    $this->dir_tmp,
+                    $this->last_hours
                 );
 
                 break;
