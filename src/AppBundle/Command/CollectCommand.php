@@ -55,23 +55,21 @@ class CollectCommand extends ContainerAwareCommand
         $count = 0;
         foreach ($records as $record) {
 
-            $logger->debug('Collect record', [
-                'record' => $record->getName(),
-                'city'   => $record->getCity(),
-            ]);
-
             if (!empty($record_id) && $record_id !== $record->getId()) {
+
+                $logger->debug('Record filter by id', [
+                    'id' => $record->getId()
+                ]);
 
                 continue;
             }
 
+            $logger->info('Collect record', [
+                'record' => $record->getId(),
+                'city'   => $record->getCity(),
+            ]);
+
             foreach ($record->getSources() as $source) {
-
-                $logger->debug('Collect source', [
-                    'type'       => $source->getType(),
-                    'parameters' => $source->getParameters()
-                ]);
-
 
                 if (!empty($source_type)) {
                     switch ($source_type) {
@@ -89,7 +87,7 @@ class CollectCommand extends ContainerAwareCommand
                             break;
                         case 'avito':
 
-                            if (Source::TYPE_AVITO !== (int)$source->getType()) {
+                            if (Source::TYPE_AVITO !== $source->getType()) {
 
                                 $logger->debug('Source filter by type', [
                                     'type' => $source->getType()
@@ -102,6 +100,10 @@ class CollectCommand extends ContainerAwareCommand
                     }
                 }
 
+                $logger->info('Collect source', [
+                    'type'       => $source->getType(),
+                    'parameters' => $source->getParameters()
+                ]);
 
                 $collector = $collector_factory->init($source);
 
