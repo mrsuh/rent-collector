@@ -22,10 +22,9 @@ class UniqueCommand extends ContainerAwareCommand
 
         $model_note = $this->getContainer()->get('model.document.note');
 
-        $count  = 0;
         $helper = $this->getHelper('question');
 
-        $question = new ConfirmationQuestion(sprintf('Do you want to delete %s notes?', $count), false);
+        $question = new ConfirmationQuestion('Do you want to delete duplicate notes? ', false);
         foreach ($model_note->findAllOrderByDate() as $note) {
 
             if (null === $model_note->findOneById($note->getId())) {
