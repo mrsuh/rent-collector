@@ -18,7 +18,7 @@ class AvitoContactIdParser implements ContactIdParserInterface
             throw new ParseException(sprintf('%s: data is not an instance of %s', __CLASS__ . '\\' . __FUNCTION__, Dom::class));
         }
 
-        return 'avito_contact_id';
+        return str_replace(uniqid('av', true), '.', '-');
     }
 }
 
