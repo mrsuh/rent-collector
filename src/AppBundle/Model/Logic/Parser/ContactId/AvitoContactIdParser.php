@@ -18,20 +18,18 @@ class AvitoContactIdParser implements ContactIdParserInterface
             throw new ParseException(sprintf('%s: data is not an instance of %s', __CLASS__ . '\\' . __FUNCTION__, Dom::class));
         }
 
-        $id = str_replace(uniqid('av', true), '.', '-');
+        $id = str_replace('.', '-', uniqid('av', true));
 
-        $links = $data->find('.seller-info-name a');
+        $link = $data->find('.seller-info-name a');
 
-        if (!array_key_exists(0, $links)) {
+        if (null === $link) {
 
             return $id;
         }
 
-        $link = $links[0];
-
         preg_match('/\/user\/(.*)\/profile/', $link->href, $match);
 
-        if (array_key_exists(1, $match)) {
+        if (array_key_exists(1, $match) && !empty($match[1])) {
             $id = 'av' . $match[1];
         }
 
