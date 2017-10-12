@@ -40,6 +40,14 @@ class NoteModel
     }
 
     /**
+     * @return Note[]
+     */
+    public function findAllOrderByDate()
+    {
+        return $this->dm_note->find([], ['timestamp' => -1]);
+    }
+
+    /**
      * @return null|Note
      */
     public function findOneById($id)
