@@ -7,8 +7,6 @@ use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
 use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Queue\Message\CollectMessage;
-use AppBundle\Queue\Message\PublishMessage;
-use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 
 class CollectConsumer

@@ -29,9 +29,9 @@ class NoteFilter
     {
         return $this->dm_note->find(
             [
-                'contact.id' => $note->getContact()->getId(),
-                'type'       => $note->getType(),
-                '_id'        => ['$ne' => $note->getId()]
+                'contact.id' => (string)$note->getContact()->getId(),
+                'type'       => (int)$note->getType(),
+                '_id'        => ['$ne' => (string)$note->getId()]
             ]);
     }
 }
