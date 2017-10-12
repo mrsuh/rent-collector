@@ -32,6 +32,11 @@ class UniqueCommand extends ContainerAwareCommand
                 continue;
             }
 
+            if ('avito_contact_id' === $note->getContact()->getId()) {
+
+                continue;
+            }
+
             $duplicates = $filter_unique->findDuplicates($note);
 
             if (empty($duplicates)) {
