@@ -94,7 +94,24 @@ class VkPrivateRequest
     {
         try {
 
-            return $this->client->send($request, $data);
+            $response = $this->client->send($request, $data);
+
+            $content = $response->getBody()->getContents();
+            $response->getBody()->rewind();
+
+            $data = json_decode($content, true);
+
+            if (is_array($data)) {
+                return $response;
+            }
+
+            if (array_key_exists('error', $data) && array_key_exists('error_code', $data['error'])) {
+                if (5 === (int)$data['error']['error_code']) {
+                    throw new \Exception('Auth exception');
+                }
+            }
+
+            return $response;
 
         } catch (\Exception $e) {
 
