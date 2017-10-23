@@ -101,7 +101,7 @@ class VkPrivateRequest
 
             $data = json_decode($content, true);
 
-            if (is_array($data)) {
+            if (!is_array($data)) {
                 return $response;
             }
 
