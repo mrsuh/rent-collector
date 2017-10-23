@@ -107,11 +107,22 @@ class CollectCommand extends ContainerAwareCommand
 
                 $collector = $collector_factory->init($source);
 
-                while (!empty($raws = $collector->collect($source))) {
+                while (true) {
+
+                    $raws = $collector->collect($source);
 
                     $logger->debug('Collect request done', [
                         'notes' => count($raws)
                     ]);
+
+                    if (empty($raws)) {
+
+                        $logger->debug('There are no more notes', [
+                            'notes' => count($raws)
+                        ]);
+
+                        break;
+                    }
 
                     foreach ($raws as $raw) {
                         $count++;

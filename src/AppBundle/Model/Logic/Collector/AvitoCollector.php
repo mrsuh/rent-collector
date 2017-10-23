@@ -187,6 +187,12 @@ class AvitoCollector implements CollectorInterface
 
                 if (in_array($raw->getId(), $this->unique_ids)) {
 
+                    $this->logger->debug('Exclude by unique id', [
+                        'source_id'   => $source->getId(),
+                        'source_type' => $source->getType(),
+                        'unique_id'   => $raw->getId()
+                    ]);
+
                     continue;
                 }
 
@@ -281,9 +287,9 @@ class AvitoCollector implements CollectorInterface
 
             $link_elem = $link_elems[0];
 
-            $link      = preg_replace('/^\//', '', $link_elem->href);
+            $link = preg_replace('/^\//', '', $link_elem->href);
 
-            preg_match('/\._(\d+)$/', $link, $match);
+            preg_match('/\._(\d+)/', $link, $match);
 
             if (!array_key_exists(1, $match)) {
 
