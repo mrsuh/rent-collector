@@ -335,6 +335,7 @@ services:
     queue.notify.consumer:
         class: AppBundle\Queue\Consumer\NotifyConsumer
         arguments:
+            - '@model.document.city'
             - '@mailer'
             - '@request.notifier'
             - '@logger'

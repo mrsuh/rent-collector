@@ -2,12 +2,14 @@
 
 namespace AppBundle\Queue\Consumer;
 
+use AppBundle\Model\Document\City\CityModel;
 use AppBundle\Queue\Message\NotifyMessage;
 use AppBundle\Request\NotifierRequest;
 use Monolog\Logger;
 
 class NotifyConsumer
 {
+    private $model_city;
     private $mailer;
     private $request_notifier;
     private $logger;
@@ -18,11 +20,13 @@ class NotifyConsumer
      * @param Logger        $logger
      */
     public function __construct(
+        CityModel $model_city,
         \Swift_Mailer $mailer,
         NotifierRequest $request_notifier,
         Logger $logger
     )
     {
+        $this->model_city       = $model_city;
         $this->mailer           = $mailer;
         $this->request_notifier = $request_notifier;
         $this->logger           = $logger;
@@ -45,7 +49,9 @@ class NotifyConsumer
                 'city' => $city
             ]);
 
-            $this->request_notifier->notify($message->getNote());
+            $city = $this->model_city->findOneByShortName($note->getCity());
+
+            $this->request_notifier->notify($city, $message->getNote());
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
