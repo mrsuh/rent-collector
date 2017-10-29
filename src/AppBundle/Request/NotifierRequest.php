@@ -3,6 +3,7 @@
 namespace AppBundle\Request;
 
 use GuzzleHttp\Psr7\Request;
+use Schema\City\City;
 use Schema\Note\Note;
 
 class NotifierRequest
@@ -25,7 +26,7 @@ class NotifierRequest
      * @param Note $note
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
-    public function notify(Note $note)
+    public function notify(City $city, Note $note)
     {
         $photos = [];
         foreach ($note->getPhotos() as $photo) {
@@ -39,7 +40,7 @@ class NotifierRequest
             'type'        => $note->getType(),
             'link'        => $note->getLink(),
             'photos'      => $photos,
-            'city'        => $note->getCity(),
+            'city'        => $city->getId(),
             'contact'     => $note->getContact(),
         ];
 
