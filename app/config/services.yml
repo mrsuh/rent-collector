@@ -80,6 +80,12 @@ services:
             - "@request.client"
             - "%request.base_uri.tomita%"
 
+    request.notifier:
+        class: AppBundle\Request\NotifierRequest
+        arguments:
+            - "@request.client"
+            - "%request.base_uri.notifier%"
+
     request.public.vk:
         class: AppBundle\Request\VkPublicRequest
         arguments:
@@ -330,6 +336,7 @@ services:
         class: AppBundle\Queue\Consumer\NotifyConsumer
         arguments:
             - '@mailer'
+            - '@request.notifier'
             - '@logger'
         tags:
             - { name: monolog.logger, channel: consumer_notify }
