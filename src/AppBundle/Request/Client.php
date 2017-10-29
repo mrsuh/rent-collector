@@ -36,6 +36,7 @@ class Client
         try {
 
             $response = $this->client->send($request, $data);
+
         } catch (\Exception $e) {
             if ($e instanceof ClientException || $e instanceof ServerException) {
                 throw (new RequestException($e->getMessage(), null, $e))

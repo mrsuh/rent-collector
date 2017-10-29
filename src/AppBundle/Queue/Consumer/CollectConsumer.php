@@ -28,11 +28,9 @@ class CollectConsumer
      */
     public function __construct(
         NoteModel $model_note,
-
         IdFilter $filter_unique_id,
         NoteFilter $filter_unique_note,
         DescriptionFilter $filter_unique_description,
-
         Logger $logger
     )
     {

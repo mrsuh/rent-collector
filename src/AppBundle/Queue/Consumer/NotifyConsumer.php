@@ -3,11 +3,13 @@
 namespace AppBundle\Queue\Consumer;
 
 use AppBundle\Queue\Message\NotifyMessage;
+use AppBundle\Request\NotifierRequest;
 use Monolog\Logger;
 
 class NotifyConsumer
 {
     private $mailer;
+    private $request_notifier;
     private $logger;
 
     /**
@@ -17,11 +19,13 @@ class NotifyConsumer
      */
     public function __construct(
         \Swift_Mailer $mailer,
+        NotifierRequest $request_notifier,
         Logger $logger
     )
     {
-        $this->mailer = $mailer;
-        $this->logger = $logger;
+        $this->mailer           = $mailer;
+        $this->request_notifier = $request_notifier;
+        $this->logger           = $logger;
     }
 
     /**
@@ -40,6 +44,8 @@ class NotifyConsumer
                 'id'   => $id,
                 'city' => $city
             ]);
+
+            $this->request_notifier->notify($message->getNote());
 
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [

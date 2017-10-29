@@ -2,103 +2,124 @@
     id: 1
     short_name: sankt-peterburg
     name: 'Санкт Петербург'
+    regexp: '/спб|питер|петербург/'
 
 -
     id: 2
     short_name: moskva
     name: 'Москва'
+    regexp: '/мск|москва/'
 
 -
     id: 3
     short_name: novosibirsk
     name: 'Новосибирск'
+    regexp: '/новосиб/'
 
 -
     id: 4
     short_name: ekaterinburg
     name: 'Екатеринбург'
+    regexp: '/екатеринб/'
 
 -
     id: 5
     short_name: nizny-novgorod
     name: 'Нижний Новгород'
+    regexp: '/новгород/'
 
 -
     id: 6
     short_name: kazan
     name: 'Казань'
+    regexp: '/казан/'
 
 -
     id: 7
     short_name: chelabinsk
     name: 'Челябинск'
+    regexp: '/челябинск/'
 
 -
     id: 8
     short_name: omsk
     name: 'Омск'
+    regexp: '/омск/'
 
 -
     id: 9
     short_name: samara
     name: 'Самара'
+    regexp: '/самар/'
 
 -
     id: 10
     short_name: rostov-na-donu
     name: 'Ростов-на-Дону'
+    regexp: '/ростов/'
 
 -
     id: 11
     short_name: ufa
     name: 'Уфа'
+    regexp: '/уфа|уфе/'
 
 -
     id: 12
     short_name: krasnoyarsk
     name: 'Красноярск'
+    regexp: '/красноярск/'
 
 -
     id: 13
     short_name: perm
     name: 'Пермь'
+    regexp: '/перм/'
 
 -
     id: 14
     short_name: voronez
     name: 'Воронеж'
+    regexp: '/воронеж/'
 
 -
     id: 15
     short_name: volgograd
     name: 'Волгоград'
+    regexp: '/волгоград/'
 
 -
     id: 16
     short_name: krasnodar
     name: 'Краснодар'
+    regexp: '/краснодар/'
 
 -
     id: 17
     short_name: saratov
     name: 'Саратов'
+    regexp: '/саратов/'
 
 -
     id: 18
     short_name: tumen
     name: 'Тюмень'
+    regexp: '/тюмен/'
 
 -
     id: 19
     short_name: toliatti
     name: 'Тольятти'
+    regexp: '/тольят/'
 
 -
     id: 20
     short_name: taganrog
     name: 'Таганрог'
+    regexp: '/таганрог/'
 
 -
     id: 21
     short_name: tobolsk
     name: 'Тобольск'
+    regexp: '/тобольск/'
