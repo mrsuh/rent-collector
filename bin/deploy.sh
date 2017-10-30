@@ -11,13 +11,5 @@ else
   php composer.phar dumpautoload -o
 fi
 
-files[0]='app/config/proxy_list.yml'
-
-for f in "${files[@]}";  do
-if [ ! -f $f ]; then
-    cp $f.dist $f
-fi
-done
-
 php bin/console cache:clear --no-warmup --env=prod
 php bin/console cache:warmup --env=prod

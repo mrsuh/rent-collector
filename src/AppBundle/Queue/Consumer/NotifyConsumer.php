@@ -38,15 +38,15 @@ class NotifyConsumer
      */
     public function handle(NotifyMessage $message)
     {
-        $note = $message->getNote();
-        $id   = $note->getId();
-        $city = $note->getCity();
+        $note      = $message->getNote();
+        $id        = $note->getId();
+        $city_name = $note->getCity();
 
         try {
 
             $this->logger->debug('Handling message...', [
                 'id'   => $id,
-                'city' => $city
+                'city' => $city_name
             ]);
 
             $city = $this->model_city->findOneByShortName($note->getCity());
@@ -56,7 +56,7 @@ class NotifyConsumer
         } catch (\Exception $e) {
             $this->logger->error('Handle error', [
                 'id'        => $id,
-                'city'      => $city,
+                'city'      => $city_name,
                 'exception' => $e->getMessage()
             ]);
         }
