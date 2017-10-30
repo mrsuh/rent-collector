@@ -46,7 +46,7 @@ class NotifierRequest
             'link'        => $note->getLink(),
             'photos'      => $photos,
             'city'        => (int)$city->getId(),
-            'contact'     => $note->getContact(),
+            'contact'     => $note->getContact()->getName(),
         ];
 
         return $this->client->send(new Request('POST', $this->url . '/notify'), ['body' => json_encode($body)]);
