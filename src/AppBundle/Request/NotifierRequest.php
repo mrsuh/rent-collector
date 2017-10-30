@@ -33,14 +33,19 @@ class NotifierRequest
             $photos[] = $photo->getHigh();
         }
 
+        $subways = [];
+        foreach ($note->getSubways() as $subway) {
+            $subways[] = (int)$subway;
+        }
+
         $body = [
             'description' => $note->getDescription(),
-            'subways'     => $note->getSubways(),
-            'price'       => $note->getPrice(),
-            'type'        => $note->getType(),
+            'subways'     => $subways,
+            'price'       => (int)$note->getPrice(),
+            'type'        => (int)$note->getType(),
             'link'        => $note->getLink(),
             'photos'      => $photos,
-            'city'        => $city->getId(),
+            'city'        => (int)$city->getId(),
             'contact'     => $note->getContact(),
         ];
 
