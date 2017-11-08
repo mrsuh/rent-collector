@@ -7,7 +7,11 @@ use AppBundle\Model\Logic\Filter\Unique\DescriptionFilter;
 use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Queue\Message\CollectMessage;
+use AppBundle\Queue\Message\NotifyMessage;
+use AppBundle\Queue\Message\PublishMessage;
 use Monolog\Logger;
+use AppBundle\Queue\Producer\NotifyProducer;
+use AppBundle\Queue\Producer\PublishProducer;
 
 class CollectConsumer
 {
@@ -31,15 +35,22 @@ class CollectConsumer
         IdFilter $filter_unique_id,
         NoteFilter $filter_unique_note,
         DescriptionFilter $filter_unique_description,
+
+        PublishProducer $producer_publish,
+        NotifyProducer $producer_notify,
+
         Logger $logger
     )
     {
-        $this->model_note       = $model_note;
-        $this->logger           = $logger;
+        $this->model_note = $model_note;
+        $this->logger     = $logger;
 
         $this->filter_unique_note        = $filter_unique_note;
         $this->filter_unique_id          = $filter_unique_id;
         $this->filter_unique_description = $filter_unique_description;
+
+        $this->producer_publish = $producer_publish;
+        $this->producer_notify  = $producer_notify;
     }
 
     /**
@@ -74,6 +85,7 @@ class CollectConsumer
 
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
 
+            $is_duplicate = false;
             foreach ($description_duplicates as $duplicate) {
 
                 $this->logger->debug('Delete duplicate by unique description', [
@@ -84,6 +96,8 @@ class CollectConsumer
                     'description_hash' => $note->getDescriptionHash()
                 ]);
                 $this->model_note->delete($duplicate);
+
+                $is_duplicate = true;
             }
 
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
@@ -96,6 +110,36 @@ class CollectConsumer
                 ]);
 
                 $this->model_note->delete($duplicate);
+
+                $is_duplicate = true;
+            }
+
+            if ($is_duplicate) {
+                $note->setDuplicated($is_duplicate);
+            }
+
+            if (!$note->getDuplicated()) {
+
+                $this->logger->debug('Publish/Notify note', [
+                    'id'   => $id,
+                    'city' => $city
+                ]);
+
+                $this->producer_publish->publish((
+                (new PublishMessage())
+                    ->setSource($message->getSource())
+                    ->setNote($note)
+                ));
+
+                $this->producer_notify->publish((
+                (new NotifyMessage())
+                    ->setNote($note)
+                ));
+            } else {
+                $this->logger->debug('Publish/Notify canceled by duplicate', [
+                    'id'   => $id,
+                    'city' => $city
+                ]);
             }
 
             $this->model_note->create($note);
