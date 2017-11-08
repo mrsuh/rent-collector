@@ -267,6 +267,10 @@ services:
             - '@filter.unique.id'
             - '@filter.unique.note'
             - '@filter.unique.description'
+
+            - '@queue.publish.producer'
+            - '@queue.notify.producer'
+
             - '@logger'
         tags:
             - { name: monolog.logger, channel: consumer_collect }
@@ -317,8 +321,6 @@ services:
             - "@filter.raw_content.factory"
 
             - '@queue.collect.producer'
-            - '@queue.publish.producer'
-            - '@queue.notify.producer'
 
             - '@model.document.note'
             - '@logger'

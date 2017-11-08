@@ -19,11 +19,8 @@ use AppBundle\Model\Logic\Parser\Price\PriceParserFactory;
 use AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory;
 use AppBundle\Model\Logic\Parser\Type\TypeParserFactory;
 use AppBundle\Queue\Message\CollectMessage;
-use AppBundle\Queue\Message\NotifyMessage;
 use AppBundle\Queue\Message\ParseMessage;
-use AppBundle\Queue\Message\PublishMessage;
 use AppBundle\Queue\Producer\CollectProducer;
-use AppBundle\Queue\Producer\NotifyProducer;
 use AppBundle\Queue\Producer\PublishProducer;
 use Monolog\Logger;
 use Schema\Note\Contact;
@@ -102,18 +99,16 @@ class ParseConsumer
         RawContentFilterFactory $filter_raw_content_factory,
 
         CollectProducer $producer_collect,
-        PublishProducer $producer_publish,
-        NotifyProducer $producer_notify,
 
         NoteModel $model_note,
         Logger $logger
     )
     {
-        $this->parser_description_factory    = $parser_description_factory;
-        $this->parser_photo_factory          = $parser_photo_factory;
-        $this->parser_contact_name_factory   = $parser_contact_name_factory;
-        $this->parser_contact_id_factory     = $parser_contact_id_factory;
-        $this->parser_type_factory           = $parser_type_factory;
+        $this->parser_description_factory  = $parser_description_factory;
+        $this->parser_photo_factory        = $parser_photo_factory;
+        $this->parser_contact_name_factory = $parser_contact_name_factory;
+        $this->parser_contact_id_factory   = $parser_contact_id_factory;
+        $this->parser_type_factory         = $parser_type_factory;
         $this->parser_price_factory        = $parser_price_factory;
         $this->parser_phone_factory        = $parser_phone_factory;
         $this->parser_subway_factory       = $parser_subway_factory;
@@ -129,8 +124,6 @@ class ParseConsumer
         $this->filter_raw_content_factory    = $filter_raw_content_factory;
 
         $this->producer_collect = $producer_collect;
-        $this->producer_publish = $producer_publish;
-        $this->producer_notify  = $producer_notify;
 
         $this->model_note = $model_note;
 
@@ -338,29 +331,7 @@ class ParseConsumer
                 $is_duplicate = true;
             }
 
-            if (!$is_duplicate) {
-
-                $this->logger->debug('Publish/Notify note', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-
-                $this->producer_publish->publish((
-                (new PublishMessage())
-                    ->setSource($message->getSource())
-                    ->setNote($note)
-                ));
-
-                $this->producer_notify->publish((
-                (new NotifyMessage())
-                    ->setNote($note)
-                ));
-            } else {
-                $this->logger->debug('Publish/Notify canceled by duplicate', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-            }
+            $note->setDuplicated($is_duplicate);
 
             $this->producer_collect->publish((
             (new CollectMessage())

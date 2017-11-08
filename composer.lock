@@ -1090,16 +1090,16 @@
         },
         {
             "name": "mrsuh/rent-schema",
-            "version": "1.3.3",
+            "version": "v1.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrsuh/rent-schema.git",
-                "reference": "6d4efdbc24cc630ad1cca1b9c1c9eb7672e538c8"
+                "reference": "7b8c9feb9aeca7cb4353810d5a66bc881fd89ece"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/6d4efdbc24cc630ad1cca1b9c1c9eb7672e538c8",
-                "reference": "6d4efdbc24cc630ad1cca1b9c1c9eb7672e538c8",
+                "url": "https://api.github.com/repos/mrsuh/rent-schema/zipball/7b8c9feb9aeca7cb4353810d5a66bc881fd89ece",
+                "reference": "7b8c9feb9aeca7cb4353810d5a66bc881fd89ece",
                 "shasum": ""
             },
             "require": {
@@ -1123,7 +1123,7 @@
                 }
             ],
             "description": "mongo schema for rent project",
-            "time": "2017-10-30 07:47:36"
+            "time": "2017-11-08 20:36:52"
         },
         {
             "name": "mrsuh/vk-api",
