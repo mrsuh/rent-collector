@@ -167,7 +167,8 @@ class ParseConsumer
                 ->setId($id)
                 ->setLink($message->getRaw()->getLink())
                 ->setTimestamp($timestamp)
-                ->setCity($city);
+                ->setCity($city)
+                ->setSource($source_type);
 
             if (!empty($this->filter_unique_id->findDuplicates($note))) {
                 $this->logger->debug('Filtered by unique id', [
