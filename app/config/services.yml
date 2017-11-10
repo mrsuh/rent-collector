@@ -209,10 +209,12 @@ services:
         class: AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter
         arguments:
 
+    filter.replacer.description:
+        class: AppBundle\Model\Logic\Filter\Replacer\DescriptionFilter
+        arguments:
 
     filter.expire.date:
         class: AppBundle\Model\Logic\Filter\Expire\DateFilter
-
 
     filter.unique.id:
         class: AppBundle\Model\Logic\Filter\Unique\IdFilter
@@ -318,6 +320,7 @@ services:
             - "@filter.black_list.person"
             - "@filter.black_list.phone"
             - "@filter.cleaner.description"
+            - "@filter.replacer.description"
             - "@filter.raw_content.factory"
 
             - '@queue.collect.producer'
