@@ -14,9 +14,21 @@ class VkWallConfig
      */
     private $offset;
 
+    /**
+     * @var int
+     */
+    private $timestamp;
+
     public function __toString()
     {
-        return json_encode(['offset' => $this->offset, 'finish' => $this->finish]);
+        return json_encode(['offset' => $this->offset, 'finish' => $this->finish, 'timestamp' => $this->timestamp]);
+    }
+
+    public function __construct()
+    {
+        $this->finish    = false;
+        $this->offset    = 0;
+        $this->timestamp = null;
     }
 
     /**
@@ -53,6 +65,25 @@ class VkWallConfig
     public function setOffset(int $offset)
     {
         $this->offset = $offset;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * @param int $timestamp
+     * @return $this
+     */
+    public function setTimestamp(int $timestamp)
+    {
+        $this->timestamp = $timestamp;
 
         return $this;
     }

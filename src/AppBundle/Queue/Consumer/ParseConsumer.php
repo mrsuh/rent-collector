@@ -50,8 +50,6 @@ class ParseConsumer
     private $filter_raw_content_factory;
 
     private $producer_collect;
-    private $producer_publish;
-    private $producer_notify;
 
     private $model_note;
     private $logger;

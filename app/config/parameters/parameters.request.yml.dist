@@ -1,4 +1,4 @@
 parameters:
     request.base_uri.tomita: 'http://localhost:3000'
     request.base_uri.notifier: 'http://localhost:8000'
-    request.vk.wall.last_hours: 1
+    request.vk.wall.period: 10 minutes

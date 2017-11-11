@@ -29,8 +29,8 @@ class DescriptionFilter
     {
         return $this->dm_note->find(
             [
-                'description_hash' => $note->getDescriptionHash(),
-                '_id'              => ['$ne' => $note->getId()]
+                'description_hash' => (string)$note->getDescriptionHash(),
+                '_id'              => ['$ne' => (string)$note->getId()]
             ]);
     }
 }

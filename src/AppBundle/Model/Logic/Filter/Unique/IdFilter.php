@@ -27,6 +27,6 @@ class IdFilter
      */
     public function findDuplicates(Note $note)
     {
-        return $this->dm_note->find(['_id' => $note->getId()]);
+        return $this->dm_note->find(['_id' => (string)$note->getId()]);
     }
 }

@@ -182,7 +182,7 @@ services:
             - '@parser.datetime.factory'
             - '@logger'
             - '%dir.tmp%'
-            - '%request.vk.wall.last_hours%'
+            - '%request.vk.wall.period%'
 
 #collector ===========================================================
 

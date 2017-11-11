@@ -16,7 +16,7 @@ class AvitoCollector implements CollectorInterface
     private $logger;
     private $storage;
     private $parser_datetime;
-    private $last_hours;
+    private $period;
     private $unique_ids;
 
     /**
@@ -25,14 +25,14 @@ class AvitoCollector implements CollectorInterface
      * @param DateTimeParserFactory $parser_datetime_factory
      * @param Logger                $logger
      * @param string                $file_dir
-     * @param int                   $last_hours
+     * @param string                $period
      */
     public function __construct(
         AvitoRequest $request,
         DateTimeParserFactory $parser_datetime_factory,
         Logger $logger,
         string $file_dir,
-        int $last_hours
+        string $period
     )
     {
         $this->request         = $request;
@@ -40,7 +40,7 @@ class AvitoCollector implements CollectorInterface
         $this->storage         = new FileStorage($file_dir);
         $this->parser_datetime = $parser_datetime_factory->init(Source::TYPE_AVITO);
 
-        $this->last_hours = $last_hours;
+        $this->period     = $period;
         $this->unique_ids = [];
     }
 
@@ -61,7 +61,7 @@ class AvitoCollector implements CollectorInterface
     {
         $config_name = $this->getConfigName($source);
 
-        $date       = (new \DateTime())->modify(sprintf('- %s hours', $this->last_hours));
+        $date       = (new \DateTime())->modify(sprintf('- %s', $this->period));
         $new_config =
             (new AvitoConfig())
                 ->setPage(1)

@@ -45,9 +45,9 @@ class CollectorFactory
     private $dir_tmp;
 
     /**
-     * @var int
+     * @var string
      */
-    private $last_hours;
+    private $period;
 
     /**
      * CollectorFactory constructor.
@@ -66,14 +66,14 @@ class CollectorFactory
         DateTimeParserFactory $parser_datetime_factory,
         Logger $logger,
         string $dir_tmp,
-        int $last_hours
+        string $period
     )
     {
         $this->instances = [];
 
-        $this->logger     = $logger;
-        $this->dir_tmp    = $dir_tmp;
-        $this->last_hours = $last_hours;
+        $this->logger  = $logger;
+        $this->dir_tmp = $dir_tmp;
+        $this->period  = $period;
 
         $apps = $model_app->findAll();
         $app  = array_key_exists(0, $apps) ? $apps[0] : null;
@@ -123,7 +123,7 @@ class CollectorFactory
                     $this->parser_datetime_factory,
                     $this->logger,
                     $this->dir_tmp,
-                    $this->last_hours
+                    $this->period
                 );
 
                 break;
@@ -135,7 +135,7 @@ class CollectorFactory
                     $this->parser_datetime_factory,
                     $this->logger,
                     $this->dir_tmp,
-                    $this->last_hours
+                    $this->period
                 );
 
                 break;
@@ -145,7 +145,7 @@ class CollectorFactory
                     $this->parser_datetime_factory,
                     $this->logger,
                     $this->dir_tmp,
-                    $this->last_hours
+                    $this->period
                 );
 
                 break;

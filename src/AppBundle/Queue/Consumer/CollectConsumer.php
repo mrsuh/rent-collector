@@ -83,9 +83,8 @@ class CollectConsumer
                 return false;
             }
 
+            $is_duplicate           = false;
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
-
-            $is_duplicate = false;
             foreach ($description_duplicates as $duplicate) {
 
                 $this->logger->debug('Delete duplicate by unique description', [
@@ -95,13 +94,13 @@ class CollectConsumer
                     'description'      => $note->getDescription(),
                     'description_hash' => $note->getDescriptionHash()
                 ]);
+
                 $this->model_note->delete($duplicate);
 
                 $is_duplicate = true;
             }
 
             $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
-
             foreach ($unique_duplicates as $duplicate) {
                 $this->logger->debug('Delete duplicate by unique', [
                     'id'           => $id,
@@ -125,16 +124,16 @@ class CollectConsumer
                     'city' => $city
                 ]);
 
-                $this->producer_publish->publish((
+                $this->producer_publish->publish(
                 (new PublishMessage())
                     ->setSource($message->getSource())
                     ->setNote($note)
-                ));
+                );
 
-                $this->producer_notify->publish((
+                $this->producer_notify->publish(
                 (new NotifyMessage())
                     ->setNote($note)
-                ));
+                );
             } else {
                 $this->logger->debug('Publish/Notify canceled by duplicate', [
                     'id'   => $id,
