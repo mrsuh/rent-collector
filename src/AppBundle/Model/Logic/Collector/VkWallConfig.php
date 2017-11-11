@@ -56,4 +56,23 @@ class VkWallConfig
 
         return $this;
     }
+
+    /**
+     * @return int
+     */
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     * @param int $timestamp
+     * @return $this
+     */
+    public function setTimestamp(int $timestamp)
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
 }

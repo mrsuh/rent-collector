@@ -19,14 +19,19 @@ class VkWallCollector implements CollectorInterface
     private $parser_id;
     private $parser_link;
     private $parser_datetime;
-    private $last_hours;
+    private $period;
 
     private $unique_ids;
 
     /**
      * VkWallCollector constructor.
-     * @param VkPublicRequest $request
-     * @param string          $file_dir
+     * @param VkPublicRequest       $request
+     * @param IdParserFactory       $parser_id_factory
+     * @param LinkParserFactory     $parser_link_factory
+     * @param DateTimeParserFactory $parser_datetime_factory
+     * @param Logger                $logger
+     * @param string                $file_dir
+     * @param string                $period
      */
     public function __construct(
         VkPublicRequest $request,
@@ -35,13 +40,13 @@ class VkWallCollector implements CollectorInterface
         DateTimeParserFactory $parser_datetime_factory,
         Logger $logger,
         string $file_dir,
-        int $last_hours
+        string $period
     )
     {
         $this->request    = $request;
         $this->logger     = $logger;
         $this->storage    = new FileStorage($file_dir);
-        $this->last_hours = $last_hours;
+        $this->period     = $period;
         $this->unique_ids = [];
 
         $source_type           = Source::TYPE_VK_WALL;
@@ -164,7 +169,7 @@ class VkWallCollector implements CollectorInterface
 
             $items     = [];
             $finish    = false;
-            $timestamp = (new \DateTime())->modify('- ' . $this->last_hours . ' hours')->getTimestamp();
+            $timestamp = (new \DateTime())->modify('- ' . $this->period)->getTimestamp();
 
             foreach ($items_raw as $item) {
 

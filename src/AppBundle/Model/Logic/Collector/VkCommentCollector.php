@@ -20,15 +20,17 @@ class VkCommentCollector implements CollectorInterface
     private $parser_link;
     private $parser_datetime;
 
-    private $last_hours;
+    private $period;
 
     /**
      * VkCommentCollector constructor.
-     * @param VkPublicRequest   $request
-     * @param IdParserFactory   $parser_id_factory
-     * @param LinkParserFactory $parser_link_factory
-     * @param Logger            $logger
-     * @param string            $file_dir
+     * @param VkPublicRequest       $request
+     * @param IdParserFactory       $parser_id_factory
+     * @param LinkParserFactory     $parser_link_factory
+     * @param DateTimeParserFactory $parser_datetime_factory
+     * @param Logger                $logger
+     * @param string                $file_dir
+     * @param string                $period
      */
     public function __construct(
         VkPublicRequest $request,
@@ -37,7 +39,7 @@ class VkCommentCollector implements CollectorInterface
         DateTimeParserFactory $parser_datetime_factory,
         Logger $logger,
         string $file_dir,
-        int $last_hours)
+        string $period)
     {
         $this->request = $request;
         $this->logger  = $logger;
@@ -48,7 +50,7 @@ class VkCommentCollector implements CollectorInterface
         $this->parser_link     = $parser_link_factory->init($source_type);
         $this->parser_datetime = $parser_datetime_factory->init($source_type);
 
-        $this->last_hours = $last_hours;
+        $this->period = $period;
     }
 
     /**
@@ -227,7 +229,7 @@ class VkCommentCollector implements CollectorInterface
         ]);
 
         $notes          = [];
-        $timestamp_last = (new \DateTime())->modify('- ' . $this->last_hours . ' hours')->getTimestamp();
+        $timestamp_last = (new \DateTime())->modify(sprintf('- %s', $this->period))->getTimestamp();
         foreach ($items as $item) {
 
             $id        = $source->getId() . '-' . $this->parser_id->parse($item);
