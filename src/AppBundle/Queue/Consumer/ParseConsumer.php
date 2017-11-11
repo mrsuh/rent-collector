@@ -39,8 +39,6 @@ class ParseConsumer
     private $parser_phone_factory;
 
     private $filter_expire_date;
-    private $filter_unique_description;
-    private $filter_unique_note;
     private $filter_unique_id;
     private $filter_black_list_description;
     private $filter_black_list_person;
@@ -88,8 +86,6 @@ class ParseConsumer
         SubwayParserFactory $parser_subway_factory,
 
         DateFilter $filter_expire_date,
-        DescriptionFilter $filter_unique_description,
-        NoteFilter $filter_unique_note,
         IdFilter $filter_unique_id,
         \AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter $filter_black_list_description,
         PersonFilter $filter_black_list_person,
@@ -114,8 +110,6 @@ class ParseConsumer
         $this->parser_subway_factory       = $parser_subway_factory;
 
         $this->filter_expire_date            = $filter_expire_date;
-        $this->filter_unique_description     = $filter_unique_description;
-        $this->filter_unique_note            = $filter_unique_note;
         $this->filter_unique_id              = $filter_unique_id;
         $this->filter_black_list_description = $filter_black_list_description;
         $this->filter_black_list_person      = $filter_black_list_person;
@@ -200,20 +194,6 @@ class ParseConsumer
             }
 
             $note->setDescription($description);
-
-            $is_duplicate           = false;
-            $description_duplicates = $this->filter_unique_description->findDuplicates($note);
-            foreach ($description_duplicates as $duplicate) {
-                $this->logger->debug('Delete duplicate by unique description', [
-                    'id'               => $id,
-                    'city'             => $city,
-                    'duplicate_id'     => $duplicate->getId(),
-                    'description'      => $note->getDescription(),
-                    'description_hash' => $note->getDescriptionHash()
-                ]);
-                $this->model_note->delete($duplicate);
-                $is_duplicate = true;
-            }
 
             /**
              * Contact id
@@ -320,20 +300,6 @@ class ParseConsumer
             foreach ($parser_subway->parse($raw->getContent(), $city) as $subway) {
                 $note->addSubway($subway->getId());
             }
-
-            $unique_duplicates = $this->filter_unique_note->findDuplicates($note);
-            foreach ($unique_duplicates as $duplicate) {
-                $this->logger->debug('Delete duplicate by unique', [
-                    'id'           => $id,
-                    'city'         => $city,
-                    'duplicate_id' => $duplicate->getId()
-                ]);
-
-                $this->model_note->delete($duplicate);
-                $is_duplicate = true;
-            }
-
-            $note->setDuplicated($is_duplicate);
 
             $replaced_description = $this->filter_replacer_description->replace($note->getDescription());
             $note->setDescription($replaced_description);

@@ -113,11 +113,9 @@ class CollectConsumer
                 $is_duplicate = true;
             }
 
-            if ($is_duplicate) {
-                $note->setDuplicated($is_duplicate);
-            }
+            $note->setDuplicated($is_duplicate);
 
-            if (!$note->getDuplicated()) {
+            if (!$is_duplicate) {
 
                 $this->logger->debug('Publish/Notify note', [
                     'id'   => $id,
