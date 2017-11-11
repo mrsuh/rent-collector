@@ -313,8 +313,6 @@ services:
             - '@parser.subway.factory'
 
             - '@filter.expire.date'
-            - '@filter.unique.description'
-            - '@filter.unique.note'
             - "@filter.unique.id"
             - "@filter.black_list.description"
             - "@filter.black_list.person"
