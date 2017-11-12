@@ -121,8 +121,6 @@ class AvitoRequest
      */
     public function queryClean(string $method, string $path, array $params = [])
     {
-        echo 'MEMORY ' . (memory_get_usage() / 1024 / 1024) . 'MB' . PHP_EOL;
-
         $url = $path;
         $ch  = curl_init();
         switch ($method) {
