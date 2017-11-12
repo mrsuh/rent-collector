@@ -4,8 +4,8 @@
 
 ## Installation
 ```sh
-sh bin/install
-sh bin/deploy
+sh bin/install.sh
+sh bin/deploy.sh
 ```
 
 ## Collect
@@ -17,30 +17,27 @@ php bin/console app:collect
 
 config/parameters.yml
 ```yml
-parameters:
-    
-    #hot database
+parameters: 
+    #database
     database.hot.host: 127.0.0.1
     database.hot.port: 27017
     database.hot.name: rent-hot
     database.hot.user: root
     database.hot.password: pass
 
-    #cold database
-    database.cold.host: 127.0.0.1
-    database.cold.port: 27017
-    database.cold.name: rent-cold
-    database.cold.user: root
-    database.cold.password: pass
-
+    #mailer
     mailer_transport: smtp
     mailer_host: 127.0.0.1
     mailer_user: null
     mailer_password: null
-
+    
     #guzzle request paameters
     guzzle.timeout: 10
     guzzle.connect_timeout: 5
+    
+    #beanstalkd parameters
+    queue.port: 9090
+    queue.host: 127.0.0.1
 ```
 
 config/parameters.request.yml
@@ -48,6 +45,7 @@ config/parameters.request.yml
 parameters:
     request.base_uri.tomita: 'http://parser.local'
     request.base_uri.vk: 'https://api.vk.com/method'
+    request.vk.wall.period: '10 minutes'
 ```
 Service [http://parser.local](https://github.com/mrsuh/rent-parser)
 
@@ -55,41 +53,14 @@ config/parameters.dir.yml
 ```yml
 parameters:
     dir.tmp: '%kernel.root_dir%/../var/tmp'
-    file.config.parser: '%kernel.root_dir%/config/parser.yml'
-    file.black_list.person: '%kernel.root_dir%/config/black_list.person.yml'
-    file.black_list.description: '%kernel.root_dir%/config/black_list.description.yml'
-    file.fixtures.subway: '%kernel.root_dir%/fixtures/subway.yml'
-
 ```
 
-config/parser.yml
+config/parameters.log.yml
 ```yml
-    type: vk.com:comment
-    name: 'name'
-    link: 'https://site.com/link'
-    city: spb
-    data:
-        group_id: 100
-        topic_id: 100
-        count: 100
-```
-```yml        
-    type: vk.com:wall
-    name: 'name'
-    link: 'https://site.com/link'
-    city: spb
-    date: '1 hour'
-    data:
-        owner_id: -100
-        count: 50
-```
-
-config/black_list.person.yml
-```yml
-- user id
-```
-
-config/black_list.description.yml
-```yml
-- description text
+parameters:
+    log.prod.level: debug
+    log.consumer_collect.level: debug
+    log.consumer_parse.level: debug
+    log.consumer_publish.level: debug
+    log.consumer_notify.level: error
 ```
