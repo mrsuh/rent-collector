@@ -1,3 +1,2 @@
 */5 * * * * /bin/sh {dir}/bin/crontab/collect_vk.sh
-*/10 * * * * /bin/sh {dir}/bin/crontab/collect_av.sh
 0 5 * * * /bin/sh {dir}/bin/crontab/expire.sh
