@@ -19,3 +19,5 @@ parameters:
     queue.host: localhost
 
     file.user_agents: '%kernel.root_dir%/config/user_agents'
+
+    notify.duplicate_period: 2 hours

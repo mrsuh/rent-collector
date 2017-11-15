@@ -2,7 +2,7 @@
 
 namespace AppBundle\Model\Logic\Filter\Replacer;
 
-class DescriptionFilter
+class PhoneFilter
 {
     public function replace(string $description): string
     {
