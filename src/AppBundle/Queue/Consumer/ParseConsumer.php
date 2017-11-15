@@ -44,7 +44,8 @@ class ParseConsumer
     private $filter_black_list_person;
     private $filter_black_list_phone;
     private $filter_cleaner_description;
-    private $filter_replacer_description;
+    private $filter_replacer_phone;
+    private $filter_replacer_vk_id;
     private $filter_raw_content_factory;
 
     private $producer_collect;
@@ -91,7 +92,8 @@ class ParseConsumer
         PersonFilter $filter_black_list_person,
         PhoneFilter $filter_black_list_phone,
         \AppBundle\Model\Logic\Filter\Cleaner\DescriptionFilter $filter_cleaner_description,
-        \AppBundle\Model\Logic\Filter\Replacer\DescriptionFilter $filter_replacer_description,
+        \AppBundle\Model\Logic\Filter\Replacer\PhoneFilter $filter_replacer_phone,
+        \AppBundle\Model\Logic\Filter\Replacer\VkIdFilter $filter_replacer_vk_id,
         RawContentFilterFactory $filter_raw_content_factory,
 
         CollectProducer $producer_collect,
@@ -115,7 +117,8 @@ class ParseConsumer
         $this->filter_black_list_person      = $filter_black_list_person;
         $this->filter_black_list_phone       = $filter_black_list_phone;
         $this->filter_cleaner_description    = $filter_cleaner_description;
-        $this->filter_replacer_description   = $filter_replacer_description;
+        $this->filter_replacer_phone         = $filter_replacer_phone;
+        $this->filter_replacer_vk_id         = $filter_replacer_vk_id;
         $this->filter_raw_content_factory    = $filter_raw_content_factory;
 
         $this->producer_collect = $producer_collect;
@@ -301,8 +304,9 @@ class ParseConsumer
                 $note->addSubway($subway->getId());
             }
 
-            $replaced_description = $this->filter_replacer_description->replace($note->getDescription());
-            $note->setDescription($replaced_description);
+            $description = $this->filter_replacer_phone->replace($note->getDescription());
+            $description = $this->filter_replacer_vk_id->replace($description);
+            $note->setDescription($description);
 
             $this->producer_collect->publish((
             (new CollectMessage())

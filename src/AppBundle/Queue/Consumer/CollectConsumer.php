@@ -22,6 +22,11 @@ class CollectConsumer
     private $filter_unique_id;
     private $filter_unique_description;
 
+    private $producer_publish;
+    private $producer_notify;
+
+    private $notify_duplicate_period;
+
     /**
      * CollectConsumer constructor.
      * @param NoteModel         $model_note
@@ -39,7 +44,9 @@ class CollectConsumer
         PublishProducer $producer_publish,
         NotifyProducer $producer_notify,
 
-        Logger $logger
+        Logger $logger,
+
+        string $notify_duplicate_period
     )
     {
         $this->model_note = $model_note;
@@ -49,8 +56,9 @@ class CollectConsumer
         $this->filter_unique_id          = $filter_unique_id;
         $this->filter_unique_description = $filter_unique_description;
 
-        $this->producer_publish = $producer_publish;
-        $this->producer_notify  = $producer_notify;
+        $this->producer_publish        = $producer_publish;
+        $this->producer_notify         = $producer_notify;
+        $this->notify_duplicate_period = $notify_duplicate_period;
     }
 
     /**
@@ -84,6 +92,7 @@ class CollectConsumer
             }
 
             $is_duplicate           = false;
+            $duplicate_timestamp    = 0;
             $description_duplicates = $this->filter_unique_description->findDuplicates($note);
             foreach ($description_duplicates as $duplicate) {
 
@@ -94,6 +103,10 @@ class CollectConsumer
                     'description'      => $note->getDescription(),
                     'description_hash' => $note->getDescriptionHash()
                 ]);
+
+                if ($duplicate->getTimestamp() > $duplicate_timestamp) {
+                    $duplicate_timestamp = $duplicate->getTimestamp();
+                }
 
                 $this->model_note->delete($duplicate);
 
@@ -108,6 +121,10 @@ class CollectConsumer
                     'duplicate_id' => $duplicate->getId()
                 ]);
 
+                if ($duplicate->getTimestamp() > $duplicate_timestamp) {
+                    $duplicate_timestamp = $duplicate->getTimestamp();
+                }
+
                 $this->model_note->delete($duplicate);
 
                 $is_duplicate = true;
@@ -115,7 +132,9 @@ class CollectConsumer
 
             $note->setDuplicated($is_duplicate);
 
-            if (!$is_duplicate) {
+            $notify_allow_timestamp = (new \DateTime())->modify('- ' . $this->notify_duplicate_period)->getTimestamp();
+
+            if (!$is_duplicate || $duplicate_timestamp < $notify_allow_timestamp) {
 
                 $this->logger->debug('Publish/Notify note', [
                     'id'   => $id,

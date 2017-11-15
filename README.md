@@ -14,7 +14,6 @@ php bin/console app:collect
 ```
 
 ## Configuration
-
 config/parameters.yml
 ```yml
 parameters: 
