@@ -152,6 +152,7 @@ class CollectConsumer
                     ->setNote($note)
                 );
             } else {
+
                 $this->logger->debug('Publish/Notify canceled by duplicate', [
                     'id'   => $id,
                     'city' => $city
