@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/mrsuh/rent-collector.svg?branch=master)](https://travis-ci.org/mrsuh/rent-collector)
 
+![Screen](/screen.png)
+
 ## Installation
 ```sh
 sh bin/install.sh
