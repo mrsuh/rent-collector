@@ -1,7 +1,7 @@
 parameters:
     request.base_uri.tomita: 'http://localhost:3000'
     request.base_uri.notifier: 'http://localhost:8000'
-    request.vk.wall.period: 120 minutes
+    request.vk.wall.period: 10 minutes
     request.proxy: 'http://localhost:7979'
     request.timeout: 10
     request.connect_timeout: 5

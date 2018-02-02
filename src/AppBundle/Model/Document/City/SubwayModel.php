@@ -38,7 +38,7 @@ class SubwayModel
     }
 
     /**
-     * @return array|Subway[]
+     * @return null|Subway
      */
     public function findById($id)
     {
