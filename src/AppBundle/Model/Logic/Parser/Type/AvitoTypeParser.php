@@ -19,9 +19,8 @@ class AvitoTypeParser implements TypeParserInterface
             throw new ParseException(sprintf('%s: Data is not an instance of %s', __CLASS__ . '/' . __FUNCTION__, Dom::class));
         }
 
-
-        $elems = $data->find('.title-info-title-text');
-        $elem  = $elems[0];
+        $elems = $data->find('.single-item-header .text');
+        $elem  = $elems[1];
 
         $type_str = mb_strtolower($elem->text);
 

@@ -1,7 +1,9 @@
 parameters:
-    guzzle:
-        timeout: "%guzzle.timeout%"
-        connect_timeout: "%guzzle.connect_timeout%"
+    request:
+        timeout: "%request.timeout%"
+        connect_timeout: "%request.connect_timeout%"
+        proxy_timeout: "%request.proxy_timeout%"
+        proxy_connect_timeout: "%request.proxy_connect_timeout%"
 
 services:
 
@@ -72,7 +74,12 @@ services:
     request.client:
         class: AppBundle\Request\Client
         arguments:
-            - "%guzzle%"
+            - "%request%"
+
+    request.proxy:
+        class: AppBundle\Request\Proxy
+        arguments:
+            - "%request%"
 
     request.tomita:
         class: AppBundle\Request\TomitaRequest
@@ -94,9 +101,9 @@ services:
     request.avito:
         class: AppBundle\Request\AvitoRequest
         arguments:
-            - "@request.client"
+            - "@request.proxy"
             - "@logger"
-            - "%file.user_agents%"
+            - "%request.proxy%"
 
 #request =============================================================
 

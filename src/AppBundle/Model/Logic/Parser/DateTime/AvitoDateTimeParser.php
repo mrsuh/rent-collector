@@ -18,7 +18,7 @@ class AvitoDateTimeParser implements DateTimeParserInterface
             throw new ParseException(sprintf('Data is not an instance of %s', HtmlNode::class));
         }
 
-        $elems = $data->find('.date');
+        $elems = $data->find('.info-date');
 
         $elem = $elems[0];
 

@@ -18,7 +18,7 @@ class AvitoDescriptionParser implements DescriptionParserInterface
             throw new ParseException(sprintf('%s: Data is not an instance of %s', __CLASS__ . '/' . __FUNCTION__, Dom::class));
         }
 
-        $elems = $data->find('.item-description-text p');
+        $elems = $data->find('.description-preview-wrapper p');
 
         $description = '';
         foreach ($elems as $elem) {

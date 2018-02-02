@@ -200,7 +200,7 @@ class AvitoCollector implements CollectorInterface
 
                 try {
 
-                    usleep(1000000);
+                    usleep(300000);
 
                     $this->logger->debug('Request item', [
                         'link' => $raw->getLink()
@@ -228,6 +228,13 @@ class AvitoCollector implements CollectorInterface
             }
 
             if (empty($raws)) {
+
+                $this->logger->debug('Processing collect... done', [
+                    'source_id'   => $source->getId(),
+                    'source_type' => $source->getType(),
+                    'notes'       => count($raws)
+                ]);
+
                 $this->setConfigToFile($source,
                     $config
                         ->setTimestamp(date('U'))
@@ -273,12 +280,12 @@ class AvitoCollector implements CollectorInterface
 
         $dom->load($content);
 
-        $list = $dom->find('.catalog-list .description-title');
+        $list = $dom->find('.js-catalog-item-enum');
 
         $notes = [];
         foreach ($list as $elem) {
 
-            $link_elems = $elem->find('.description-title-link');
+            $link_elems = $elem->find('.item-link');
 
             if (count($link_elems) === 0) {
 
@@ -289,7 +296,7 @@ class AvitoCollector implements CollectorInterface
 
             $link = preg_replace('/^\//', '', $link_elem->href);
 
-            preg_match('/\._(\d+)/', $link, $match);
+            preg_match('/\._(\d+)$/', $link, $match);
 
             if (!array_key_exists(1, $match)) {
 
@@ -306,6 +313,8 @@ class AvitoCollector implements CollectorInterface
                     ->setLink($link)
                     ->setTimestamp($timestamp);
         }
+
+        unset($dom);
 
         return $notes;
     }

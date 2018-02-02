@@ -20,7 +20,7 @@ class AvitoContactIdParser implements ContactIdParserInterface
 
         $id = str_replace('.', '-', uniqid('av', true));
 
-        $link = $data->find('.seller-info-name a');
+        $link = $data->find('.person-name');
 
         if (null === $link) {
 

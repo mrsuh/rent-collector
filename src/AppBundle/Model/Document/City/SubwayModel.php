@@ -36,4 +36,12 @@ class SubwayModel
     {
         return $this->dm_subway->find();
     }
+
+    /**
+     * @return array|Subway[]
+     */
+    public function findById($id)
+    {
+        return $this->dm_subway->findOne(['_id' => $id]);
+    }
 }
