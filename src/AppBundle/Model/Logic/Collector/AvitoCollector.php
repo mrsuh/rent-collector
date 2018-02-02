@@ -245,6 +245,17 @@ class AvitoCollector implements CollectorInterface
                 return $raws;
             }
 
+            if ($config->getPage() > 2) {
+                $this->setConfigToFile($source,
+                    $config
+                        ->setTimestamp(date('U'))
+                        ->setPage(1)
+                        ->setFinish(false)
+                );
+
+                return $raws;
+            }
+
             $this->setConfigToFile($source,
                 $config
                     ->setFinish($finish)
