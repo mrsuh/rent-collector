@@ -19,27 +19,20 @@ class AvitoPhotoParser implements PhotoParserInterface
             throw new ParseException(sprintf('%s: data is not an instance of %s', __CLASS__ . '\\' . __FUNCTION__, Dom::class));
         }
 
-        $elems = $data->find('.gallery-list-item-link');
+        $elems = $data->find('[property="og:image"]');
 
         $photos = [];
         foreach ($elems as $elem) {
 
-            preg_match('/\((.*)\)/', $elem->style, $match);
+            $link = $elem->content;
 
-            if (!array_key_exists(1, $match)) {
-
-                continue;
-            }
-
-            $link = $match[1];
-
-            $low  = str_replace('75x55', '208x156', $link);
-            $high = str_replace('75x55', '640x480', $link);
+            $low  = $link;
+            $high = str_replace('640x480', '1280x960', $link);
 
             $photos[] =
                 (new Photo())
-                    ->setLow('https:' . $low)
-                    ->setHigh('https:' . $high);
+                    ->setLow($low)
+                    ->setHigh($high);
         }
 
         return $photos;

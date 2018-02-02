@@ -18,7 +18,7 @@ class AvitoPriceParser implements PriceParserInterface
             throw new ParseException(sprintf('%s: data is not an instance of %s', __CLASS__ . '\\' . __FUNCTION__, Dom::class));
         }
 
-        $elems = $data->find('.price-value-string');
+        $elems = $data->find('.price-value');
 
         $elem = $elems[0];
 

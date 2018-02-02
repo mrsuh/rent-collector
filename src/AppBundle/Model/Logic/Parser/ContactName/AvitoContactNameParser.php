@@ -18,7 +18,7 @@ class AvitoContactNameParser implements ContactNameParserInterface
             throw new ParseException(sprintf('%s: Data is not an instance of %s', __CLASS__ . '\\' . __FUNCTION__, Dom::class));
         }
 
-        $elems = $data->find('.seller-info-name a ');
+        $elems = $data->find('.person-name');
 
         if (array_key_exists(0, $elems)) {
             throw new ParseException('Array of elems has not key "0"');

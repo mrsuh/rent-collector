@@ -34,12 +34,9 @@ class AvitoSubwayParser implements SubwayParserInterface
             throw new ParseException(sprintf('%s: Data is not an instance of %s', __CLASS__ . '/' . __FUNCTION__, Dom::class));
         }
 
-        $subways = $data->find('.item-map-metro');
+        $subways = $data->find('.avito-address-text');
 
-        $subways_str = '';
-        foreach ($subways as $subway) {
-            $subways_str .= $subway->text . ' ';
-        }
+        $subways_str = $subways[0];
 
         $explorer = $this->explorer_factory->init($city);
 

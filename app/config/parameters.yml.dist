@@ -12,12 +12,7 @@ parameters:
 
     secret: 93317234c99beb1ad90846f6d40cba22258eff91
 
-    guzzle.timeout: 10
-    guzzle.connect_timeout: 5
-
     queue.port: 9090
     queue.host: localhost
-
-    file.user_agents: '%kernel.root_dir%/config/user_agents'
 
     notify.duplicate_period: 2 hours
