@@ -61,7 +61,7 @@ class TomitaExplorer
             throw new ExploreException('Response has invalid json');
         }
 
-        foreach (['type', 'phone', 'price'] as $key) {
+        foreach (['type', 'price'] as $key) {
             if (!array_key_exists($key, $data)) {
                 throw new ExploreException((sprintf('Has not key "%s" in response', $key)));
             }
@@ -71,7 +71,7 @@ class TomitaExplorer
             (new Tomita())
                 ->setType($data['type'])
                 ->setPrice($data['price'])
-                ->setPhones($data['phone']);
+                ->setPhones([]);
     }
 }
 

@@ -5,9 +5,7 @@ namespace AppBundle\Model\Logic\Collector;
 use AppBundle\Exception\CollectException;
 use AppBundle\Exception\ParseFactoryException;
 use AppBundle\Model\Document\Parse\App\AppModel;
-use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
-use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
-use AppBundle\Model\Logic\Parser\Link\LinkParserFactory;
+use AppBundle\Model\Logic\Parser\ParserFactory;
 use AppBundle\Request\AvitoRequest;
 use AppBundle\Request\VkPublicRequest;
 use Monolog\Logger;
@@ -35,9 +33,7 @@ class CollectorFactory
      */
     private $logger;
 
-    private $parser_id_factory;
-    private $parser_link_factory;
-    private $parser_datetime_factory;
+    private $parser_factory;
 
     /**
      * @var string
@@ -61,9 +57,7 @@ class CollectorFactory
         VkPublicRequest $request_vk,
         AvitoRequest $request_avito,
         AppModel $model_app,
-        IdParserFactory $parser_id_factory,
-        LinkParserFactory $parser_link_factory,
-        DateTimeParserFactory $parser_datetime_factory,
+        ParserFactory $parser_factory,
         Logger $logger,
         string $dir_tmp,
         string $period
@@ -87,9 +81,7 @@ class CollectorFactory
         $this->request_vk    = $request_vk;
         $this->request_avito = $request_avito;
 
-        $this->parser_id_factory       = $parser_id_factory;
-        $this->parser_link_factory     = $parser_link_factory;
-        $this->parser_datetime_factory = $parser_datetime_factory;
+        $this->parser_factory = $parser_factory;
     }
 
     /**
@@ -118,9 +110,7 @@ class CollectorFactory
             case Source::TYPE_VK_COMMENT:
                 return new VkCommentCollector(
                     $this->request_vk,
-                    $this->parser_id_factory,
-                    $this->parser_link_factory,
-                    $this->parser_datetime_factory,
+                    $this->parser_factory,
                     $this->logger,
                     $this->dir_tmp,
                     $this->period
@@ -130,9 +120,7 @@ class CollectorFactory
             case Source::TYPE_VK_WALL:
                 return new VkWallCollector(
                     $this->request_vk,
-                    $this->parser_id_factory,
-                    $this->parser_link_factory,
-                    $this->parser_datetime_factory,
+                    $this->parser_factory,
                     $this->logger,
                     $this->dir_tmp,
                     $this->period
@@ -142,7 +130,7 @@ class CollectorFactory
             case Source::TYPE_AVITO:
                 return new AvitoCollector(
                     $this->request_avito,
-                    $this->parser_datetime_factory,
+                    $this->parser_factory,
                     $this->logger,
                     $this->dir_tmp,
                     $this->period

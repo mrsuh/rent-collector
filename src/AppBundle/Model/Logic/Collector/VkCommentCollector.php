@@ -3,9 +3,7 @@
 namespace AppBundle\Model\Logic\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
-use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
-use AppBundle\Model\Logic\Parser\Link\LinkParserFactory;
+use AppBundle\Model\Logic\Parser\ParserFactory;
 use AppBundle\Request\VkPublicRequest;
 use AppBundle\Storage\FileStorage;
 use Monolog\Logger;
@@ -16,27 +14,21 @@ class VkCommentCollector implements CollectorInterface
     private $request;
     private $logger;
     private $storage;
-    private $parser_id;
-    private $parser_link;
-    private $parser_datetime;
+    private $parser_factory;
 
     private $period;
 
     /**
      * VkCommentCollector constructor.
-     * @param VkPublicRequest       $request
-     * @param IdParserFactory       $parser_id_factory
-     * @param LinkParserFactory     $parser_link_factory
-     * @param DateTimeParserFactory $parser_datetime_factory
-     * @param Logger                $logger
-     * @param string                $file_dir
-     * @param string                $period
+     * @param VkPublicRequest $request
+     * @param ParserFactory   $parser_factory
+     * @param Logger          $logger
+     * @param string          $file_dir
+     * @param string          $period
      */
     public function __construct(
         VkPublicRequest $request,
-        IdParserFactory $parser_id_factory,
-        LinkParserFactory $parser_link_factory,
-        DateTimeParserFactory $parser_datetime_factory,
+        ParserFactory $parser_factory,
         Logger $logger,
         string $file_dir,
         string $period)
@@ -45,10 +37,7 @@ class VkCommentCollector implements CollectorInterface
         $this->logger  = $logger;
         $this->storage = new FileStorage($file_dir);
 
-        $source_type           = Source::TYPE_VK_COMMENT;
-        $this->parser_id       = $parser_id_factory->init($source_type);
-        $this->parser_link     = $parser_link_factory->init($source_type);
-        $this->parser_datetime = $parser_datetime_factory->init($source_type);
+        $this->parser_factory = $parser_factory;
 
         $this->period = $period;
     }
@@ -59,7 +48,7 @@ class VkCommentCollector implements CollectorInterface
      */
     private function getIdFromFile(string $file_name)
     {
-        return $this->storage->exists($file_name) ? $this->storage->get($file_name) : 1;
+        return $this->storage->exists($file_name) ? $this->storage->get($file_name) : 9999999;
     }
 
     /**
@@ -146,7 +135,6 @@ class VkCommentCollector implements CollectorInterface
 
             $data = json_decode($response_raw, true);
 
-
             if (!is_array($data)) {
 
                 $this->logger->error('Response has invalid json', [
@@ -231,20 +219,29 @@ class VkCommentCollector implements CollectorInterface
         $notes          = [];
         $timestamp_last = (new \DateTime())->modify(sprintf('- %s', $this->period))->getTimestamp();
         foreach ($items as $item) {
+            $parser = $this->parser_factory->init($source, $item);
+            $id     = $parser->id();
 
-            $id        = $source->getId() . '-' . $this->parser_id->parse($item);
-            $link      = $this->parser_link->parse($source, $id);
-            $timestamp = $this->parser_datetime->parse($item);
+            $this->logger->debug("Handle item", [
+                'id'   => $id,
+                'item' => $item
+            ]);
+
+            $timestamp = $parser->timestamp();
 
             if ($timestamp_last > $timestamp) {
-
+                $this->logger->debug('Handle item $timestamp_last > $timestamp', [
+                    'id'             => $id,
+                    'item_timestamp' => $timestamp,
+                    'last_timestamp' => $timestamp_last
+                ]);
                 continue;
             }
 
             $notes[] =
                 (new RawData())
-                    ->setId($id)
-                    ->setLink($link)
+                    ->setId($source->getId() . '-' . $id)
+                    ->setLink($parser->link($id))
                     ->setTimestamp($timestamp)
                     ->setContent($item);
         }
