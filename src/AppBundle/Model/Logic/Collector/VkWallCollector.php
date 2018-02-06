@@ -3,9 +3,7 @@
 namespace AppBundle\Model\Logic\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
-use AppBundle\Model\Logic\Parser\Id\IdParserFactory;
-use AppBundle\Model\Logic\Parser\Link\LinkParserFactory;
+use AppBundle\Model\Logic\Parser\ParserFactory;
 use AppBundle\Request\VkPublicRequest;
 use AppBundle\Storage\FileStorage;
 use Monolog\Logger;
@@ -16,28 +14,22 @@ class VkWallCollector implements CollectorInterface
     private $request;
     private $logger;
     private $storage;
-    private $parser_id;
-    private $parser_link;
-    private $parser_datetime;
+    private $parser_factory;
     private $period;
 
     private $unique_ids;
 
     /**
      * VkWallCollector constructor.
-     * @param VkPublicRequest       $request
-     * @param IdParserFactory       $parser_id_factory
-     * @param LinkParserFactory     $parser_link_factory
-     * @param DateTimeParserFactory $parser_datetime_factory
-     * @param Logger                $logger
-     * @param string                $file_dir
-     * @param string                $period
+     * @param VkPublicRequest $request
+     * @param ParserFactory   $parser_factory
+     * @param Logger          $logger
+     * @param string          $file_dir
+     * @param string          $period
      */
     public function __construct(
         VkPublicRequest $request,
-        IdParserFactory $parser_id_factory,
-        LinkParserFactory $parser_link_factory,
-        DateTimeParserFactory $parser_datetime_factory,
+        ParserFactory $parser_factory,
         Logger $logger,
         string $file_dir,
         string $period
@@ -49,10 +41,7 @@ class VkWallCollector implements CollectorInterface
         $this->period     = $period;
         $this->unique_ids = [];
 
-        $source_type           = Source::TYPE_VK_WALL;
-        $this->parser_id       = $parser_id_factory->init($source_type);
-        $this->parser_link     = $parser_link_factory->init($source_type);
-        $this->parser_datetime = $parser_datetime_factory->init($source_type);
+        $this->parser_factory = $parser_factory;
     }
 
     /**
@@ -242,15 +231,14 @@ class VkWallCollector implements CollectorInterface
         $notes = [];
         foreach ($items as $item) {
 
-            $id        = $source->getId() . '-' . $this->parser_id->parse($item);
-            $link      = $this->parser_link->parse($source, $id);
-            $timestamp = $this->parser_datetime->parse($item);
+            $parser = $this->parser_factory->init($source, $item);
 
+            $id      = $parser->id();
             $notes[] =
                 (new RawData())
-                    ->setId($id)
-                    ->setLink($link)
-                    ->setTimestamp($timestamp)
+                    ->setId($source->getId() . '-' . $id)
+                    ->setLink($parser->link($id))
+                    ->setTimestamp($parser->timestamp())
                     ->setContent($item);
         }
 

@@ -3,7 +3,7 @@
 namespace AppBundle\Model\Logic\Collector;
 
 use AppBundle\Exception\ParseException;
-use AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory;
+use AppBundle\Model\Logic\Parser\ParserFactory;
 use AppBundle\Request\AvitoRequest;
 use AppBundle\Storage\FileStorage;
 use Monolog\Logger;
@@ -15,30 +15,30 @@ class AvitoCollector implements CollectorInterface
     private $request;
     private $logger;
     private $storage;
-    private $parser_datetime;
+    private $parser_factory;
     private $period;
     private $unique_ids;
 
     /**
      * AvitoCollector constructor.
-     * @param AvitoRequest          $request
-     * @param DateTimeParserFactory $parser_datetime_factory
-     * @param Logger                $logger
-     * @param string                $file_dir
-     * @param string                $period
+     * @param AvitoRequest  $request
+     * @param ParserFactory $parser_factory
+     * @param Logger        $logger
+     * @param string        $file_dir
+     * @param string        $period
      */
     public function __construct(
         AvitoRequest $request,
-        DateTimeParserFactory $parser_datetime_factory,
+        ParserFactory $parser_factory,
         Logger $logger,
         string $file_dir,
         string $period
     )
     {
-        $this->request         = $request;
-        $this->logger          = $logger;
-        $this->storage         = new FileStorage($file_dir);
-        $this->parser_datetime = $parser_datetime_factory->init(Source::TYPE_AVITO);
+        $this->request        = $request;
+        $this->logger         = $logger;
+        $this->storage        = new FileStorage($file_dir);
+        $this->parser_factory = $parser_factory;
 
         $this->period     = $period;
         $this->unique_ids = [];
@@ -314,15 +314,13 @@ class AvitoCollector implements CollectorInterface
                 continue;
             }
 
-            $id = $source->getId() . '-' . $match[1];
-
-            $timestamp = $this->parser_datetime->parse($elem);
+            $parser = $this->parser_factory->init($source, $elem);
 
             $notes[] =
                 (new RawData())
-                    ->setId($id)
+                    ->setId($source->getId() . '-' . $match[1])
                     ->setLink($link)
-                    ->setTimestamp($timestamp);
+                    ->setTimestamp($parser->timestamp());
         }
 
         unset($dom);

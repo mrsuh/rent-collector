@@ -110,49 +110,12 @@ services:
 
 #parser ==============================================================
 
-    parser.contact_id.factory:
-        class: AppBundle\Model\Logic\Parser\ContactId\ContactIdParserFactory
-
-    parser.contact_name.factory:
-        class: AppBundle\Model\Logic\Parser\ContactName\ContactNameParserFactory
+    parser.factory:
+        class: AppBundle\Model\Logic\Parser\ParserFactory
         arguments:
-            - "@explorer.user.factory"
-
-    parser.subway.factory:
-        class: AppBundle\Model\Logic\Parser\Subway\SubwayParserFactory
-        arguments:
+            - "@explorer.tomita"
             - "@explorer.subway.factory"
-
-    parser.datetime.factory:
-        class: AppBundle\Model\Logic\Parser\DateTime\DateTimeParserFactory
-
-    parser.description.factory:
-        class: AppBundle\Model\Logic\Parser\Description\DescriptionParserFactory
-
-    parser.photo.factory:
-        class: AppBundle\Model\Logic\Parser\Photo\PhotoParserFactory
-
-    parser.id.factory:
-        class: AppBundle\Model\Logic\Parser\Id\IdParserFactory
-
-    parser.link.factory:
-        class: AppBundle\Model\Logic\Parser\Link\LinkParserFactory
-
-    parser.type.factory:
-        class: AppBundle\Model\Logic\Parser\Type\TypeParserFactory
-        arguments:
-            - "@explorer.tomita"
-
-    parser.price.factory:
-        class: AppBundle\Model\Logic\Parser\Price\PriceParserFactory
-        arguments:
-            - "@explorer.tomita"
-
-    parser.phone.factory:
-        class: AppBundle\Model\Logic\Parser\Phone\PhoneParserFactory
-        arguments:
-            - "@explorer.tomita"
-
+            - "@explorer.user.factory"
 #parser =============================================================
 
 
@@ -184,9 +147,7 @@ services:
             - '@request.public.vk'
             - '@request.avito'
             - '@model.document.parse.app'
-            - '@parser.id.factory'
-            - '@parser.link.factory'
-            - '@parser.datetime.factory'
+            - '@parser.factory'
             - '@logger'
             - '%dir.tmp%'
             - '%request.vk.wall.period%'
@@ -241,9 +202,6 @@ services:
         class: AppBundle\Model\Logic\Filter\Unique\NoteFilter
         arguments:
             - "@dm"
-
-    filter.raw_content.factory:
-        class: AppBundle\Model\Logic\Filter\RawContent\RawContentFilterFactory
 
 #filter ==============================================================
 
@@ -316,14 +274,7 @@ services:
     queue.parse.consumer:
         class: AppBundle\Queue\Consumer\ParseConsumer
         arguments:
-            - '@parser.description.factory'
-            - '@parser.photo.factory'
-            - '@parser.contact_name.factory'
-            - '@parser.contact_id.factory'
-            - '@parser.type.factory'
-            - '@parser.price.factory'
-            - '@parser.phone.factory'
-            - '@parser.subway.factory'
+            - '@parser.factory'
 
             - '@filter.expire.date'
             - "@filter.unique.id"
@@ -333,7 +284,6 @@ services:
             - "@filter.cleaner.description"
             - "@filter.replacer.phone"
             - "@filter.replacer.vk_id"
-            - "@filter.raw_content.factory"
 
             - '@queue.collect.producer'
 
