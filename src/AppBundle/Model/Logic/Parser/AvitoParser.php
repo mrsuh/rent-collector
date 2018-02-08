@@ -98,9 +98,8 @@ class AvitoParser implements Parser
 
         $elem = $elems[0];
 
+        $date = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
         $text = mb_strtolower($elem->text);
-
-
         switch (true) {
             case mb_strrpos($text, 'сегодня'):
 
@@ -108,43 +107,31 @@ class AvitoParser implements Parser
                 $hour    = $match[1];
                 $minutes = $match[2];
 
-                $now = new \DateTime();
-
-                $now->setTime($hour, $minutes);
-
-                $timestamp = $now->getTimestamp();
-
+                $date->setTime($hour, $minutes);
                 break;
             case mb_strrpos($text, 'вчера'):
                 preg_match('/(\d+)\:(\d+)/', $text, $match);
                 $hour    = $match[1];
                 $minutes = $match[2];
 
-                $now = new \DateTime();
-                $now->modify('- 1 day');
-
-                $now->setTime($hour, $minutes);
-
-                $timestamp = $now->getTimestamp();
-
+                $date->modify('- 1 day');
+                $date->setTime($hour, $minutes);
                 break;
             default:
 
                 preg_match('/(\d+)([\D]+)(\d+)\:(\d+)/', $text, $match);
 
-                $number = $match[1];
+                $day    = $match[1];
                 $month  = $this->getMonthNumberByStr($match[2]);
                 $hour   = $match[3];
                 $minute = $match[4];
 
-                $date = \DateTime::createFromFormat('m-d H:i', sprintf('%s-%s %s:%s', $month, $number, $hour, $minute));
-
-                $timestamp = $date->getTimestamp();
-
+                $date->setDate(\Date('Y'), $month, $day);
+                $date->setTime($hour, $minute);
                 break;
         }
 
-        return $timestamp;
+        return $date->getTimestamp() + $date->getOffset();
     }
 
     /**
