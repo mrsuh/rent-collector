@@ -131,6 +131,7 @@ class AvitoParser implements Parser
                 break;
         }
 
+        $date->setTimezone(new \DateTimeZone('UTC'));
         return $date->getTimestamp() + $date->getOffset();
     }
 
