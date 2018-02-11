@@ -62,9 +62,9 @@ class AvitoRequest
         $this->logger->debug("Request " . $fullUrl);
 
         return $this->client->send(new Request('GET', $this->proxy, [
-            'X-Proxy-Url'                 => $fullUrl,
-            'X-Proxy-Attempts'            => 20,
-            'X-Proxy-Content-Fail-Phrase' => 'временно заблокировать доступ'
+            'X-Proxy-Url'                => $fullUrl,
+            'X-Proxy-Attempts'           => 20,
+            'X-Proxy-Content-Ban-Phrase' => 'временно заблокировать доступ'
         ]));
     }
 
@@ -79,9 +79,9 @@ class AvitoRequest
         $this->logger->debug("Request " . $fullUrl);
 
         return $this->client->send(new Request('GET', $this->proxy, [
-            'X-Proxy-Url'                 => $fullUrl,
-            'X-Proxy-Attempts'            => 20,
-            'X-Proxy-Content-Fail-Phrase' => 'временно заблокировать доступ'
+            'X-Proxy-Url'                => $fullUrl,
+            'X-Proxy-Attempts'           => 20,
+            'X-Proxy-Content-Ban-Phrase' => 'временно заблокировать доступ'
         ]));
     }
 }
