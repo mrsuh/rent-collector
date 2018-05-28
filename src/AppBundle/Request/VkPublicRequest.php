@@ -58,7 +58,8 @@ class VkPublicRequest
             'topic_id'         => $data['topic_id'],
             'count'            => $data['count'],
             'start_comment_id' => $data['start_comment_id'],
-            'v'                => $this->version
+            'v'                => $this->version,
+            'access_token' => $this->app->getToken()
         ];
 
         return $this->client->send(new Request('GET', $this->url . '/board.getComments'), ['query' => $query]);
