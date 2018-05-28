@@ -145,7 +145,6 @@ services:
         class: AppBundle\Model\Logic\Collector\CollectorFactory
         arguments:
             - '@request.public.vk'
-            - '@request.avito'
             - '@model.document.parse.app'
             - '@parser.factory'
             - '@logger'
