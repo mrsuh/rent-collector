@@ -15,6 +15,7 @@ use Schema\Note\Note;
 use Schema\Parse\App\App;
 use Schema\Parse\Record\Record;
 use Schema\Parse\Record\Source;
+use Schema\Publish\User\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -81,23 +82,11 @@ class ExploreCommand extends ContainerAwareCommand
     {
         $this->logger = $this->getContainer()->get('logger');
 
-        $user = $this->getContainer()->get('model.document.publish.user')->findOne();
-
-        if (null === $user) {
-            $this->logger->error('User not found');
-
-            return false;
-        }
+        $user = new User();//todo
 
         $this->request_private = new VkPrivateRequest($this->getContainer()->get('request.client'), $user);
 
-        $app = $this->getContainer()->get('dm')->init(App::class)->findOne([]);
-
-        if (null === $app) {
-            $this->logger->error('App not found');
-
-            return false;
-        }
+        $app = new App();//todo
 
         $this->request_public = $this->getContainer()->get('request.public.vk');
         $this->request_public->setApp($app);
