@@ -56,22 +56,6 @@ class NoteModel
     }
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @return Note[]
-     */
-    public function findPublishedNotesByCityForPeriod(City $city, \DateTime $from)
-    {
-        return $this->dm_note->find([
-            'published_timestamp' => [
-                '$gte' => (int)$from->getTimestamp()
-            ],
-            'city'                => (string)$city->getShortName(),
-            'published'           => true
-        ]);
-    }
-
-    /**
      * @param Note $note
      * @return bool
      */

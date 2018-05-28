@@ -8,10 +8,8 @@ use AppBundle\Model\Logic\Filter\Unique\IdFilter;
 use AppBundle\Model\Logic\Filter\Unique\NoteFilter;
 use AppBundle\Queue\Message\CollectMessage;
 use AppBundle\Queue\Message\NotifyMessage;
-use AppBundle\Queue\Message\PublishMessage;
 use Monolog\Logger;
 use AppBundle\Queue\Producer\NotifyProducer;
-use AppBundle\Queue\Producer\PublishProducer;
 
 class CollectConsumer
 {
@@ -22,7 +20,6 @@ class CollectConsumer
     private $filter_unique_id;
     private $filter_unique_description;
 
-    private $producer_publish;
     private $producer_notify;
 
     private $notify_duplicate_period;
@@ -33,7 +30,9 @@ class CollectConsumer
      * @param IdFilter          $filter_unique_id
      * @param NoteFilter        $filter_unique_note
      * @param DescriptionFilter $filter_unique_description
+     * @param NotifyProducer    $producer_notify
      * @param Logger            $logger
+     * @param string            $notify_duplicate_period
      */
     public function __construct(
         NoteModel $model_note,
@@ -41,7 +40,6 @@ class CollectConsumer
         NoteFilter $filter_unique_note,
         DescriptionFilter $filter_unique_description,
 
-        PublishProducer $producer_publish,
         NotifyProducer $producer_notify,
 
         Logger $logger,
@@ -56,7 +54,6 @@ class CollectConsumer
         $this->filter_unique_id          = $filter_unique_id;
         $this->filter_unique_description = $filter_unique_description;
 
-        $this->producer_publish        = $producer_publish;
         $this->producer_notify         = $producer_notify;
         $this->notify_duplicate_period = $notify_duplicate_period;
     }
@@ -136,16 +133,10 @@ class CollectConsumer
 
             if (!$is_duplicate || $duplicate_timestamp < $notify_allow_timestamp) {
 
-                $this->logger->debug('Publish/Notify note', [
+                $this->logger->debug('Notify note', [
                     'id'   => $id,
                     'city' => $city
                 ]);
-
-                $this->producer_publish->publish(
-                (new PublishMessage())
-                    ->setSource($message->getSource())
-                    ->setNote($note)
-                );
 
                 $this->producer_notify->publish(
                 (new NotifyMessage())
@@ -153,7 +144,7 @@ class CollectConsumer
                 );
             } else {
 
-                $this->logger->debug('Publish/Notify canceled by duplicate', [
+                $this->logger->debug('Notify canceled by duplicate', [
                     'id'   => $id,
                     'city' => $city
                 ]);
