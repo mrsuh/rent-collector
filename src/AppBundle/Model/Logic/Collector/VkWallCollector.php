@@ -144,7 +144,7 @@ class VkWallCollector implements CollectorInterface
                 return [];
             }
 
-            usleep(200000);
+            usleep(500000);
 
             $this->logger->debug('Collect requesting...', [
                 'source_id'   => $source->getId(),
