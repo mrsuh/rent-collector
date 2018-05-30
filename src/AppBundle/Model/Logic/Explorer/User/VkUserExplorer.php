@@ -49,10 +49,11 @@ class VkUserExplorer implements UserExplorerInterface
     {
         $response = $this->request->getUserInfo($id);
 
-        $info = json_decode($response->getBody()->getContents(), true);
+        $contents = $response->getBody()->getContents();
+        $info = json_decode($contents, true);
 
         if (!array_key_exists('response', $info)) {
-            throw new ExploreException('Has not key "response" in response');
+            throw new ExploreException('Has not key "response" in response' . $contents);
         }
 
         $data = [];
