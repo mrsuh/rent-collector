@@ -247,7 +247,7 @@ class ExploreCommand extends ContainerAwareCommand
         $record->setName($group_id);
 
         $sources = [];
-        if (null === $exists_record && $this->isValidWall($group_id)) {
+        if (null === $exists_record && $this->isValidWall($group_id, $city)) {
 
             $this->logger->debug('Add wall source from api', [
                 'city'     => $city,
@@ -288,7 +288,7 @@ class ExploreCommand extends ContainerAwareCommand
                 continue;
             }
 
-            if ($this->isValidTopic($group_id, $topic_id)) {
+            if ($this->isValidTopic($group_id, $topic_id, $city)) {
 
                 $this->logger->debug('Add comment source from api', [
                     'city'     => $city,
@@ -419,11 +419,12 @@ class ExploreCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param int $group_id
-     * @param int $topic_id
+     * @param int    $group_id
+     * @param int    $topic_id
+     * @param string $city_name
      * @return bool
      */
-    private function isValidTopic(int $group_id, int $topic_id): bool
+    private function isValidTopic(int $group_id, int $topic_id, string $city_name): bool
     {
         usleep(200000);
 
@@ -471,7 +472,7 @@ class ExploreCommand extends ContainerAwareCommand
         $count       = 0;
         $contact_ids = [];
         foreach ($items as $item) {
-            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_COMMENT), $item)->contactId();
+            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_COMMENT)->setCity($city_name), $item)->contactId();
 
             if (empty($contact_id)) {
 
@@ -535,10 +536,11 @@ class ExploreCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param int $group_id
+     * @param int    $group_id
+     * @param string $city_name
      * @return bool
      */
-    private function isValidWall(int $group_id): bool
+    private function isValidWall(int $group_id, string $city_name): bool
     {
         usleep(200000);
 
@@ -585,7 +587,7 @@ class ExploreCommand extends ContainerAwareCommand
         $count       = 0;
         $contact_ids = [];
         foreach ($items as $item) {
-            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_WALL), $item)->contactId();
+            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_WALL)->setCity($city_name), $item)->contactId();
 
             $this->logger->info('CONTACT ID', ['ID' => $contact_id]);
 
