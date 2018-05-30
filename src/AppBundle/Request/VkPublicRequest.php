@@ -5,7 +5,6 @@ namespace AppBundle\Request;
 use AppBundle\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Schema\Parse\App\App;
 
 class VkPublicRequest
 {
@@ -25,26 +24,20 @@ class VkPublicRequest
     private $version;
 
     /**
-     * @var App
+     * @var string
      */
-    private $app;
+    private $token;
 
     /**
      * VkPublicRequest constructor.
      * @param Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, string $token)
     {
         $this->client  = $client;
         $this->url     = 'https://api.vk.com/method';
         $this->version = 5.64;
-    }
-
-    public function setApp(App $app)
-    {
-        $this->app = $app;
-
-        return true;
+        $this->token   = $token;
     }
 
     /**
@@ -59,7 +52,7 @@ class VkPublicRequest
             'count'            => $data['count'],
             'start_comment_id' => $data['start_comment_id'],
             'v'                => $this->version,
-            'access_token' => $this->app->getToken()
+            'access_token'     => $this->token
         ];
 
         return $this->client->send(new Request('GET', $this->url . '/board.getComments'), ['query' => $query]);
@@ -72,17 +65,12 @@ class VkPublicRequest
      */
     public function getWallRecords(array $data): Response
     {
-        if (null === $this->app) {
-
-            throw new RequestException('There is no app');
-        }
-
         $query = [
             'owner_id'     => $data['owner_id'],
             'count'        => $data['count'],
             'offset'       => $data['offset'],
             'v'            => $this->version,
-            'access_token' => $this->app->getToken()
+            'access_token' => $this->token
         ];
 
         return $this->client->send(new Request('GET', $this->url . '/wall.get'), ['query' => $query]);
@@ -94,7 +82,8 @@ class VkPublicRequest
      */
     public function getMarketRecords(array $data): Response
     {
-        $data['v'] = $this->version;
+        $data['v']            = $this->version;
+        $data['access_token'] = $this->token;
 
         return $this->client->send(new Request('GET', $this->url . '/market.get'), ['query' => $data]);
     }
@@ -106,9 +95,10 @@ class VkPublicRequest
     public function getUserInfo(int $user_id): Response
     {
         $query = [
-            'user_ids' => $user_id,
-            'fields'   => 'blacklisted',
-            'v'        => $this->version
+            'user_ids'     => $user_id,
+            'fields'       => 'blacklisted',
+            'v'            => $this->version,
+            'access_token' => $this->token
         ];
 
         return $this->client->send(new Request('GET', $this->url . '/users.get'), ['query' => $query]);

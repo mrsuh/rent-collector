@@ -6,7 +6,6 @@ use AppBundle\Exception\AppException;
 use AppBundle\Model\Logic\Explorer\Subway\SubwayExplorerFactory;
 use AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer;
 use AppBundle\Model\Logic\Explorer\User\UserExplorerFactory;
-use AppBundle\Model\Logic\Explorer\User\VkUserExplorer;
 use Schema\Parse\Record\Source;
 
 class ParserFactory
@@ -68,13 +67,6 @@ class ParserFactory
                     $this->explorer_tomita,
                     $this->explorer_subway_factory->init($source->getCity()),
                     $this->explorer_user_factory->init($source->getType())
-                );
-                break;
-            case Source::TYPE_AVITO:
-                return new AvitoParser(
-                    $data,
-                    $source,
-                    $this->explorer_subway_factory->init($source->getCity())
                 );
                 break;
             default:

@@ -62,15 +62,6 @@ class CollectorFactory
         $this->dir_tmp = $dir_tmp;
         $this->period  = $period;
 
-        $apps = $model_app->findAll();
-        $app  = array_key_exists(0, $apps) ? $apps[0] : null;
-
-        if (null === $app) {
-
-            throw new CollectException('There is no app for public request');
-        }
-
-        $request_vk->setApp($app);
         $this->request_vk    = $request_vk;
 
         $this->parser_factory = $parser_factory;
