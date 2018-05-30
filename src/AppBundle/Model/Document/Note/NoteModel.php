@@ -2,7 +2,6 @@
 
 namespace AppBundle\Model\Document\Note;
 
-use Schema\City\City;
 use Schema\Note\Note;
 use ODM\DocumentManager\DocumentManagerFactory;
 use ODM\Paginator\Paginator;

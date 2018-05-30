@@ -46,16 +46,6 @@ services:
         arguments:
             - '@dm'
 
-    model.document.publish.record:
-       class: AppBundle\Model\Document\Publish\Record\RecordModel
-       arguments:
-           - '@dm'
-
-    model.document.publish.user:
-       class: AppBundle\Model\Document\Publish\User\UserModel
-       arguments:
-           - '@dm'
-
     model.document.note:
        class: AppBundle\Model\Document\Note\NoteModel
        arguments:
@@ -76,11 +66,6 @@ services:
         arguments:
             - "%request%"
 
-    request.proxy:
-        class: AppBundle\Request\Proxy
-        arguments:
-            - "%request%"
-
     request.tomita:
         class: AppBundle\Request\TomitaRequest
         arguments:
@@ -97,13 +82,15 @@ services:
         class: AppBundle\Request\VkPublicRequest
         arguments:
             - "@request.client"
+            - "%vk.app_token%"
 
-    request.avito:
-        class: AppBundle\Request\AvitoRequest
+    request.private.vk:
+        class: AppBundle\Request\VkPrivateRequest
         arguments:
-            - "@request.proxy"
-            - "@logger"
-            - "%request.proxy%"
+            - "@request.client"
+            - "%vk.username%"
+            - "%vk.password%"
+            - "%vk.app_id%"
 
 #request =============================================================
 
@@ -205,22 +192,6 @@ services:
 #filter ==============================================================
 
 
-#publiser ============================================================
-
-    publisher.factory:
-        class: AppBundle\Model\Logic\Publisher\PublisherFactory
-        arguments:
-            - '@request.client'
-            - "@model.document.subway"
-            - "@model.document.publish.user"
-            - "@model.document.note"
-            - "@logger"
-        tags:
-            - { name: monolog.logger, channel: consumer_publish }
-
-#publiser ============================================================
-
-
 #queue ===============================================================
 
 
@@ -238,7 +209,6 @@ services:
             - '@filter.unique.note'
             - '@filter.unique.description'
 
-            - '@queue.publish.producer'
             - '@queue.notify.producer'
 
             - '@logger'
@@ -246,23 +216,6 @@ services:
             - '%notify.duplicate_period%'
         tags:
             - { name: monolog.logger, channel: consumer_collect }
-
-    queue.publish.producer:
-        class: AppBundle\Queue\Producer\PublishProducer
-        arguments:
-            - '%queue.host%'
-            - '%queue.port%'
-
-    queue.publish.consumer:
-        class: AppBundle\Queue\Consumer\PublishConsumer
-        arguments:
-            - "@publisher.factory"
-            - "@model.document.publish.record"
-            - "@model.document.note"
-            - "@model.document.city"
-            - "@logger"
-        tags:
-            - { name: monolog.logger, channel: consumer_publish }
 
     queue.parse.producer:
         class: AppBundle\Queue\Producer\ParseProducer
@@ -274,7 +227,6 @@ services:
         class: AppBundle\Queue\Consumer\ParseConsumer
         arguments:
             - '@parser.factory'
-
             - '@filter.expire.date'
             - "@filter.unique.id"
             - "@filter.black_list.description"
@@ -283,9 +235,7 @@ services:
             - "@filter.cleaner.description"
             - "@filter.replacer.phone"
             - "@filter.replacer.vk_id"
-
             - '@queue.collect.producer'
-
             - '@model.document.note'
             - '@logger'
 

@@ -6,20 +6,17 @@ use AppBundle\Model\Document\Parse\Record\RecordModel;
 use AppBundle\Model\Document\Parse\Record\SourceModel;
 use AppBundle\Model\Logic\Explorer\Tomita\TomitaExplorer;
 use AppBundle\Model\Logic\Filter\BlackList\DescriptionFilter;
-use AppBundle\Model\Logic\Parser\ContactId\VkCommentContactIdParser;
-use AppBundle\Model\Logic\Parser\ContactId\VkWallContactIdParser;
 use AppBundle\Request\VkPrivateRequest;
 use AppBundle\Request\VkPublicRequest;
 use Monolog\Logger;
 use Schema\Note\Note;
-use Schema\Parse\App\App;
 use Schema\Parse\Record\Record;
 use Schema\Parse\Record\Source;
-use Schema\Publish\User\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use AppBundle\Model\Logic\Parser\ParserFactory;
 
 class ExploreCommand extends ContainerAwareCommand
 {
@@ -59,14 +56,9 @@ class ExploreCommand extends ContainerAwareCommand
     private $filter_description;
 
     /**
-     * @var VkCommentContactIdParser
+     * @var ParserFactory
      */
-    private $parser_contact_id_comment;
-
-    /**
-     * @var VkWallContactIdParser
-     */
-    private $parser_contact_id_wall;
+    private $parser;
 
     protected function configure()
     {
@@ -82,21 +74,15 @@ class ExploreCommand extends ContainerAwareCommand
     {
         $this->logger = $this->getContainer()->get('logger');
 
-        $user = new User();//todo
-
-        $this->request_private = new VkPrivateRequest($this->getContainer()->get('request.client'), $user);
-
-        $app = new App();//todo
+        $this->request_private = $this->getContainer()->get('request.private.vk');
 
         $this->request_public = $this->getContainer()->get('request.public.vk');
-        $this->request_public->setApp($app);
 
         $this->explorer                  = $this->getContainer()->get('explorer.tomita');
         $this->model_parse_record        = $this->getContainer()->get('model.document.parse.record');
         $this->model_parse_source        = new SourceModel();
         $this->filter_description        = $this->getContainer()->get('filter.black_list.description');
-        $this->parser_contact_id_comment = $this->getContainer()->get('parser.contact_id.factory')->init(Source::TYPE_VK_COMMENT);
-        $this->parser_contact_id_wall    = $this->getContainer()->get('parser.contact_id.factory')->init(Source::TYPE_VK_WALL);
+        $this->parser = $this->getContainer()->get('parser.factory');
 
         $query       = 'снять квартиру';
         $model_city  = $this->getContainer()->get('model.document.city');
@@ -189,6 +175,7 @@ class ExploreCommand extends ContainerAwareCommand
     private function deleteInvalidRecords()
     {
         $records_all = $this->model_parse_record->findAll();
+
 
         $chunks = array_chunk($records_all, 400);
 
@@ -484,7 +471,7 @@ class ExploreCommand extends ContainerAwareCommand
         $count       = 0;
         $contact_ids = [];
         foreach ($items as $item) {
-            $contact_id = $this->parser_contact_id_comment->parse($item);
+            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_COMMENT), $item)->contactId();
 
             if (empty($contact_id)) {
 
@@ -598,8 +585,7 @@ class ExploreCommand extends ContainerAwareCommand
         $count       = 0;
         $contact_ids = [];
         foreach ($items as $item) {
-
-            $contact_id = $this->parser_contact_id_wall->parse($item);
+            $contact_id = $this->parser->init((new Source())->setType(Source::TYPE_VK_WALL), $item)->contactId();
 
             $this->logger->info('CONTACT ID', ['ID' => $contact_id]);
 
