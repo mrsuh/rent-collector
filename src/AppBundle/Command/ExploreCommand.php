@@ -481,6 +481,10 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'empty contact_id'
                 ]);
 
+                $this->logger->info('Explore topic note fail', [
+                    'reason' => 'empty contact_id'
+                ]);
+
                 continue;
             }
 
@@ -488,6 +492,10 @@ class ExploreCommand extends ContainerAwareCommand
 
                 $this->logger->debug('Explore topic note fail', [
                     'note'   => $item['text'],
+                    'reason' => 'contact_id is already in used'
+                ]);
+
+                $this->logger->info('Explore topic note fail', [
                     'reason' => 'contact_id is already in used'
                 ]);
 
@@ -507,6 +515,10 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'description filter are not allow'
                 ]);
 
+                $this->logger->info('Explore topic note fail', [
+                    'reason' => 'description filter are not allow'
+                ]);
+
                 continue;
             }
 
@@ -521,12 +533,18 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'tomita invalid type'
                 ]);
 
+                $this->logger->info('Explore topic note fail', [
+                    'reason' => 'tomita invalid type'
+                ]);
+
                 continue;
             }
 
             $this->logger->debug('Explore topic note success', [
                 'note' => $item['text']
             ]);
+
+            $this->logger->info('Explore topic note success');
 
             $count++;
 
@@ -598,6 +616,10 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'empty contact_id'
                 ]);
 
+                $this->logger->info('Explore wall note fail', [
+                    'reason' => 'empty contact_id'
+                ]);
+
                 continue;
             }
 
@@ -608,6 +630,10 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'contact_id is same as group_id'
                 ]);
 
+                $this->logger->info('Explore wall note fail', [
+                    'reason' => 'contact_id is same as group_id'
+                ]);
+
                 continue;
             }
 
@@ -615,6 +641,10 @@ class ExploreCommand extends ContainerAwareCommand
 
                 $this->logger->debug('Explore wall note fail', [
                     'note'   => $item['text'],
+                    'reason' => 'contact_id is already in used'
+                ]);
+
+                $this->logger->info('Explore wall note fail', [
                     'reason' => 'contact_id is already in used'
                 ]);
 
@@ -634,6 +664,10 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'description filter are not allow'
                 ]);
 
+                $this->logger->info('Explore wall note fail', [
+                    'reason' => 'description filter are not allow'
+                ]);
+
                 continue;
             }
 
@@ -648,12 +682,18 @@ class ExploreCommand extends ContainerAwareCommand
                     'reason' => 'tomita invalid type'
                 ]);
 
+                $this->logger->info('Explore wall note fail', [
+                    'reason' => 'tomita invalid type'
+                ]);
+
                 continue;
             }
 
             $this->logger->debug('Explore wall note success', [
                 'note' => $item['text']
             ]);
+
+            $this->logger->info('Explore wall note success');
 
             $count++;
         }
