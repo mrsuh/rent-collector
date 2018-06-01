@@ -65,3 +65,12 @@ parameters:
     log.consumer_publish.level: debug
     log.consumer_notify.level: error
 ```
+
+config/parameters.vk.yml
+```yml
+parameters:
+    vk.username: username
+    vk.password: password
+    vk.app_id: app_id
+    vk.app_token: app_token
+```    
