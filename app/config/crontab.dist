@@ -1,4 +1,0 @@
-*/5 * * * * /bin/sh {dir}/bin/crontab/collect_vk.sh
-0 5 * * * /bin/sh {dir}/bin/crontab/expire.sh
-0 0 * * 0 /bin/sh {dir}/bin/crontab/explore_groups.sh
-
