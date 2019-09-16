@@ -1,25 +1,9 @@
-/app/config/parameters.yml
-/app/config/parameters/parameters.dir.yml
-/app/config/parameters/parameters.request.yml
-/app/config/parameters/parameters.log.yml
-/app/config/proxy_list.yml
-/app/config/crontab
-/build/
-/phpunit.xml
-/var/*
-!/var/cache
-/var/cache/*
-!var/cache/.gitkeep
-!/var/logs
-/var/logs/*
-!var/logs/.gitkeep
-!/var/tmp
-/var/tmp/*
-!var/tmp/.gitkeep
-!/var/sessions
-/var/sessions/*
-!var/sessions/.gitkeep
-!var/SymfonyRequirements.php
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/public/bundles/
+/var/
 /vendor/
-/web/bundles/
-/.idea/*
+###< symfony/framework-bundle ###

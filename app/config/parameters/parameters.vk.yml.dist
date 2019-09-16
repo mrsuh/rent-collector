@@ -1,5 +1,0 @@
-parameters:
-    vk.username: 'username'
-    vk.password: 'password'
-    vk.app_id: 'app_id'
-    vk.app_token: 'app_token'
