@@ -1,76 +1,29 @@
 # rent collector
 
-[![Build Status](https://travis-ci.org/mrsuh/rent-collector.svg?branch=master)](https://travis-ci.org/mrsuh/rent-collector)
-
 ![Screen](/screen.png)
 
-## Installation
+## Quick start with docker
+```bash
+docker run -v $(pwd)/.env.local:/app/.env.local --network host mrsuh/rent-collector php bin/console
+```
+
+## Installation from source
 ```sh
-sh bin/install.sh
-sh bin/deploy.sh
+sh bin/build.sh
 ```
 
-## Collect
+## CLI
 ```sh
-php bin/console app:collect
+php bin/console app:explore \
+    --city=sankt-peterburg --valid-period="2 days" --search-query="снять квартиру спб" --max-valid-results=80 \
+    --city=moskva --valid-period="2 days" --search-query="снять квартиру москва" --max-valid-results=80 \
+    -vvv
+
+php bin/console app:collect \
+    --city=sankt-peterburg --valid-period="2 days" \
+    --city=moskva --valid-period="2 days" \
+    -vvv
+
+php bin/console app:consume --channel=collect -vvv
+php bin/console app:consume --channel=parse -vvv
 ```
-
-## Configuration
-config/parameters.yml
-```yml
-parameters: 
-    #database
-    database.hot.host: 127.0.0.1
-    database.hot.port: 27017
-    database.hot.name: rent-hot
-    database.hot.user: root
-    database.hot.password: pass
-
-    #mailer
-    mailer_transport: smtp
-    mailer_host: 127.0.0.1
-    mailer_user: null
-    mailer_password: null
-    
-    #guzzle request paameters
-    guzzle.timeout: 10
-    guzzle.connect_timeout: 5
-    
-    #beanstalkd parameters
-    queue.port: 9090
-    queue.host: 127.0.0.1
-```
-
-config/parameters.request.yml
-```yml
-parameters:
-    request.base_uri.tomita: 'http://parser.local'
-    request.base_uri.vk: 'https://api.vk.com/method'
-    request.vk.wall.period: '10 minutes'
-```
-Service [http://parser.local](https://github.com/mrsuh/rent-parser)
-
-config/parameters.dir.yml
-```yml
-parameters:
-    dir.tmp: '%kernel.root_dir%/../var/tmp'
-```
-
-config/parameters.log.yml
-```yml
-parameters:
-    log.prod.level: debug
-    log.consumer_collect.level: debug
-    log.consumer_parse.level: debug
-    log.consumer_publish.level: debug
-    log.consumer_notify.level: error
-```
-
-config/parameters.vk.yml
-```yml
-parameters:
-    vk.username: username
-    vk.password: password
-    vk.app_id: app_id
-    vk.app_token: app_token
-```    

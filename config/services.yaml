@@ -1,0 +1,67 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            string $parserUrl: '%env(resolve:PARSER_URL)%'
+            int $httpClientTimeout: '%env(resolve:HTTP_CLIENT_TIMEOUT)%'
+            int $httpClientConnectTimeout: '%env(resolve:HTTP_CLIENT_CONNECT_TIMEOUT)%'
+            string $vkAppToken: '%env(resolve:VK_APP_TOKEN)%'
+            string $vkAppTokenStorageFilePath: '%env(resolve:VK_APP_TOKEN_STORAGE_FILE_PATH)%'
+
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    #    App\:
+    #        resource: '../src/*'
+    #        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    Pheanstalk\Contract\PheanstalkInterface:
+        factory:   ['Pheanstalk\Pheanstalk', create]
+        arguments:
+            - '%env(resolve:QUEUE_HOST)%'
+            - '%env(resolve:QUEUE_PORT)%'
+
+    App\Command\:
+        resource: '../src/Command/*'
+
+    App\Document\:
+        resource: '../src/Document/*'
+
+    App\Filter\:
+        resource: '../src/Filter/*'
+
+    App\Queue\:
+        resource: '../src/Queue/*'
+        exclude: '../src/Queue/Message/*'
+
+    App\Request\:
+        resource: '../src/Request/*'
+
+    ODM\DBAL:
+        arguments:
+            - "%env(resolve:DATABASE_HOST)%"
+            - "%env(resolve:DATABASE_PORT)%"
+            - "%env(resolve:DATABASE_NAME)%"
+
+    Mrsuh\Service\AuthService:
+        arguments:
+            - {username: '%env(resolve:VK_USERNAME)%', password: '%env(resolve:VK_PASSWORD)%',app_id: '%env(resolve:VK_APP_ID)%',scope: ['wall', 'photos']}
+
+    ODM\DocumentManager\DocumentManagerFactory:
+
+    App\Explorer\Subway\SubwayExplorerFactory:
+
+    App\Explorer\Tomita\TomitaExplorer:
+
+    App\Collector\CollectorFactory:
+
+    App\Parser\ParserFactory:
