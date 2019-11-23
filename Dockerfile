@@ -9,7 +9,9 @@ RUN apt-get update && apt-get upgrade -y \
     iconv \
     mbstring \
     zip \
-    bcmath
+    bcmath \
+    pcntl \
+    sockets
 
 RUN pecl install mongodb && docker-php-ext-enable mongodb
 
@@ -18,5 +20,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /app
 
 RUN sh /app/bin/build.sh
+
+WORKDIR /app
 
 CMD [ "php", "-a" ]

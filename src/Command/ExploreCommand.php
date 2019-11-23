@@ -41,8 +41,7 @@ class ExploreCommand extends Command
         BlackListFilter $blackListFilter,
         ParserFactory $parserFactory,
         CityModel $cityModel
-    )
-    {
+    ) {
         $this->logger           = $logger;
         $this->vkPrivateRequest = $vkPrivateRequest;
         $this->vkPublicRequest  = $vkPublicRequest;
@@ -61,79 +60,127 @@ class ExploreCommand extends Command
             ->addOption(
                 'city',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 'sankt-peterburg',
-                'sankt-peterburg'
+                ['sankt-peterburg']
             )->addOption(
                 'valid-period',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 '2 days',
-                '2 days'
+                ['2 days']
             )->addOption(
                 'search-query',
                 null,
-                InputOption::VALUE_OPTIONAL,
-                'снять квартиру',
-                'снять квартиру'
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'снять квартиру спб',
+                ['снять квартиру спб']
             )->addOption(
                 'max-valid-results',
                 null,
-                InputOption::VALUE_OPTIONAL,
-                100,
-                100
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                10,
+                [10]
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $query           = $input->getOption('search-query');
-        $maxValidResults = (int)$input->getOption('max-valid-results');
+        $cities          = $input->getOption('city');
+        $queries         = $input->getOption('search-query');
+        $validPeriods    = $input->getOption('valid-period');
+        $maxValidResults = $input->getOption('max-valid-results');
 
-        $validPeriodDateTime = (new \DateTime())->modify(sprintf('- %s', $input->getOption('valid-period')));
-        $city                = $this->cityModel->findOneByShortName($input->getOption('city'));
-        if ($city === null) {
-            $output->writeln(sprintf('<error>There is no city with short name %s</error>', $input->getOption('city')));
+        if (count($cities) !== count($queries)) {
+            $output->writeln('<error>Count cities !== count queries</error>');
+
             exit(1);
         }
 
+        if (count($cities) !== count($validPeriods)) {
+            $output->writeln('<error>Count cities !== count validPeriods</error>');
+
+            exit(1);
+        }
+
+        if (count($cities) !== count($maxValidResults)) {
+            $output->writeln('<error>Count cities !== count maxValidResults</error>');
+
+            exit(1);
+        }
+
+        foreach ($cities as $index => $cityName) {
+            $city = $this->cityModel->findOneByShortName($cityName);
+            if ($city === null) {
+                $output->writeln(
+                    sprintf('<error>There is no city with short name %s</error>', $input->getOption('city'))
+                );
+
+                continue;
+            }
+
+            $query          = $queries[$index];
+            $validPeriod    = $validPeriods[$index];
+            $maxValidResult = (int)$maxValidResults[$index];
+
+            $validPeriodDateTime = (new \DateTime())->modify(sprintf('- %s', $validPeriod));
+
+            $this->explore($city, $query, $maxValidResult, $validPeriodDateTime);
+        }
+    }
+
+    private function explore(City $city, string $query, int $maxValidResults, \DateTime $validPeriodDateTime): void
+    {
+        usleep(200000);
+
+        $this->logger->info(
+            'Exploring city',
+            [
+                'city'                => $city->getShortName(),
+                'query'               => $query,
+                'maxValidResults'     => $maxValidResults,
+                'validPeriodDateTime' => $validPeriodDateTime->format('Y-m-d H:i:s'),
+            ]
+        );
+
         $newRecords = [];
-        usleep(200000);
-
-        $this->logger->info('Explore city', [
-            'name' => $city->getShortName()
-        ]);
-
-        usleep(200000);
-
-        $count = 0;
-        foreach ($this->getGroups($query) as $group) {
+        $count      = 0;
+        foreach ($this->getGroups($query, 200) as $group) {
 
             if ($count >= $maxValidResults) {
 
-                $this->logger->debug('Explore group stopped. Limit by count', [
-                    'city'  => $city->getShortName(),
-                    'count' => $count
-                ]);
+                $this->logger->debug(
+                    'Explore group stopped. Limit by count',
+                    [
+                        'city'  => $city->getShortName(),
+                        'count' => $count,
+                    ]
+                );
 
                 break;
             }
 
             $group_id = $group['id'];
 
-            $this->logger->info('Explore group...', [
-                'city'    => $city->getShortName(),
-                'groupId' => $group_id,
-                'count'   => $count
-            ]);
+            $this->logger->debug(
+                'Explore group...',
+                [
+                    'city'    => $city->getShortName(),
+                    'groupId' => $group_id,
+                    'count'   => $count,
+                ]
+            );
 
             $record = $this->exploreGroup($city, $group, $validPeriodDateTime);
 
             if ($record === null) {
-                $this->logger->info('Explore group is invalid', [
-                    'city'    => $city->getShortName(),
-                    'groupId' => $group_id,
-                ]);
+                $this->logger->debug(
+                    'Explore group is invalid',
+                    [
+                        'city'    => $city->getShortName(),
+                        'groupId' => $group_id,
+                    ]
+                );
 
                 continue;
             }
@@ -144,30 +191,46 @@ class ExploreCommand extends Command
 
         $this->deleteInvalidRecords($city);
 
-        $this->logger->info('Exploring is done', [
-            'count' => $count
-        ]);
+        $this->logger->info(
+            'Exploring city done',
+            [
+                'city'                => $city->getShortName(),
+                'query'               => $query,
+                'maxValidResults'     => $maxValidResults,
+                'validPeriodDateTime' => $validPeriodDateTime->format('Y-m-d H:i:s'),
+                'records'             => $count,
+            ]
+        );
     }
 
-    private function getGroups(string $query): array
+    private function getGroups(string $query, int $maxResults): array
     {
         usleep(200000);
 
         try {
 
-            $response = $this->vkPrivateRequest->groupsSearch($query);
+            $response = $this->vkPrivateRequest->groupsSearch($query, $maxResults);
 
         } catch (\Exception $e) {
 
-            $this->logger->error('group search request failed', [
-                'exception' => $e->getMessage()
-            ]);
+            $this->logger->error(
+                'group search request failed',
+                [
+                    'exception' => $e->getMessage(),
+                ]
+            );
 
             return [];
         }
 
         $content = (string)$response->getBody();
         $data    = json_decode($content, true);
+
+        if (isset($data['response']['error'])) {
+            $this->logger->debug('Response has errors', ['response' => $content]);
+
+            return [];
+        }
 
         if (!isset($data['response']['items'])) {
             $this->logger->error('Invalid response', ['response' => $content]);
@@ -189,10 +252,13 @@ class ExploreCommand extends Command
 
         if ($group['is_closed']) {
 
-            $this->logger->info('Group is closed', [
-                'city'     => $city->getShortName(),
-                'group_id' => $group_id
-            ]);
+            $this->logger->debug(
+                'Group is closed',
+                [
+                    'city'     => $city->getShortName(),
+                    'group_id' => $group_id,
+                ]
+            );
 
             return null;
         }
@@ -207,10 +273,13 @@ class ExploreCommand extends Command
         $sources = [];
         if ($this->isValidWall($group_id, $city, $validPeriodDateTime)) {
 
-            $this->logger->debug('Add wall source from api', [
-                'city'     => $city->getShortName(),
-                'group_id' => $group_id
-            ]);
+            $this->logger->debug(
+                'Add wall source from api',
+                [
+                    'city'     => $city->getShortName(),
+                    'group_id' => $group_id,
+                ]
+            );
 
             $sources[] =
                 (new Source())
@@ -218,10 +287,14 @@ class ExploreCommand extends Command
                     ->setCity($city->getShortName())
                     ->setType(Source::TYPE_VK_WALL)
                     ->setLink(sprintf('https://vk.com/%s%s', ($is_group ? 'club' : 'public'), $group_id))
-                    ->setParameters(json_encode([
-                        'owner_id' => sprintf('-%s', $group_id),
-                        'count'    => 50
-                    ]));
+                    ->setParameters(
+                        json_encode(
+                            [
+                                'owner_id' => sprintf('-%s', $group_id),
+                                'count'    => 50,
+                            ]
+                        )
+                    );
         }
 
         foreach ($this->getTopics($group_id) as $topic) {
@@ -230,11 +303,14 @@ class ExploreCommand extends Command
 
             if ($this->isValidTopic($group_id, $topic_id, $city, $validPeriodDateTime)) {
 
-                $this->logger->debug('Add comment source from api', [
-                    'city'     => $city->getShortName(),
-                    'group_id' => $group_id,
-                    'topic_id' => $topic_id
-                ]);
+                $this->logger->debug(
+                    'Add comment source from api',
+                    [
+                        'city'     => $city->getShortName(),
+                        'group_id' => $group_id,
+                        'topic_id' => $topic_id,
+                    ]
+                );
 
                 $sources[] =
                     (new Source())
@@ -242,22 +318,27 @@ class ExploreCommand extends Command
                         ->setCity($city->getShortName())
                         ->setType(Source::TYPE_VK_COMMENT)
                         ->setLink(sprintf('https://vk.com/topic-%s_%s', $group_id, $topic_id))
-                        ->setParameters(json_encode(
-                            [
-                                'group_id' => $group_id,
-                                'topic_id' => $topic_id,
-                                'count'    => 100,
-                            ]
-                        ));
+                        ->setParameters(
+                            json_encode(
+                                [
+                                    'group_id' => $group_id,
+                                    'topic_id' => $topic_id,
+                                    'count'    => 100,
+                                ]
+                            )
+                        );
             }
         }
 
         if (empty($sources)) {
 
-            $this->logger->debug('Empty sources', [
-                'city'     => $city->getShortName(),
-                'group_id' => $group_id
-            ]);
+            $this->logger->debug(
+                'Empty sources',
+                [
+                    'city'     => $city->getShortName(),
+                    'group_id' => $group_id,
+                ]
+            );
 
             return null;
         }
@@ -278,15 +359,24 @@ class ExploreCommand extends Command
 
         } catch (\Exception $e) {
 
-            $this->logger->error('get wall records request failed', [
-                'exception' => $e->getMessage()
-            ]);
+            $this->logger->error(
+                'get wall records request failed',
+                [
+                    'exception' => $e->getMessage(),
+                ]
+            );
 
             return false;
         }
 
         $content = (string)$response->getBody();
         $data    = json_decode($content, true);
+
+        if (isset($data['response']['error'])) {
+            $this->logger->debug('Response has errors', ['response' => $content]);
+
+            return false;
+        }
 
         if (!isset($data['response']['items'])) {
             $this->logger->error('Invalid response', ['response' => $content]);
@@ -297,50 +387,68 @@ class ExploreCommand extends Command
         $count       = 0;
         $contact_ids = [];
         foreach ($data['response']['items'] as $item) {
-            $contact_id = $this->parserFactory->init((new Source())->setType(Source::TYPE_VK_WALL)->setCity($city->getShortName()), $item)->contactId();
+            $contact_id = $this->parserFactory->init(
+                (new Source())->setType(Source::TYPE_VK_WALL)->setCity($city->getShortName()),
+                $item
+            )->contactId();
 
             if (empty($contact_id)) {
 
-                $this->logger->info('Explore wall note fail', [
-                    'reason' => 'empty contact_id'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'reason' => 'empty contact_id',
+                    ]
+                );
 
                 continue;
             }
 
             if (!$this->blackListFilter->isAllow($contact_id)) {
-                $this->logger->info('Explore wall note fail', [
-                    'contact_id' => $contact_id,
-                    'reason'     => 'contact_id filter are not allow'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'contact_id' => $contact_id,
+                        'reason'     => 'contact_id filter are not allow',
+                    ]
+                );
 
                 continue;
             }
 
             if ((int)$contact_id === (int)$group_id) {
 
-                $this->logger->info('Explore wall note fail', [
-                    'reason' => 'contact_id is same as group_id'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'reason' => 'contact_id is same as group_id',
+                    ]
+                );
 
                 continue;
             }
 
             if (in_array($contact_id, $contact_ids)) {
 
-                $this->logger->info('Explore wall note fail', [
-                    'reason' => 'contact_id is already in used'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'reason' => 'contact_id is already in used',
+                    ]
+                );
 
                 continue;
             }
 
             $itemTimestamp = $item['date'];
             if ($itemTimestamp < $validPeriodDateTime->getTimestamp()) {
-                $this->logger->info('Explore wall note fail', [
-                    'reason' => '$itemTimestamp < $validPeriodDateTime',
-                    'data'   => $item
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'reason' => '$itemTimestamp < $validPeriodDateTime',
+                        'data'   => $item,
+                    ]
+                );
                 continue;
             }
 
@@ -350,10 +458,13 @@ class ExploreCommand extends Command
 
             if (!$this->blackListFilter->isAllow($text)) {
 
-                $this->logger->info('Explore wall note fail', [
-                    'description' => $text,
-                    'reason'      => 'description filter are not allow'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'description' => $text,
+                        'reason'      => 'description filter are not allow',
+                    ]
+                );
 
                 continue;
             }
@@ -361,15 +472,18 @@ class ExploreCommand extends Command
             $tomita = $this->tomitaExplorer->explore($text);
             if ((int)$tomita->getType() === Note::TYPE_ERR) {
 
-                $this->logger->info('Explore wall note fail', [
-                    'description' => $text,
-                    'reason'      => 'tomita invalid type'
-                ]);
+                $this->logger->debug(
+                    'Explore wall note fail',
+                    [
+                        'description' => $text,
+                        'reason'      => 'tomita invalid type',
+                    ]
+                );
 
                 continue;
             }
 
-            $this->logger->info('Explore wall note success');
+            $this->logger->debug('Explore wall note success');
 
             $count++;
 
@@ -391,15 +505,24 @@ class ExploreCommand extends Command
 
         } catch (\Exception $e) {
 
-            $this->logger->error('get board topics request failed', [
-                'exception' => $e->getMessage()
-            ]);
+            $this->logger->error(
+                'get board topics request failed',
+                [
+                    'exception' => $e->getMessage(),
+                ]
+            );
 
             return [];
         }
 
         $content = (string)$response->getBody();
         $data    = json_decode($content, true);
+
+        if (isset($data['response']['error'])) {
+            $this->logger->debug('Response has errors', ['response' => $content]);
+
+            return [];
+        }
 
         if (!isset($data['response']['items'])) {
             $this->logger->error('Invalid response', ['response' => $content]);
@@ -420,15 +543,24 @@ class ExploreCommand extends Command
 
         } catch (\Exception $e) {
 
-            $this->logger->error('get comment records request failed', [
-                'exception' => $e->getMessage()
-            ]);
+            $this->logger->error(
+                'get comment records request failed',
+                [
+                    'exception' => $e->getMessage(),
+                ]
+            );
 
             return false;
         }
 
         $content = (string)$response->getBody();
         $data    = json_decode($content, true);
+
+        if (isset($data['response']['error'])) {
+            $this->logger->debug('Response has errors', ['response' => $content]);
+
+            return false;
+        }
 
         if (!isset($data['response']['items'])) {
             $this->logger->error('Invalid response', ['response' => $content]);
@@ -443,22 +575,29 @@ class ExploreCommand extends Command
                 (new Source())
                     ->setType(Source::TYPE_VK_COMMENT)
                     ->setCity($city->getShortName()),
-                $item)->contactId();
+                $item
+            )->contactId();
 
             if (empty($contact_id)) {
 
-                $this->logger->info('Explore topic note fail', [
-                    'reason' => 'empty contact_id'
-                ]);
+                $this->logger->debug(
+                    'Explore topic note fail',
+                    [
+                        'reason' => 'empty contact_id',
+                    ]
+                );
 
                 continue;
             }
 
             if (in_array($contact_id, $contact_ids)) {
 
-                $this->logger->info('Explore topic note fail', [
-                    'reason' => 'contact_id is already in used'
-                ]);
+                $this->logger->debug(
+                    'Explore topic note fail',
+                    [
+                        'reason' => 'contact_id is already in used',
+                    ]
+                );
 
                 continue;
             }
@@ -466,9 +605,12 @@ class ExploreCommand extends Command
             $itemTimestamp = $item['date'];
 
             if ($itemTimestamp < $validPeriodDateTime->getTimestamp()) {
-                $this->logger->info('Explore topic note fail', [
-                    'reason' => '$itemTimestamp < $validPeriodDateTime'
-                ]);
+                $this->logger->debug(
+                    'Explore topic note fail',
+                    [
+                        'reason' => '$itemTimestamp < $validPeriodDateTime',
+                    ]
+                );
                 continue;
             }
 
@@ -478,10 +620,13 @@ class ExploreCommand extends Command
 
             if (!$this->blackListFilter->isAllow($text)) {
 
-                $this->logger->info('Explore topic note fail', [
-                    'description' => $text,
-                    'reason'      => 'description filter are not allow'
-                ]);
+                $this->logger->debug(
+                    'Explore topic note fail',
+                    [
+                        'description' => $text,
+                        'reason'      => 'description filter are not allow',
+                    ]
+                );
 
                 continue;
             }
@@ -489,15 +634,18 @@ class ExploreCommand extends Command
             $tomita = $this->tomitaExplorer->explore($text);
 
             if ((int)$tomita->getType() === Note::TYPE_ERR) {
-                $this->logger->info('Explore topic note fail', [
-                    'description' => $text,
-                    'reason'      => 'tomita invalid type'
-                ]);
+                $this->logger->debug(
+                    'Explore topic note fail',
+                    [
+                        'description' => $text,
+                        'reason'      => 'tomita invalid type',
+                    ]
+                );
 
                 continue;
             }
 
-            $this->logger->info('Explore topic note success');
+            $this->logger->debug('Explore topic note success');
 
             $count++;
 
@@ -529,9 +677,12 @@ class ExploreCommand extends Command
 
             } catch (\Exception $e) {
 
-                $this->logger->error('groups get by id request failed', [
-                    'exception' => $e->getMessage()
-                ]);
+                $this->logger->error(
+                    'groups get by id request failed',
+                    [
+                        'exception' => $e->getMessage(),
+                    ]
+                );
 
                 return;
             }
@@ -549,9 +700,12 @@ class ExploreCommand extends Command
                 if ($item['is_closed'] && array_key_exists($id, $records_by_id)) {
                     $record = $records_by_id[$id];
 
-                    $this->logger->info('Group is closed. Delete from DB', [
-                        'group_id' => $id
-                    ]);
+                    $this->logger->debug(
+                        'Group is closed. Delete from DB',
+                        [
+                            'group_id' => $id,
+                        ]
+                    );
 
                     $this->recordModel->delete($record);
                 }

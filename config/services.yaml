@@ -11,15 +11,11 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            string $notifierDuplicatePeriod: '%env(resolve:NOTIFIER_DUPLICATE_PERIOD)%'
-            string $notifierUrl: '%env(resolve:NOTIFIER_URL)%'
             string $parserUrl: '%env(resolve:PARSER_URL)%'
             int $httpClientTimeout: '%env(resolve:HTTP_CLIENT_TIMEOUT)%'
             int $httpClientConnectTimeout: '%env(resolve:HTTP_CLIENT_CONNECT_TIMEOUT)%'
-            string $vkUsername: '%env(resolve:VK_USERNAME)%'
-            string $vkPassword: '%env(resolve:VK_PASSWORD)%'
-            string $vkAppId: '%env(resolve:VK_APP_ID)%'
             string $vkAppToken: '%env(resolve:VK_APP_TOKEN)%'
+            string $vkAppTokenStorageFilePath: '%env(resolve:VK_APP_TOKEN_STORAGE_FILE_PATH)%'
 
 
     # makes classes in src/ available to be used as services
@@ -55,6 +51,10 @@ services:
             - "%env(resolve:DATABASE_HOST)%"
             - "%env(resolve:DATABASE_PORT)%"
             - "%env(resolve:DATABASE_NAME)%"
+
+    Mrsuh\Service\AuthService:
+        arguments:
+            - {username: '%env(resolve:VK_USERNAME)%', password: '%env(resolve:VK_PASSWORD)%',app_id: '%env(resolve:VK_APP_ID)%',scope: ['wall', 'photos']}
 
     ODM\DocumentManager\DocumentManagerFactory:
 
