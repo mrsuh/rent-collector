@@ -14,22 +14,16 @@ class CollectConsumer
     private $model_note;
     private $logger;
     private $duplicateFilter;
-    private $producer_notify;
-    private $notify_duplicate_period;
 
     public function __construct(
         NoteModel $model_note,
         DuplicateFilter $duplicateFilter,
-        NotifyProducer $producer_notify,
-        LoggerInterface $logger,
-        string $notifierDuplicatePeriod
+        LoggerInterface $logger
     )
     {
         $this->model_note              = $model_note;
         $this->logger                  = $logger;
         $this->duplicateFilter         = $duplicateFilter;
-        $this->producer_notify         = $producer_notify;
-        $this->notify_duplicate_period = $notifierDuplicatePeriod;
     }
 
     /**
@@ -104,26 +98,6 @@ class CollectConsumer
             $note->setDuplicated($is_duplicate);
 
             $this->model_note->create($note);
-
-            $notify_allow_timestamp = (new \DateTime())->modify('- ' . $this->notify_duplicate_period)->getTimestamp();
-            if (!$is_duplicate || $duplicate_timestamp < $notify_allow_timestamp) {
-
-                $this->logger->debug('Notify note', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-
-                $this->producer_notify->publish(
-                    (new NotifyMessage())
-                        ->setNote($note)
-                );
-            } else {
-
-                $this->logger->debug('Notify canceled by duplicate', [
-                    'id'   => $id,
-                    'city' => $city
-                ]);
-            }
 
             $this->logger->debug('Handling message... done', [
                 'id'   => $id,

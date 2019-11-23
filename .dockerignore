@@ -1,0 +1,8 @@
+.git
+.env.local
+.DS_Store
+.idea
+fixtures
+var
+vendor
+vkApiToken.txt

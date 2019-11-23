@@ -3,7 +3,6 @@
 namespace App\Request;
 
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Mrsuh\Service\AuthService;
 use Psr\Http\Message\ResponseInterface;
 
@@ -13,34 +12,44 @@ class VkPrivateRequest
     private $client;
     private $url;
     private $version;
+    private $token;
+    private $tokenStorageFilePath;
 
-    public function __construct(Client $client, string $vkUsername, string $vkPassword, string $vkAppId)
-    {
-        $this->auth = new AuthService([
-            'username' => $vkUsername,
-            'password' => $vkPassword,
-            'app_id'   => $vkAppId,
-            'scope'    => ['wall', 'photos']
-        ]);
-
-        $this->client  = $client;
-        $this->url     = 'https://api.vk.com/method';
-        $this->version = 5.64;
-
-        $this->auth->auth();
+    public function __construct(
+        Client $client,
+        AuthService $auth,
+        string $vkAppTokenStorageFilePath
+    ) {
+        $this->auth                 = $auth;
+        $this->client               = $client;
+        $this->url                  = 'https://api.vk.com/method';
+        $this->version              = 5.64;
+        $this->tokenStorageFilePath = $vkAppTokenStorageFilePath;
+        $this->initToken();
     }
 
-    public function groupsSearch(string $query): ?ResponseInterface
+    private function initToken(bool $forceReloadToken = false): void
+    {
+        $this->token = file_exists($this->tokenStorageFilePath) ? file_get_contents($this->tokenStorageFilePath) : '';
+
+        if ($this->token === '' || $forceReloadToken) {
+            $this->auth->auth();
+            $this->token = $this->auth->getToken();
+            file_put_contents($this->tokenStorageFilePath, $this->token);
+        }
+    }
+
+    public function groupsSearch(string $query, int $maxResults): ?ResponseInterface
     {
         $form_params = [
             'v'            => $this->version,
             'access_token' => $this->auth->getToken(),
             'q'            => $query,
             'sort'         => 0,
-            'count'        => 500
+            'count'        => $maxResults,
         ];
 
-        return $this->authRequest(new Request('POST', $this->url . '/groups.search'), ['form_params' => $form_params]);
+        return $this->authRequest(new Request('POST', $this->url.'/groups.search'), ['form_params' => $form_params]);
     }
 
     private function authRequest(Request $request, array $data, $try = 0): ?ResponseInterface
@@ -71,7 +80,7 @@ class VkPrivateRequest
                 throw $e;
             }
 
-            $this->auth->auth();
+            $this->initToken(true);
 
             $try++;
 
@@ -84,23 +93,10 @@ class VkPrivateRequest
         $form_params = [
             'v'            => $this->version,
             'access_token' => $this->auth->getToken(),
-            'group_id'     => $group_id
+            'group_id'     => $group_id,
         ];
 
-        return $this->authRequest(new Request('POST', $this->url . '/board.getTopics'), ['form_params' => $form_params]);
-    }
-
-    public function databaseGetCities(string $query): Response
-    {
-        $form_params = [
-            'v'            => $this->version,
-            'access_token' => $this->auth->getToken(),
-            'group_id'     => 5,
-            'country_id'   => 1,
-            'q'            => $query
-        ];
-
-        return $this->authRequest(new Request('POST', $this->url . '/database.getCities'), ['form_params' => $form_params]);
+        return $this->authRequest(new Request('POST', $this->url.'/board.getTopics'), ['form_params' => $form_params]);
     }
 
     public function groupsGetById(array $group_ids): ?ResponseInterface
@@ -108,9 +104,9 @@ class VkPrivateRequest
         $form_params = [
             'v'            => $this->version,
             'access_token' => $this->auth->getToken(),
-            'group_ids'    => implode(',', $group_ids)
+            'group_ids'    => implode(',', $group_ids),
         ];
 
-        return $this->authRequest(new Request('POST', $this->url . '/groups.getById'), ['form_params' => $form_params]);
+        return $this->authRequest(new Request('POST', $this->url.'/groups.getById'), ['form_params' => $form_params]);
     }
 }

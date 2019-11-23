@@ -23,28 +23,24 @@ class ConsumeCommand extends Command
     private $pheanstalk;
     private $collectConsumer;
     private $parseConsumer;
-    private $notifyConsumer;
 
     public function __construct(
         LoggerInterface $logger,
         PheanstalkInterface $pheanstalk,
         CollectConsumer $collectConsumer,
-        ParseConsumer $parseConsumer,
-        NotifyConsumer $notifyConsumer
-    )
-    {
+        ParseConsumer $parseConsumer
+    ) {
         $this->logger          = $logger;
         $this->pheanstalk      = $pheanstalk;
         $this->collectConsumer = $collectConsumer;
         $this->parseConsumer   = $parseConsumer;
-        $this->notifyConsumer  = $notifyConsumer;
 
         parent::__construct();
     }
 
     protected function configure()
     {
-        $this->addOption('channel', null, InputOption::VALUE_REQUIRED, 'collect|parse|notify');
+        $this->addOption('channel', null, InputOption::VALUE_REQUIRED, 'collect|parse');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -59,10 +55,6 @@ class ConsumeCommand extends Command
             case 'parse':
                 $consumer = $this->parseConsumer;
                 $channel  = ParseProducer::QUEUE;
-                break;
-            case 'notify':
-                $consumer = $this->notifyConsumer;
-                $channel  = NotifyProducer::QUEUE;
                 break;
             default:
                 $output->writeln('Invalid consumer name');
